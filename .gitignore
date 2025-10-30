@@ -471,9 +471,13 @@ FodyWeavers.xsd
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,c++,windows,visualstudio
 
-# CMake build artifacts
+# CMake and Visual Studio build artifacts
 /build/
+out/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+*.ninja
+*.ninja_deps
+*.ninja_log
