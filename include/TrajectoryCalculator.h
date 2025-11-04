@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <cmath>
 
 using namespace std;
 
@@ -18,16 +17,15 @@ public:
 	
 
 	void CalculateData(
-		double BallVelocity,
+		double ballVelocity,
 		double firingAngle,
 		double ballRadius,
 		double ballMass,
 		double gravitationalAcceleration,
-		double WindVelocity,
+		double windVelocity,
 		double windAngle,
 		double atmosphericDensity
 	);
 
-	void RungeKuttaMethod();
-	void CalculateDataForPoint()
+	void CalculateDataForPoint();
 };
