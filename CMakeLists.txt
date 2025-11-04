@@ -3,4 +3,4 @@ project(TrajectorySimulation)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(TrajectorySimulation main.cpp)
+add_executable(TrajectorySimulation "${PROJECT_SOURCE_DIR}/src/main.cpp" "include/TrajectoryCalculator.h" "src/TrajectoryCalculator.cpp")
