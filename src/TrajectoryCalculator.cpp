@@ -6,12 +6,6 @@
 
 using namespace std;
 
-TrajectoryCalculator::TrajectoryCalculator()
-	:tempHorizontalBallVelocity{0.0},
-	tempVerticalBallVelocity{0.0},
-	horizontalAcceleration{0.0},
-	verticalAcceleration{0.0} {}
-
 std::vector<double> TrajectoryCalculator::getXAxisCoordinates() const { return xAxisCoordinates; }
 std::vector<double> TrajectoryCalculator::getYAxisCoordinates() const { return yAxisCoordinates; }
 
@@ -26,11 +20,14 @@ void TrajectoryCalculator::CalculateData(
 	double windAngle,
 	double atmosphericDensity
 ) {
-	double angleInRadians = firingAngle * numbers::pi / 180.0;
-	tempHorizontalBallVelocity = ballVelocity * cos(angleInRadians);
-	tempVerticalBallVelocity = ballVelocity * sin(angleInRadians);
+	vector<double>().swap(xAxisCoordinates);
+	vector<double>().swap(yAxisCoordinates);
 
-	double timeStep = 0.01;
+	double angleInRadians = firingAngle * numbers::pi / 180.0;
+	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
+	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
+
+	double timeStep = 0.01, horizontalAcceleration = 0.0, verticalAcceleration = 0.0;
 
 	function<void()> calculatingFunc;
 
@@ -43,8 +40,8 @@ void TrajectoryCalculator::CalculateData(
 			double verticalWindVelocity = windVelocity * sin(windAngleInRadians);
 
 			if (gravitationalAcceleration != 0.0) {
-				calculatingFunc = [this, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
-					this->CalculateAccelerations(k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass);
+				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
+					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass);
 					};
 			}
 			else {
@@ -62,8 +59,8 @@ void TrajectoryCalculator::CalculateData(
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
-			calculatingFunc = [this, gravitationalAcceleration]() {
-				this->CalculateAccelerations(gravitationalAcceleration);
+			calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, gravitationalAcceleration]() {
+				this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, gravitationalAcceleration);
 				};
 		}
 		else {
@@ -72,49 +69,49 @@ void TrajectoryCalculator::CalculateData(
 	}
 
 
-	double x = 0.0, y = 0.0, kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], horizontalBallVelocity, verticalBallVelocity;
+	double x = 0.0, y = 0.0, kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
 	
 	do { //Runge-Kutta method
-		horizontalBallVelocity = tempHorizontalBallVelocity;
-		verticalBallVelocity = tempVerticalBallVelocity;
+		originalHorizontalBallVelocity = horizontalBallVelocity;
+		originalVerticalBallVelocity = verticalBallVelocity;
 
 		calculatingFunc();
-		kX[0] = timeStep * tempHorizontalBallVelocity;
-		kY[0] = timeStep * tempVerticalBallVelocity;
+		kX[0] = timeStep * horizontalBallVelocity;
+		kY[0] = timeStep * verticalBallVelocity;
 		kHorizontalVelocity[0] = timeStep * horizontalAcceleration;
 		kVerticalVelocity[0] = timeStep * verticalAcceleration;
 
-		tempHorizontalBallVelocity = horizontalBallVelocity + kHorizontalVelocity[0] / 2;
-		tempVerticalBallVelocity = verticalBallVelocity + kVerticalVelocity[0] / 2;
+		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[0] / 2;
+		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[0] / 2;
 
 		calculatingFunc();
-		kX[1] = timeStep * tempHorizontalBallVelocity;
-		kY[1] = timeStep * tempVerticalBallVelocity;
+		kX[1] = timeStep * horizontalBallVelocity;
+		kY[1] = timeStep * verticalBallVelocity;
 		kHorizontalVelocity[1] = timeStep * horizontalAcceleration;
 		kVerticalVelocity[1] = timeStep * verticalAcceleration;
 
-		tempHorizontalBallVelocity = horizontalBallVelocity + kHorizontalVelocity[1] / 2;
-		tempVerticalBallVelocity = verticalBallVelocity + kVerticalVelocity[1] / 2;
+		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[1] / 2;
+		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[1] / 2;
 
 		calculatingFunc();
-		kX[2] = timeStep * tempHorizontalBallVelocity;
-		kY[2] = timeStep * tempVerticalBallVelocity;
+		kX[2] = timeStep * horizontalBallVelocity;
+		kY[2] = timeStep * verticalBallVelocity;
 		kHorizontalVelocity[2] = timeStep * horizontalAcceleration;
 		kVerticalVelocity[2] = timeStep * verticalAcceleration;
 
-		tempHorizontalBallVelocity = horizontalBallVelocity + kHorizontalVelocity[2];
-		tempVerticalBallVelocity = verticalBallVelocity + kVerticalVelocity[2];
+		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[2];
+		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[2];
 
 		calculatingFunc();
-		kX[3] = timeStep * tempHorizontalBallVelocity;
-		kY[3] = timeStep * tempVerticalBallVelocity;
+		kX[3] = timeStep * horizontalBallVelocity;
+		kY[3] = timeStep * verticalBallVelocity;
 		kHorizontalVelocity[3] = timeStep * horizontalAcceleration;
 		kVerticalVelocity[3] = timeStep * verticalAcceleration;
 
 		x += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
 		y += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
-		tempHorizontalBallVelocity = horizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
-		tempVerticalBallVelocity = verticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
+		horizontalBallVelocity = originalHorizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
+		verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
 
 		xAxisCoordinates.push_back(x);
 		yAxisCoordinates.push_back(y);
@@ -122,17 +119,29 @@ void TrajectoryCalculator::CalculateData(
 }
 
 
-void TrajectoryCalculator::CalculateAccelerations(double gravitationalAcceleration)
-{
-	horizontalAcceleration = 0;
+void TrajectoryCalculator::CalculateAccelerations(
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double gravitationalAcceleration
+) {
+	horizontalAcceleration = 0.0;
 	verticalAcceleration = -gravitationalAcceleration;
 }
 
 
-void TrajectoryCalculator::CalculateAccelerations(double k, double gravitationalAcceleration, double horizontalWindVelocity, double verticalWindVelocity, double ballMass)
-{
-	double horizontalVelocityDiff = tempHorizontalBallVelocity - horizontalWindVelocity;
-	double verticalVelocityDiff = tempVerticalBallVelocity - verticalWindVelocity;
+void TrajectoryCalculator::CalculateAccelerations(
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double gravitationalAcceleration,
+	double horizontalWindVelocity,
+	double verticalWindVelocity,
+	double ballMass
+) {
+	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
+	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
 
 	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
 
