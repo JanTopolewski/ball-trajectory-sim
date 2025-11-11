@@ -4,7 +4,7 @@
 
 int main() {
     TrajectoryCalculator calculator;
-    calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 2.0, 0.0, 1.225);
+    calculator.CalculateData(50.0, 45.0, 0.05, 0.5, 9.81, 5.0, 180.0, 1.225);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
 

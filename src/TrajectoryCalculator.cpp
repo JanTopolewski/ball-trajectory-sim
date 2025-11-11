@@ -23,11 +23,14 @@ void TrajectoryCalculator::CalculateData(
 	vector<double>().swap(xAxisCoordinates);
 	vector<double>().swap(yAxisCoordinates);
 
+	xAxisCoordinates.push_back(0.0);
+	yAxisCoordinates.push_back(0.0);
+
 	double angleInRadians = firingAngle * numbers::pi / 180.0;
 	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
 	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
 
-	double timeStep = 0.01, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k;
+	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = 0.0;
 
 	function<void()> calculatingFunc;
 
@@ -45,71 +48,70 @@ void TrajectoryCalculator::CalculateData(
 					};
 			}
 			else {
-
+				//Czêœæ Wiktora
+				//calculatingFunc = 
 			}
 		}
 		else {
 			if (gravitationalAcceleration != 0.0) {
-
+				//Czêœæ Wiktora
+				//calculatingFunc = 
 			}
 			else {
-
+				//Czêœæ Wiktora
+				//calculatingFunc = 
 			}
 		}
+
+		double kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
+
+		do { //Runge-Kutta method
+			originalHorizontalBallVelocity = horizontalBallVelocity;
+			originalVerticalBallVelocity = verticalBallVelocity;
+
+			RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kHorizontalVelocity[0], kVerticalVelocity[0], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+
+			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[0] / 2;
+			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[0] / 2;
+
+			RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kHorizontalVelocity[1], kVerticalVelocity[1], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+
+			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[1] / 2;
+			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[1] / 2;
+
+			RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kHorizontalVelocity[2], kVerticalVelocity[2], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+
+			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[2];
+			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[2];
+
+			RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kHorizontalVelocity[3], kVerticalVelocity[3], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+
+			x += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
+			y += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
+			horizontalBallVelocity = originalHorizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
+			verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
+
+			xAxisCoordinates.push_back(x);
+			yAxisCoordinates.push_back(y);
+		} while (y > 0.0);
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
-			calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, gravitationalAcceleration]() {
-				this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, gravitationalAcceleration);
-				};
+			double time = timeStep;
+			do {
+				x = horizontalBallVelocity * time;
+				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time;
+
+				time += timeStep;
+
+				xAxisCoordinates.push_back(x);
+				yAxisCoordinates.push_back(y);
+			} while (y > 0.0);
 		}
 		else {
-
+			//Czêœæ Wiktora
 		}
 	}
-
-
-	double x = 0.0, y = 0.0, kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
-	
-	do { //Runge-Kutta method
-		originalHorizontalBallVelocity = horizontalBallVelocity;
-		originalVerticalBallVelocity = verticalBallVelocity;
-
-		RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kHorizontalVelocity[0], kVerticalVelocity[0], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
-
-		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[0] / 2;
-		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[0] / 2;
-
-		RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kHorizontalVelocity[1], kVerticalVelocity[1], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
-
-		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[1] / 2;
-		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[1] / 2;
-
-		RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kHorizontalVelocity[2], kVerticalVelocity[2], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
-
-		horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[2];
-		verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[2];
-
-		RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kHorizontalVelocity[3], kVerticalVelocity[3], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
-
-		x += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
-		y += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
-		horizontalBallVelocity = originalHorizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
-		verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
-
-		xAxisCoordinates.push_back(x);
-		yAxisCoordinates.push_back(y);
-	} while (y > 0.0);
-}
-
-
-void TrajectoryCalculator::CalculateAccelerations(
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double gravitationalAcceleration
-) {
-	horizontalAcceleration = 0.0;
-	verticalAcceleration = -gravitationalAcceleration;
 }
 
 
@@ -132,6 +134,7 @@ void TrajectoryCalculator::CalculateAccelerations(
 	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
 	verticalAcceleration = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
 }
+
 
 void TrajectoryCalculator::RungeKuttaMethodPart(
 	function<void()> calculatingFunc,
