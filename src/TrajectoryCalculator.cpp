@@ -34,7 +34,7 @@ void TrajectoryCalculator::CalculateData(
 
 	function<void()> calculatingFunc;
 
-	if (atmosphericDensity != 0.0) {//wtedy wystêpuje opór powietrza
+	if (atmosphericDensity != 0.0) { //then there is air resistance
 		k = 0.5 * atmosphericDensity * 0.47 * numbers::pi * ballRadius * ballRadius;
 
 		if (windVelocity != 0.0) {
@@ -48,17 +48,17 @@ void TrajectoryCalculator::CalculateData(
 					};
 			}
 			else {
-				//Czêœæ Wiktora
+				//Wiktor's part
 				//calculatingFunc = 
 			}
 		}
 		else {
 			if (gravitationalAcceleration != 0.0) {
-				//Czêœæ Wiktora
+				//Wiktor's part
 				//calculatingFunc = 
 			}
 			else {
-				//Czêœæ Wiktora
+				//Wiktor's part
 				//calculatingFunc = 
 			}
 		}
@@ -109,7 +109,7 @@ void TrajectoryCalculator::CalculateData(
 			} while (y > 0.0);
 		}
 		else {
-			//Czêœæ Wiktora
+			//Wiktor's part
 		}
 	}
 }
