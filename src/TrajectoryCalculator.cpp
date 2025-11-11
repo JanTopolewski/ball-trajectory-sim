@@ -110,6 +110,16 @@ void TrajectoryCalculator::CalculateData(
 		}
 		else {
 			//Wiktor's part
+			double time = timeStep;
+			do {
+				x = horizontalBallVelocity * time;
+				y = verticalBallVelocity * time;
+
+				time += timeStep;
+
+				xAxisCoordinates.push_back(x);
+				yAxisCoordinates.push_back(y);
+			} while(y > 0.0) // to może się w nieskończoność robić, bo piłka nigdy nie spadnie przy braku oporów
 		}
 	}
 }
