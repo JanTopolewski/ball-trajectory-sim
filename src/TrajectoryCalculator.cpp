@@ -119,7 +119,7 @@ void TrajectoryCalculator::CalculateData(
 
 				xAxisCoordinates.push_back(x);
 				yAxisCoordinates.push_back(y);
-			} while(y > 0.0) // to może się w nieskończoność robić, bo piłka nigdy nie spadnie przy braku oporów
+			} while(y > 0.0); // to może się w nieskończoność robić, bo piłka nigdy nie spadnie przy braku oporów
 		}
 	}
 }
