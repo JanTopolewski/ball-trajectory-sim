@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <functional>
 
 using namespace std;
 
@@ -29,11 +30,24 @@ public:
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,
-		double verticalBallvelocity,
+		double verticalBallVelocity,
 		double k,
 		double gravitationalAcceleration,
 		double horizontalWindVelocity,
 		double verticalWindVelocity,
 		double ballMass
+	);
+
+	void RungeKuttaMethodPart(
+		function<void()> calculatingFunc,
+		double& kX,
+		double& kY,
+		double& kHorizontalVelocity,
+		double& kVerticalVelocity,
+		double timeStep,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double& horizontalAcceleration,
+		double& verticalAcceleration
 	);
 };
