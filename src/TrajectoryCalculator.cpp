@@ -49,7 +49,9 @@ void TrajectoryCalculator::CalculateData(
 			}
 			else {
 				//Wiktor's part VI
-				// calculatingFunc = 
+				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
+					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass);
+				};
 			}
 		}
 		else {
@@ -149,7 +151,7 @@ void TrajectoryCalculator::CalculateAccelerations(
 	verticalAcceleration = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
 }
 
-void TrajectoryCalculator::CalculateAccelerations(
+void TrajectoryCalculator::CalculateAccelerations( // V
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
 	double horizontalBallVelocity,
@@ -163,7 +165,7 @@ void TrajectoryCalculator::CalculateAccelerations(
 	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
 }
 
-void TrajectoryCalculator::CalculateAccelerations(
+void TrajectoryCalculator::CalculateAccelerations( // VII
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
 	double horizontalBallVelocity,
@@ -176,6 +178,25 @@ void TrajectoryCalculator::CalculateAccelerations(
 	
 	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
 	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
+}
+
+void TrajectoryCalculator::CalculateAccelerations( // VI
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double horizontalWindVelocity,
+	double verticalWindVelocity,
+	double ballMass
+) {
+	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
+	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
+
+	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
+
+	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
+	verticalAcceleration = - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
 }
 
 

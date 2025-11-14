@@ -25,7 +25,7 @@ public:
 		double atmosphericDensity
 	);
 
-	void CalculateAccelerations(//t� funkcje przeci��amy do sytuacji z oporem powietrza
+	void CalculateAccelerations(//t� funkcje przeci��amy do sytuacji z oporem powietrza // VIII
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,
@@ -37,7 +37,7 @@ public:
 		double ballMass
 	);
 
-	void CalculateAccelerations(
+	void CalculateAccelerations( // V
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,
@@ -46,13 +46,24 @@ public:
 		double ballMass
 	);
 
-	void CalculateAccelerations(
+	void CalculateAccelerations( // VII
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,
 		double verticalBallVelocity,
 		double k,
 		double gravitationalAcceleration,
+		double ballMass
+	);
+
+	void CalculateAccelerations(//t� funkcje przeci��amy do sytuacji z oporem powietrza // VI
+		double& horizontalAcceleration,
+		double& verticalAcceleration,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double k,
+		double horizontalWindVelocity,
+		double verticalWindVelocity,
 		double ballMass
 	);
 
