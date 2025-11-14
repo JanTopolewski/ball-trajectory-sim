@@ -131,7 +131,7 @@ void TrajectoryCalculator::CalculateData(
 }
 
 
-void TrajectoryCalculator::CalculateAccelerations(
+void TrajectoryCalculator::CalculateAccelerations( // VIII
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
 	double horizontalBallVelocity,
@@ -151,6 +151,17 @@ void TrajectoryCalculator::CalculateAccelerations(
 	verticalAcceleration = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
 }
 
+/**
+ * @brief 
+ * These are the calculations for only the atmosferic pressure only
+ * 
+ * 
+ * This is from the 5th section from the specification
+ * 
+ * Little correction: in the spec there is -g in vertical acceleration formula, but it should not be there
+ * 
+ * The code here is correct
+ */
 void TrajectoryCalculator::CalculateAccelerations( // V
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
