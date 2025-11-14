@@ -137,7 +137,10 @@ void TrajectoryCalculator::CalculateData(
 	}
 }
 
-
+/**
+ * @brief
+ * These calculations are for air resistance, wind and gravity
+ */
 void TrajectoryCalculator::CalculateAccelerations( // VIII
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
@@ -183,6 +186,11 @@ void TrajectoryCalculator::CalculateAccelerations( // V
 	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
 }
 
+
+/**
+ * @brief
+ * These calculations are for air resistance and gravity
+ */
 void TrajectoryCalculator::CalculateAccelerations( // VII
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
@@ -198,6 +206,11 @@ void TrajectoryCalculator::CalculateAccelerations( // VII
 	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
 }
 
+
+/**
+ * @brief
+ * These calculations are for air resistance and wind
+ */
 void TrajectoryCalculator::CalculateAccelerations( // VI
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
