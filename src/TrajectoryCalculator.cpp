@@ -55,7 +55,9 @@ void TrajectoryCalculator::CalculateData(
 		else {
 			if (gravitationalAcceleration != 0.0) {
 				//Wiktor's part VII
-				//calculatingFunc = 
+				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass](){
+					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass);
+				};
 			}
 			else {
 				//Wiktor's part V
@@ -159,6 +161,21 @@ void TrajectoryCalculator::CalculateAccelerations(
 	
 	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
 	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
+}
+
+void TrajectoryCalculator::CalculateAccelerations(
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double gravitationalAcceleration,
+	double ballMass
+) {
+	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
+	
+	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
+	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
 }
 
 

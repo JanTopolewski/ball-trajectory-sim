@@ -46,6 +46,16 @@ public:
 		double ballMass
 	);
 
+	void CalculateAccelerations(
+		double& horizontalAcceleration,
+		double& verticalAcceleration,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double k,
+		double gravitationalAcceleration,
+		double ballMass
+	);
+
 	void RungeKuttaMethodPart(
 		function<void()> calculatingFunc,
 		double& kX,
