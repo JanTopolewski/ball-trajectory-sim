@@ -20,12 +20,15 @@ void TrajectoryCalculator::CalculateData(
 	double windAngle,
 	double atmosphericDensity
 ) {
+	// resetting vectors
 	vector<double>().swap(xAxisCoordinates);
 	vector<double>().swap(yAxisCoordinates);
 
+	// starting position
 	xAxisCoordinates.push_back(0.0);
 	yAxisCoordinates.push_back(0.0);
 
+	// converting angle to radians and splitting velocity to horizontal and vertical
 	double angleInRadians = firingAngle * numbers::pi / 180.0;
 	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
 	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
@@ -34,21 +37,24 @@ void TrajectoryCalculator::CalculateData(
 
 	function<void()> calculatingFunc;
 
-	if (atmosphericDensity != 0.0) { //then there is air resistance
+	if (atmosphericDensity != 0.0) {
+		// air resistance
 		k = 0.5 * atmosphericDensity * 0.47 * numbers::pi * ballRadius * ballRadius;
 
 		if (windVelocity != 0.0) {
+			// calculating wind velocity and angle
 			double windAngleInRadians = windAngle * numbers::pi / 180.0;
 			double horizontalWindVelocity = windVelocity * cos(windAngleInRadians);
 			double verticalWindVelocity = windVelocity * sin(windAngleInRadians);
 
 			if (gravitationalAcceleration != 0.0) {
+				// section VIII: air resistance + wind + gravity
 				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass);
-					};
+				};
 			}
 			else {
-				//Wiktor's part VI
+				// section VI: air resistance + wind
 				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass);
 				};
@@ -56,13 +62,13 @@ void TrajectoryCalculator::CalculateData(
 		}
 		else {
 			if (gravitationalAcceleration != 0.0) {
-				//Wiktor's part VII
+				// section VII: air resistance + gravity
 				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass](){
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass);
 				};
 			}
 			else {
-				//Wiktor's part V
+				// section V: air resistance only
 				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, ballMass](){
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, ballMass);
 				};
@@ -103,6 +109,7 @@ void TrajectoryCalculator::CalculateData(
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
+			// section IV: no air resistance, gravity only
 			double time = timeStep;
 			do {
 				x = horizontalBallVelocity * time;
@@ -115,7 +122,7 @@ void TrajectoryCalculator::CalculateData(
 			} while (y > 0.0);
 		}
 		else {
-			//Wiktor's part III
+			// section III: no air resistance, no gravity
 			double time = timeStep;
 			do {
 				x = horizontalBallVelocity * time;
@@ -153,8 +160,8 @@ void TrajectoryCalculator::CalculateAccelerations( // VIII
 
 /**
  * @brief 
- * These are the calculations for only the atmosferic pressure only
- * 
+ * These are the calculations for only the air resistance only (atmosfericDensity)
+ *  
  * 
  * This is from the 5th section from the specification
  * 
