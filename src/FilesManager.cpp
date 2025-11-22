@@ -22,10 +22,12 @@ vector<string> FilesManager::getSpaceObjectsNames()
 }
 
 
-void FilesManager::LoadSpaceObjectsData()
+void FilesManager::loadSpaceObjectsData()
 {
+	spaceObjectsData = {};
+
 	ifstream file;
-	file.open("../data/space_objects_data.csv", ios::in);
+	file.open("data/space_objects_data.csv", ios::in);
 
 	string line;
 	getline(file, line); // used to skip columns' headers
@@ -34,7 +36,7 @@ void FilesManager::LoadSpaceObjectsData()
 		stringstream ss(line);
 		string columns[4];
 
-		for (int i = 0; i < 4;i++) {
+		for (int i = 0; i < 4; ++i) {
 			getline(ss, columns[i], ',');
 		}
 
