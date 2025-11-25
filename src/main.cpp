@@ -4,13 +4,15 @@
 
 int main() {
     TrajectoryCalculator calculator;
-    calculator.CalculateData(50.0, 45.0, 0.05, 0.5, 9.81, 5.0, 180.0, 1.225, 0.0);
+    calculator.CalculateData(50.0, 45.0, 2.0, 0.00005, 9.81, 100.0, 90.0, 1.225, 0.0);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
 
     for (size_t i = 0; i < xAxis.size(); ++i) {
         cout << i << ". " << xAxis[i] << " - " << yAxis[i] << endl;
     }
+
+    cout << endl << calculator.getWarning() << endl;
 
     calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 0.0, 0.0, 0.0, 0.0);
     vector<double> xAxis2 = calculator.getXAxisCoordinates();

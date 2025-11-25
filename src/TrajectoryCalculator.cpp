@@ -80,6 +80,7 @@ void TrajectoryCalculator::CalculateData(
 
 		double kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
 		size_t pointsNumber;
+		int iterationsLimit = 10000; // required for some cases because they may go on forever
 
 		do { //Runge-Kutta method
 			originalHorizontalBallVelocity = horizontalBallVelocity;
@@ -110,8 +111,17 @@ void TrajectoryCalculator::CalculateData(
 			xAxisCoordinates.push_back(x);
 			yAxisCoordinates.push_back(y);
 
+			// actions to check whether there is an extreme case due to which the ball does not fall
 			pointsNumber = xAxisCoordinates.size();
-		} while (y - ballRadius > 0.0 || (pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y));
+			calculatingFunc();
+			if (verticalAcceleration > 0) {
+				iterationsLimit--;
+			}
+		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsLimit > 0);
+
+		if (verticalAcceleration > 0) {
+			warning = "Symulacja została wstrzymana po czasie 10 sekund, gdyż lot kuli trwa wiecznie";
+		}
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
