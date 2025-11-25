@@ -45,7 +45,7 @@ void FilesManager::loadSpaceObjectsData()
 		spaceObject.polishName = columns[0];
 		spaceObject.gravitationalAcceleration = stod(columns[1]);
 		spaceObject.atmosphereDensity = stod(columns[2]);
-		spaceObject.type = columns[3];
+		spaceObject.compositionType = columns[3];
 
 		spaceObjectsData.push_back(spaceObject);
 	}
