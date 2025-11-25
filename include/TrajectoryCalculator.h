@@ -1,17 +1,20 @@
 #pragma once
 #include <vector>
 #include <functional>
+#include <string>
 
 using namespace std;
 
 class TrajectoryCalculator {
 	std::vector<double> xAxisCoordinates;
 	std::vector<double> yAxisCoordinates;
+	std::string warning;
 
 public:
 	//Getters
 	std::vector<double> getXAxisCoordinates() const;
 	std::vector<double> getYAxisCoordinates() const;
+	std::string getWarning() const;
 	
 
 	void CalculateData(
@@ -25,7 +28,7 @@ public:
 		double atmosphericDensity
 	);
 
-	void CalculateAccelerations(//t� funkcje przeci��amy do sytuacji z oporem powietrza // VIII
+	void CalculateAccelerations( // VIII
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,
@@ -56,7 +59,7 @@ public:
 		double ballMass
 	);
 
-	void CalculateAccelerations(//t� funkcje przeci��amy do sytuacji z oporem powietrza // VI
+	void CalculateAccelerations( // VI
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
 		double horizontalBallVelocity,

@@ -8,6 +8,7 @@ using namespace std;
 
 std::vector<double> TrajectoryCalculator::getXAxisCoordinates() const { return xAxisCoordinates; }
 std::vector<double> TrajectoryCalculator::getYAxisCoordinates() const { return yAxisCoordinates; }
+string TrajectoryCalculator::getWarning() const { return warning; }
 
 
 void TrajectoryCalculator::CalculateData(
