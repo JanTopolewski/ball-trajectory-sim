@@ -20,11 +20,12 @@ void TrajectoryCalculator::CalculateData(
 	double windVelocity,
 	double windAngle,
 	double atmosphericDensity,
-	double distanceFromGround
+	double initialDistanceFromGround
 ) {
-	// resetting vectors
+	// resetting vectors and warning message
 	vector<double>().swap(xAxisCoordinates);
 	vector<double>().swap(yAxisCoordinates);
+	warning = "";
 
 	// starting position
 	xAxisCoordinates.push_back(0.0);
@@ -35,7 +36,7 @@ void TrajectoryCalculator::CalculateData(
 	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
 	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
 
-	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = ballRadius + distanceFromGround;
+	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = ballRadius + initialDistanceFromGround;
 
 	function<void()> calculatingFunc;
 
@@ -115,7 +116,7 @@ void TrajectoryCalculator::CalculateData(
 			double time = timeStep;
 			do {
 				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time + ballRadius + distanceFromGround;
+				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time + ballRadius + initialDistanceFromGround;
 
 				time += timeStep;
 
@@ -126,15 +127,18 @@ void TrajectoryCalculator::CalculateData(
 		else {
 			// section III: no air resistance, no gravity
 			double time = timeStep;
+			int iterationsLimit = 10000; // required because the case goes on forever
+			warning = "Symulacja została wstrzymana po czasie 10 sekund, gdyż lot kuli trwa wiecznie";
 			do {
 				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time + ballRadius + distanceFromGround;
+				y = verticalBallVelocity * time + ballRadius + initialDistanceFromGround;
 
 				time += timeStep;
+				iterationsLimit--;
 
 				xAxisCoordinates.push_back(x);
 				yAxisCoordinates.push_back(y);
-			} while (y - ballRadius > 0.0);
+			} while (iterationsLimit > 0);
 		}
 	}
 }
