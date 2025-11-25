@@ -79,6 +79,7 @@ void TrajectoryCalculator::CalculateData(
 		}
 
 		double kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
+		size_t pointsNumber;
 
 		do { //Runge-Kutta method
 			originalHorizontalBallVelocity = horizontalBallVelocity;
@@ -108,7 +109,9 @@ void TrajectoryCalculator::CalculateData(
 
 			xAxisCoordinates.push_back(x);
 			yAxisCoordinates.push_back(y);
-		} while (y - ballRadius > 0.0);
+
+			pointsNumber = xAxisCoordinates.size();
+		} while (y - ballRadius > 0.0 || (pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y));
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
