@@ -1,0 +1,10 @@
+ObjectName,GravitationalAcceleration,AtmosphereDensity,Type
+Ziemia,9.80665,1.2252,Rocky
+Merkury,3.7,0,Rocky
+Wenus,8.87,66.619,Rocky
+Mars,3.71,0.017314,Rocky
+Jowisz,24.79,0.16182,Gas
+Saturn,10.44,0.19172,Gas
+Uran,8.87,0.36399,Gas
+Neptun,11.15,0.36399,Gas
+Księżyc,1.622,0,Rocky
