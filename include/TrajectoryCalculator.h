@@ -25,7 +25,8 @@ public:
 		double gravitationalAcceleration,
 		double windVelocity,
 		double windAngle,
-		double atmosphericDensity
+		double atmosphericDensity,
+		double initialDistanceFromGround
 	);
 
 	void CalculateAccelerations( // VIII

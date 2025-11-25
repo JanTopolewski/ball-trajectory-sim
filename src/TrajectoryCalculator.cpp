@@ -19,7 +19,8 @@ void TrajectoryCalculator::CalculateData(
 	double gravitationalAcceleration,
 	double windVelocity,
 	double windAngle,
-	double atmosphericDensity
+	double atmosphericDensity,
+	double distanceFromGround
 ) {
 	// resetting vectors
 	vector<double>().swap(xAxisCoordinates);
@@ -34,7 +35,7 @@ void TrajectoryCalculator::CalculateData(
 	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
 	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
 
-	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = 0.0;
+	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = ballRadius + distanceFromGround;
 
 	function<void()> calculatingFunc;
 
@@ -106,7 +107,7 @@ void TrajectoryCalculator::CalculateData(
 
 			xAxisCoordinates.push_back(x);
 			yAxisCoordinates.push_back(y);
-		} while (y > 0.0);
+		} while (y - ballRadius > 0.0);
 	}
 	else {
 		if (gravitationalAcceleration != 0.0) {
@@ -114,26 +115,26 @@ void TrajectoryCalculator::CalculateData(
 			double time = timeStep;
 			do {
 				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time;
+				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time + ballRadius + distanceFromGround;
 
 				time += timeStep;
 
 				xAxisCoordinates.push_back(x);
 				yAxisCoordinates.push_back(y);
-			} while (y > 0.0);
+			} while (y - ballRadius > 0.0);
 		}
 		else {
 			// section III: no air resistance, no gravity
 			double time = timeStep;
 			do {
 				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time;
+				y = verticalBallVelocity * time + ballRadius + distanceFromGround;
 
 				time += timeStep;
 
 				xAxisCoordinates.push_back(x);
 				yAxisCoordinates.push_back(y);
-			} while(y > 0.0); // to może się w nieskończoność robić, bo piłka nigdy nie spadnie przy braku oporów
+			} while (y - ballRadius > 0.0);
 		}
 	}
 }
