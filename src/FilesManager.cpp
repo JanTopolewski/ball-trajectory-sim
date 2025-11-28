@@ -1,6 +1,13 @@
 #include "../include/FilesManager.h"
 #include <fstream>
 #include <sstream>
+#include "FilesManager.h"
+
+#ifdef WIN32
+#define OS_SEP '\\'
+#else
+#define OS_SEP '/'
+#endif
 
 using namespace std;
 
@@ -51,4 +58,18 @@ void FilesManager::loadSpaceObjectsData()
 	}
 
 	file.close();
+}
+
+void FilesManager::saveSimulationData(Simulation *simulation, string fileName, string dirname = "dane", string extension = ".bin")
+{
+	ofstream file;
+	string filePath = dirname+OS_SEP+fileName+extension;
+	file.open(filePath, ios::out | ios::binary | ios::trunc);
+	
+	
+	
+	
+	
+	file.close();
+	delete simulation;
 }
