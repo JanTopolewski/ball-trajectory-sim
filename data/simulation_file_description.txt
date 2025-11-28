@@ -1,0 +1,13 @@
+Kolejność danych w pliku z symulacją (wszystko w jednostkach zgodnych ze specyfikacją):
+początkowa prędkość kuli (ballVelocity) 8 bytes
+kąt rzutu w stopniach (firingAngle) 8 bytes
+promień kuli (ballRadius) 8 bytes
+masa kuli (ballMass) 8 bytes
+przyspieszenie grawitacyjne (gravitationalAcceleration) 8 bytes
+prędkość wiatru (windVelocity) 8 bytes
+kąt wiatru w stopniach (windAngle) 8 bytes
+gęstość atmosfery (atmosfericDensity) 8 bytes
+długość wektora współrzędnych x (nowa zmienna typu int, lub vector.size) 4 bytes int
+wektor współrzędnych x (xAxisCoordinates) 8 bytes * długość
+długość współrzędnych y (nowa zmienna typu int, lub vector.size) 4 bytes int
+wektor współrzędnych y (yAxisCoordinates) 8 bytes * długość
