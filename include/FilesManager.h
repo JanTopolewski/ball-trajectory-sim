@@ -45,5 +45,5 @@ public:
 	 * @param simulation simulation object containing all the simulation data
 	 * @param fileName a fileName to save without any prefix or the extension
 	 */
-	void saveSimulationData(Simulation* simulation, string fileName, string dirname = "dane", string extension = ".bin");
+	void saveSimulationData(Simulation* simulation, std::string fileName, std::string dirname = "data", std::string extension = ".bin");
 };

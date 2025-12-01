@@ -1,7 +1,6 @@
 #include "../include/FilesManager.h"
 #include <fstream>
 #include <sstream>
-#include "FilesManager.h"
 
 #ifdef WIN32
 #define OS_SEP '\\'
@@ -60,7 +59,7 @@ void FilesManager::loadSpaceObjectsData()
 	file.close();
 }
 
-void FilesManager::saveSimulationData(Simulation *simulation, string fileName, string dirname = "dane", string extension = ".bin")
+void FilesManager::saveSimulationData(Simulation *simulation, string fileName, string dirname, string extension)
 {
 	ofstream file;
 	string filePath = dirname+OS_SEP+fileName+extension;
