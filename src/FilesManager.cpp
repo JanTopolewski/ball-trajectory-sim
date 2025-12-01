@@ -2,6 +2,12 @@
 #include <fstream>
 #include <sstream>
 
+#ifdef WIN32
+#define OS_SEP '\\'
+#else
+#define OS_SEP '/'
+#endif
+
 using namespace std;
 
 vector<SpaceObject> FilesManager::getSpaceObjectsData()
@@ -51,4 +57,34 @@ void FilesManager::loadSpaceObjectsData()
 	}
 
 	file.close();
+}
+
+void FilesManager::saveSimulationData(Simulation *simulation, string fileName, string dirname, string extension)
+{
+	ofstream file;
+	string filePath = dirname+OS_SEP+fileName+extension;
+	file.open(filePath, ios::out | ios::binary | ios::trunc);
+	
+	// double ballVelocity = simulation->ballVelocity;
+
+	file.write((char*)&simulation->ballVelocity, sizeof(double));
+	file.write((char*)&simulation->firingAngle, sizeof(double));
+	file.write((char*)&simulation->ballRadius, sizeof(double));
+	file.write((char*)&simulation->ballMass, sizeof(double));
+	file.write((char*)&simulation->gravitationalAcceleration, sizeof(double));
+	file.write((char*)&simulation->windVelocity, sizeof(double));
+	file.write((char*)&simulation->windAngle, sizeof(double));
+	file.write((char*)&simulation->atmosfericDensity, sizeof(double));
+
+	int xVectorLength = simulation->xAxisCoordinates.size();
+	int yVecotrLength = simulation->yAxisCoordinates.size();
+
+	file.write((char*)&xVectorLength, sizeof(int));
+	file.write((char*)simulation->xAxisCoordinates.data(), sizeof(double) * xVectorLength);
+
+	file.write((char*)&yVecotrLength, sizeof(int));
+	file.write((char*)simulation->yAxisCoordinates.data(), sizeof(double) * yVecotrLength);
+	
+	file.close();
+	delete simulation;
 }

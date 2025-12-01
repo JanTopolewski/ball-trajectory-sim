@@ -2,6 +2,14 @@
 #include <vector>
 #include <string>
 #include "SpaceObject.h"
+#include "Simulation.h"
+
+#ifdef WIN32
+#define OS_SEP '\\'
+#else
+#define OS_SEP '/'
+#endif
+
 
 class FilesManager {
 	std::vector<SpaceObject> spaceObjectsData;
@@ -29,4 +37,13 @@ public:
 	 * Loads all data from space_objects_data.csv file into a private vector
 	 */
 	void loadSpaceObjectsData();
+
+	/**
+	 * @brief
+	 * Saves simulation data into the binary file and destroys the object
+	 * 
+	 * @param simulation simulation object containing all the simulation data
+	 * @param fileName a fileName to save without any prefix or the extension
+	 */
+	void saveSimulationData(Simulation* simulation, std::string fileName, std::string dirname = "data", std::string extension = ".bin");
 };
