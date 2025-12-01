@@ -46,4 +46,8 @@ public:
 	 * @param fileName a fileName to save without any prefix or the extension
 	 */
 	void saveSimulationData(Simulation* simulation, std::string fileName, std::string dirname = "data", std::string extension = ".bin");
+
+	Simulation* readSimulationData(std::string fileName, std::string dirname = "data", std::string extension = ".bin");
+
+	std::vector<std::string> getSavedSimulationsNames(std::string dirname = "data", std::string extension = ".bin");
 };
