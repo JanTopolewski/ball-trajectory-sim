@@ -3,6 +3,8 @@
 #include <cmath>
 #include <numbers>
 #include <functional>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -113,13 +115,16 @@ void TrajectoryCalculator::CalculateData(
 
 			// actions to check whether there is an extreme case due to which the ball does not fall
 			pointsNumber = xAxisCoordinates.size();
+
+			// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
 			calculatingFunc();
-			if (verticalAcceleration > 0) {
+			if (verticalBallVelocity >= 0.0 && verticalAcceleration != 0.0 && verticalBallVelocity == originalVerticalBallVelocity && horizontalAcceleration != 0.0 && horizontalBallVelocity == originalHorizontalBallVelocity) {
 				iterationsLimit--;
 			}
+			cout << std::fixed << std::setprecision(31) << verticalAcceleration << " " << horizontalAcceleration << " " << verticalBallVelocity << " " << horizontalBallVelocity << endl;
 		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsLimit > 0);
 
-		if (verticalAcceleration > 0) {
+		if (verticalBallVelocity >= 0.0 && verticalAcceleration != 0.0 && verticalBallVelocity == originalVerticalBallVelocity && horizontalAcceleration != 0.0 && horizontalBallVelocity == originalHorizontalBallVelocity) {
 			warning = "Symulacja została wstrzymana po czasie 10 sekund, gdyż lot kuli trwa wiecznie";
 		}
 	}
