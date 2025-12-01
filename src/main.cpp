@@ -5,6 +5,8 @@
 #include <vector>
 #include <filesystem>
 
+using namespace std;
+
 int main() {
     TrajectoryCalculator calculator;
     calculator.CalculateData(50.0, 45.0, 0.05, 0.5, 9.81, 5.0, 180.0, 1.225);
@@ -53,7 +55,7 @@ int main() {
             fileManager->saveSimulationData(simulation, fileName);
             delete fileManager;
         }
-        delete simulation;
+        // delete simulation;
     }
 
     return 0;
