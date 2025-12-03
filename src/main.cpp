@@ -9,7 +9,7 @@ using namespace std;
 
 int main() {
     TrajectoryCalculator calculator;
-    calculator.CalculateData(50.0, 45.0, 0.05, 0.5, 9.81, 5.0, 180.0, 1.225);
+    calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
 
@@ -17,7 +17,9 @@ int main() {
         cout << i << ". " << xAxis[i] << " - " << yAxis[i] << endl;
     }
 
-    calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 0.0, 0.0, 0.0);
+    cout << endl << calculator.getWarning() << endl;
+
+    calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 0.0, 0.0, 0.0, 0.0);
     vector<double> xAxis2 = calculator.getXAxisCoordinates();
     vector<double> yAxis2 = calculator.getYAxisCoordinates();
 
