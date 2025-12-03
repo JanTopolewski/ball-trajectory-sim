@@ -3,8 +3,6 @@
 #include <cmath>
 #include <numbers>
 #include <functional>
-#include <iostream>
-#include <iomanip>
 
 using namespace std;
 
@@ -31,7 +29,7 @@ void TrajectoryCalculator::CalculateData(
 
 	// starting position
 	xAxisCoordinates.push_back(0.0);
-	yAxisCoordinates.push_back(0.0);
+	yAxisCoordinates.push_back(ballRadius + initialDistanceFromGround);
 
 	// converting angle to radians and splitting velocity to horizontal and vertical
 	double angleInRadians = firingAngle * numbers::pi / 180.0;
@@ -39,12 +37,17 @@ void TrajectoryCalculator::CalculateData(
 	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
 
 	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = ballRadius + initialDistanceFromGround;
+	bool edgeCase = false;
 
 	function<void()> calculatingFunc;
 
 	if (atmosphericDensity != 0.0) {
 		// air resistance
 		k = 0.5 * atmosphericDensity * 0.47 * numbers::pi * ballRadius * ballRadius;
+
+		if (ballRadius / ballMass > 1.0) {
+			warning = "Nierealne proporcje masa/promień - symulacja może być niestabilna numerycznie.\n";
+		}
 
 		if (windVelocity != 0.0) {
 			// calculating wind velocity and angle
@@ -68,21 +71,23 @@ void TrajectoryCalculator::CalculateData(
 		else {
 			if (gravitationalAcceleration != 0.0) {
 				// section VII: air resistance + gravity
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass](){
+				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, gravitationalAcceleration, ballMass](){
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass);
 				};
 			}
 			else {
 				// section V: air resistance only
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, ballMass](){
+				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, ballMass](){
 					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, ballMass);
 				};
+
+				edgeCase = true;
 			}
 		}
 
 		double kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
 		size_t pointsNumber;
-		int iterationsLimit = 10000; // required for some cases because they may go on forever
+		int iterationsLimit = 500000, iterationsNumberForStopping = 2000; // required for some cases because they may go on forever
 
 		do { //Runge-Kutta method
 			originalHorizontalBallVelocity = horizontalBallVelocity;
@@ -110,22 +115,40 @@ void TrajectoryCalculator::CalculateData(
 			horizontalBallVelocity = originalHorizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
 			verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
 
-			xAxisCoordinates.push_back(x);
-			yAxisCoordinates.push_back(y);
+			if (isnan(x) || isnan(y) || isnan(verticalBallVelocity) || isnan(horizontalBallVelocity) || isinf(verticalBallVelocity) || isinf(horizontalBallVelocity)) {
+				warning += "Symulacja została wstrzymana ze względu na wyjście właściwości lotu kuli poza poprawny zakres symulacji";
+				break;
+			}
+			else if (isinf(x) || isinf(y)) {
+				xAxisCoordinates.push_back(x);
+				yAxisCoordinates.push_back(y);
+				warning += "Symulacja została wstrzymana ze względu na wyjście trajektorii lotu kuli poza poprawny zakres symulacji";
+				break;
+			}
+			else {
+				xAxisCoordinates.push_back(x);
+				yAxisCoordinates.push_back(y);
+			}
 
 			// actions to check whether there is an extreme case due to which the ball does not fall
 			pointsNumber = xAxisCoordinates.size();
+			iterationsLimit--;
 
 			// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
 			calculatingFunc();
 			if (verticalBallVelocity >= 0.0 && verticalAcceleration != 0.0 && verticalBallVelocity == originalVerticalBallVelocity && horizontalAcceleration != 0.0 && horizontalBallVelocity == originalHorizontalBallVelocity) {
-				iterationsLimit--;
+				iterationsNumberForStopping--;
 			}
-			cout << std::fixed << std::setprecision(31) << verticalAcceleration << " " << horizontalAcceleration << " " << verticalBallVelocity << " " << horizontalBallVelocity << endl;
-		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsLimit > 0);
 
-		if (verticalBallVelocity >= 0.0 && verticalAcceleration != 0.0 && verticalBallVelocity == originalVerticalBallVelocity && horizontalAcceleration != 0.0 && horizontalBallVelocity == originalHorizontalBallVelocity) {
-			warning = "Symulacja została wstrzymana po czasie 10 sekund, gdyż lot kuli trwa wiecznie";
+			if (edgeCase && (verticalBallVelocity < 0.0 || horizontalBallVelocity < 0.0))
+				break;
+		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
+
+		if (iterationsNumberForStopping == 0) {
+			warning += "Symulacja została wstrzymana po kolejnych 2 sekundach lotu od wykrycia, gdyż lot kuli trwa wiecznie";
+		}
+		else if (iterationsLimit == 0) {
+			warning += "Symulacja została wstrzymana po 500 sekundach lotu kuli ze względu na przekroczenie maksymalnego dozwolonego czasu lotu";
 		}
 	}
 	else {
@@ -146,7 +169,7 @@ void TrajectoryCalculator::CalculateData(
 			// section III: no air resistance, no gravity
 			double time = timeStep;
 			int iterationsLimit = 10000; // required because the case goes on forever
-			warning = "Symulacja została wstrzymana po czasie 10 sekund, gdyż lot kuli trwa wiecznie";
+			warning = "Symulacja została wstrzymana po czasie 10 sekund lotu, gdyż lot kuli trwa wiecznie";
 			do {
 				x = horizontalBallVelocity * time;
 				y = verticalBallVelocity * time + ballRadius + initialDistanceFromGround;
