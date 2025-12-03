@@ -7,7 +7,10 @@ przyspieszenie grawitacyjne (gravitationalAcceleration) 8 bytes
 prędkość wiatru (windVelocity) 8 bytes
 kąt wiatru w stopniach (windAngle) 8 bytes
 gęstość atmosfery (atmosfericDensity) 8 bytes
-długość wektora współrzędnych x (nowa zmienna typu int, lub vector.size) 4 bytes int
+odległość dołu kuli od powierzchni na początku lotu (initialDistanceFromGround) 8 bytes
+długość wektora współrzędnych x (nowa zmienna typu size_t) 4 bytes / 8 bytes
 wektor współrzędnych x (xAxisCoordinates) 8 bytes * długość
-długość współrzędnych y (nowa zmienna typu int, lub vector.size) 4 bytes int
+długość współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
 wektor współrzędnych y (yAxisCoordinates) 8 bytes * długość
+długość ostrzeżenia (nowa zmienna typu size_t) 4 bytes / 8 bytes
+ostrzeżenie na temat symulacji (warning) 1 bytes * długość
