@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <string>
 
 struct Simulation{
     double ballVelocity;
@@ -10,6 +11,8 @@ struct Simulation{
     double windVelocity;
     double windAngle;
     double atmosfericDensity;
+    double initialDistanceFromGround;
     std::vector<double> xAxisCoordinates;
     std::vector<double> yAxisCoordinates;
+    std::string warning;
 };

@@ -17,7 +17,7 @@ int main() {
         cout << i << ". " << xAxis[i] << " - " << yAxis[i] << endl;
     }
 
-    cout << endl << calculator.getWarning() << endl;
+    string resultWarning = calculator.getWarning();
 
     calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 0.0, 0.0, 0.0, 0.0);
     vector<double> xAxis2 = calculator.getXAxisCoordinates();
@@ -33,7 +33,7 @@ int main() {
 
     if (answer == 'y')
     {
-        Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 0.5, 9.81, 5.0, 180.0, 1.225, xAxis, yAxis});
+        Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
 
         cout << "Name a file: ";
         string fileName;

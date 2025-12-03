@@ -85,6 +85,10 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 
 	file.write((char*)&yVecotrLength, sizeof(size_t));
 	file.write((char*)simulation->yAxisCoordinates.data(), sizeof(double) * yVecotrLength);
+
+	size_t warningLength = simulation->warning.size();
+	file.write((char*)&warningLength, sizeof(size_t));
+	file.write(simulation->warning.data(), warningLength);
 	
 	file.close();
 	delete simulation;
@@ -107,7 +111,7 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	file.read(reinterpret_cast<char*>(&simulation->windAngle), sizeof(double));
 	file.read(reinterpret_cast<char*>(&simulation->atmosfericDensity), sizeof(double));
 
-	size_t xVectorLength, yVectorLength;
+	size_t xVectorLength, yVectorLength, warningLength;
 	file.read(reinterpret_cast<char*>(&xVectorLength), sizeof(size_t));
 	simulation->xAxisCoordinates.resize(xVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->xAxisCoordinates.data()), sizeof(double) * xVectorLength);
@@ -115,6 +119,10 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	file.read(reinterpret_cast<char*>(&yVectorLength), sizeof(size_t));
 	simulation->yAxisCoordinates.resize(yVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->yAxisCoordinates.data()), sizeof(double) * yVectorLength);
+
+	file.read(reinterpret_cast<char*>(&warningLength), sizeof(size_t));
+	simulation->warning.resize(warningLength);
+	file.read(&simulation->warning[0], warningLength);
 
 	file.close();
 	return simulation;
