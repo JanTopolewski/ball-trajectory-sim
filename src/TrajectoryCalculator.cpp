@@ -184,10 +184,58 @@ void TrajectoryCalculator::CalculateData(
 	}
 }
 
-/**
- * @brief
- * These calculations are for air resistance, wind and gravity
- */
+
+void TrajectoryCalculator::CalculateAccelerations( // V
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double ballMass
+) {
+	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
+	
+	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
+	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
+}
+
+
+void TrajectoryCalculator::CalculateAccelerations( // VI
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double horizontalWindVelocity,
+	double verticalWindVelocity,
+	double ballMass
+) {
+	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
+	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
+
+	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
+
+	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
+	verticalAcceleration = -(k / ballMass) * relativeVelocity * verticalVelocityDiff;
+}
+
+
+void TrajectoryCalculator::CalculateAccelerations( // VII
+	double& horizontalAcceleration,
+	double& verticalAcceleration,
+	double horizontalBallVelocity,
+	double verticalBallVelocity,
+	double k,
+	double gravitationalAcceleration,
+	double ballMass
+) {
+	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
+	
+	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
+	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
+}
+
+
 void TrajectoryCalculator::CalculateAccelerations( // VIII
 	double& horizontalAcceleration,
 	double& verticalAcceleration,
@@ -206,75 +254,6 @@ void TrajectoryCalculator::CalculateAccelerations( // VIII
 
 	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
 	verticalAcceleration = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
-}
-
-/**
- * @brief 
- * These are the calculations for only the air resistance only (atmosfericDensity)
- *  
- * 
- * This is from the 5th section from the specification
- * 
- * Little correction: in the spec there is -g in vertical acceleration formula, but it should not be there
- * 
- * The code here is correct
- */
-void TrajectoryCalculator::CalculateAccelerations( // V
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
-	double k,
-	double ballMass
-) {
-	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
-	
-	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
-	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
-}
-
-
-/**
- * @brief
- * These calculations are for air resistance and gravity
- */
-void TrajectoryCalculator::CalculateAccelerations( // VII
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
-	double k,
-	double gravitationalAcceleration,
-	double ballMass
-) {
-	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
-	
-	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
-	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
-}
-
-
-/**
- * @brief
- * These calculations are for air resistance and wind
- */
-void TrajectoryCalculator::CalculateAccelerations( // VI
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
-	double k,
-	double horizontalWindVelocity,
-	double verticalWindVelocity,
-	double ballMass
-) {
-	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
-	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
-
-	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
-
-	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
-	verticalAcceleration = - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
 }
 
 

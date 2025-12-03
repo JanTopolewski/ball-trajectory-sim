@@ -29,6 +29,59 @@ public:
 		double initialDistanceFromGround
 	);
 
+	/**
+	 * @brief
+	 * These are the calculations for only the air resistance only (atmosfericDensity)
+	 *
+	 *
+	 * This is from the 5th section from the specification
+	 *
+	 * Little correction: in the spec there is -g in vertical acceleration formula, but it should not be there
+	 *
+	 * The code here is correct
+	 */
+	void CalculateAccelerations( // V
+		double& horizontalAcceleration,
+		double& verticalAcceleration,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double k,
+		double ballMass
+	);
+
+	/**
+	 * @brief
+	 * These calculations are for air resistance and wind
+	 */
+	void CalculateAccelerations( // VI
+		double& horizontalAcceleration,
+		double& verticalAcceleration,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double k,
+		double horizontalWindVelocity,
+		double verticalWindVelocity,
+		double ballMass
+	);
+
+	/**
+	 * @brief
+	 * These calculations are for air resistance and gravity
+	 */
+	void CalculateAccelerations( // VII
+		double& horizontalAcceleration,
+		double& verticalAcceleration,
+		double horizontalBallVelocity,
+		double verticalBallVelocity,
+		double k,
+		double gravitationalAcceleration,
+		double ballMass
+	);
+
+	/**
+	 * @brief
+	 * These calculations are for air resistance, wind and gravity
+	 */
 	void CalculateAccelerations( // VIII
 		double& horizontalAcceleration,
 		double& verticalAcceleration,
@@ -41,35 +94,6 @@ public:
 		double ballMass
 	);
 
-	void CalculateAccelerations( // V
-		double& horizontalAcceleration,
-		double& verticalAcceleration,
-		double horizontalBallVelocity,
-		double verticalBallVelocity,
-		double k,
-		double ballMass
-	);
-
-	void CalculateAccelerations( // VII
-		double& horizontalAcceleration,
-		double& verticalAcceleration,
-		double horizontalBallVelocity,
-		double verticalBallVelocity,
-		double k,
-		double gravitationalAcceleration,
-		double ballMass
-	);
-
-	void CalculateAccelerations( // VI
-		double& horizontalAcceleration,
-		double& verticalAcceleration,
-		double horizontalBallVelocity,
-		double verticalBallVelocity,
-		double k,
-		double horizontalWindVelocity,
-		double verticalWindVelocity,
-		double ballMass
-	);
 
 	void RungeKuttaMethodPart(
 		function<void()> calculatingFunc,
