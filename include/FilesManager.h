@@ -46,4 +46,29 @@ public:
 	 * @param fileName a fileName to save without any prefix or the extension
 	 */
 	void saveSimulationData(Simulation* simulation, std::string fileName, std::string dirname = "data", std::string extension = ".bin");
+
+	/**
+	 * @brief
+	 * Reads simulation data from the binary file and returns it
+	 *
+	 * @param fileName a fileName to save without any prefix or the extension
+	 * @param dirname a directory in which the function should look for the data
+	 * @param extension an extension that files with data have
+	 * 
+	 * @return
+	 * structure of type Simulation* with simulation data from particular file
+	 */
+	Simulation* readSimulationData(std::string fileName, std::string dirname = "data", std::string extension = ".bin");
+
+	/**
+	 * @brief
+	 * Allows getting all names of files with simulations' data without their extensions
+	 *
+	 * @param dirname a directory in which the function should look for files with data
+	 * @param extension an extension that files with data have
+	 *
+	 * @return
+	 * Vector that contains all names of files with simulations' data as strings without their extensions
+	 */
+	std::vector<std::string> getSavedSimulationsNames(std::string dirname = "data", std::string extension = ".bin");
 };

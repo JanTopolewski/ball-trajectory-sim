@@ -1,6 +1,7 @@
 #include "../include/FilesManager.h"
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #ifdef WIN32
 #define OS_SEP '\\'
@@ -33,7 +34,7 @@ void FilesManager::loadSpaceObjectsData()
 	spaceObjectsData = {};
 
 	ifstream file;
-	file.open("data/space_objects_data.csv", ios::in);
+	file.open(string("data") + OS_SEP + "space_objects_data.csv", ios::in);
 
 	string line;
 	getline(file, line); // used to skip columns' headers
@@ -76,15 +77,59 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	file.write((char*)&simulation->windAngle, sizeof(double));
 	file.write((char*)&simulation->atmosfericDensity, sizeof(double));
 
-	int xVectorLength = simulation->xAxisCoordinates.size();
-	int yVecotrLength = simulation->yAxisCoordinates.size();
+	size_t xVectorLength = simulation->xAxisCoordinates.size();
+	size_t yVecotrLength = simulation->yAxisCoordinates.size();
 
-	file.write((char*)&xVectorLength, sizeof(int));
+	file.write((char*)&xVectorLength, sizeof(size_t));
 	file.write((char*)simulation->xAxisCoordinates.data(), sizeof(double) * xVectorLength);
 
-	file.write((char*)&yVecotrLength, sizeof(int));
+	file.write((char*)&yVecotrLength, sizeof(size_t));
 	file.write((char*)simulation->yAxisCoordinates.data(), sizeof(double) * yVecotrLength);
 	
 	file.close();
 	delete simulation;
+}
+
+
+Simulation* FilesManager::readSimulationData(string fileName, string dirname, string extension) {
+	ifstream file;
+	string filePath = dirname + OS_SEP + fileName + extension;
+	file.open(filePath, ios::in | ios::binary);
+
+	Simulation* simulation = new Simulation();
+
+	file.read(reinterpret_cast<char*>(&simulation->ballVelocity), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->firingAngle), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->ballRadius), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->ballMass), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->gravitationalAcceleration), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->windVelocity), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->windAngle), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->atmosfericDensity), sizeof(double));
+
+	size_t xVectorLength, yVectorLength;
+	file.read(reinterpret_cast<char*>(&xVectorLength), sizeof(size_t));
+	simulation->xAxisCoordinates.resize(xVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->xAxisCoordinates.data()), sizeof(double) * xVectorLength);
+
+	file.read(reinterpret_cast<char*>(&yVectorLength), sizeof(size_t));
+	simulation->yAxisCoordinates.resize(yVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->yAxisCoordinates.data()), sizeof(double) * yVectorLength);
+
+	file.close();
+	return simulation;
+}
+
+
+vector<string> FilesManager::getSavedSimulationsNames(string dirname, string extension)
+{
+	vector<string> simulationsNames;
+
+	for (const auto& fileEntry : filesystem::directory_iterator(dirname)) {
+		if (fileEntry.is_regular_file() && fileEntry.path().extension() == extension) {
+			simulationsNames.push_back(fileEntry.path().stem().string());
+		}
+	}
+
+	return simulationsNames;
 }
