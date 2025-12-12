@@ -15,8 +15,8 @@
 using namespace std;
 
 int main() {
-    /*TrajectoryCalculator calculator;
-    calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
+    TrajectoryCalculator calculator;
+    /*calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
 
@@ -37,15 +37,12 @@ int main() {
     //cout << "Do you want to save? (Y/n)";
     //char answer;
     //cin >> answer;
-
     //if (answer == 'y')
     //{
     //    Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
-
     //    cout << "Name a file: ";
     //    string fileName;
     //    cin >> fileName;
-
     //    if(filesystem::exists("data/"+fileName+".bin"))
     //    {
     //        cout << "Do you want to overwrite it? (Y/n)";
