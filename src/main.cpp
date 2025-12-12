@@ -143,9 +143,16 @@ int main() {
     vector<const char*> planetNamesCStr;
     planetNamesCStr.reserve(planets.size());
     for (const auto& planet : planets) {
+        cout << planet << endl;
         planetNamesCStr.push_back(planet.c_str());
     }
     const char* const planetNames = *planetNamesCStr.data();
+
+
+    for (int i = 0; i < 9; i++)
+    {
+        cout << planetNames[i] << endl;
+    }
 
 
     // render loop
@@ -241,7 +248,7 @@ int main() {
 
                     
 
-                    ImGui::Combo("Select planet", 0, planetNames);
+                    ImGui::Combo("Select planet", new int(0), planetNames);
                 }ImGui::End();
                 break;
             }
