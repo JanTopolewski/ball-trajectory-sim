@@ -8,6 +8,7 @@
 #include "../include/TrajectoryCalculator.h"
 #include "../include/FilesManager.h"
 #include "../include/Simulation.h"
+#include "../include/Displaying.h"
 #include <iostream>
 #include <vector>
 #include <filesystem>
@@ -15,8 +16,8 @@
 using namespace std;
 
 int main() {
-    /*TrajectoryCalculator calculator;
-    calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
+    TrajectoryCalculator calculator;
+    /*calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
 
@@ -37,15 +38,12 @@ int main() {
     //cout << "Do you want to save? (Y/n)";
     //char answer;
     //cin >> answer;
-
     //if (answer == 'y')
     //{
     //    Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
-
     //    cout << "Name a file: ";
     //    string fileName;
     //    cin >> fileName;
-
     //    if(filesystem::exists("data/"+fileName+".bin"))
     //    {
     //        cout << "Do you want to overwrite it? (Y/n)";
@@ -114,6 +112,49 @@ int main() {
     const int WELCOME_WINDOW_WIDTH = 400;
     const int WELCOME_WINDOW_HEIGHT = 300;
 
+    Displaying displaying = Displaying::WelcomingMenu;
+
+    const int CREATION_WINDOW_WIDTH = 800;
+    const int CREATION_WINDOW_HEIGHT = 800;
+
+    // variables for input data
+    float ballVelocity = 25.0;
+    float firingAngle = 45.0;
+    float ballRadius = 0.05;
+    float ballMass = 0.1;
+    float gravitationalAcceleration = 9.81;
+    float windVelocity = 2;
+    float windAngle = 180.0;
+    float atmosphericDensity = 1.225;
+    float initialDistanceFromGround = 1.0;
+
+    bool windEnable = true;
+    bool gravityEnable = true;
+    bool atmosphereEnable = true;
+
+    // reading planet data from file
+    //reading from file
+    FilesManager* fileManager = new FilesManager();
+    fileManager->loadSpaceObjectsData();
+
+    vector<string> planets = fileManager->getSpaceObjectsNames();
+
+    // Convert vector<string> to const char* array 
+    vector<const char*> planetNamesCStr;
+    planetNamesCStr.reserve(planets.size());
+    for (const auto& planet : planets) {
+        cout << planet << endl;
+        planetNamesCStr.push_back(planet.c_str());
+    }
+    const char* const planetNames = *planetNamesCStr.data();
+
+
+    for (int i = 0; i < 9; i++)
+    {
+        cout << planetNames[i] << endl;
+    }
+
+
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -130,36 +171,92 @@ int main() {
         //{
         //    // your input functions here
         //}
-
-        // Welcome window:
-        ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
-        ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT /2 - WELCOME_WINDOW_HEIGHT/2));
-        if (ImGui::Begin("Welcome window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-            // Question
-            const char* text = "Create a new simulation or read from file?";
-            float textWidth = ImGui::CalcTextSize(text).x;
-            ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
-            ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
-            
-            ImGui::Text(text);
-
-            // Buttons
-            float buttonWidth = 120.0f;
-            float spacing = 10.0f;
-            float totalWidth = (buttonWidth * 2) + spacing;
-            ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - totalWidth) * 0.5f);
-
-            if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
+        switch (displaying)
+        {
+            case Displaying::WelcomingMenu:
             {
-                cout << "created new" << endl;
-            }
-            ImGui::SameLine(0, spacing);
-            if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
-            {
-                cout << "reading from file" << endl;
-            }
-        }ImGui::End();
+                // Welcome window:
+                ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
+                if (ImGui::Begin("Welcome window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    // Question
+                    const char* text = "Create a new simulation or read from file?";
+                    float textWidth = ImGui::CalcTextSize(text).x;
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
+                    ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
 
+                    ImGui::Text(text);
+
+                    // Buttons
+                    float buttonWidth = 120.0f;
+                    float spacing = 10.0f;
+                    float totalWidth = (buttonWidth * 2) + spacing;
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - totalWidth) * 0.5f);
+
+                    if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
+                    {
+                        cout << "created new" << endl;
+                        displaying = Displaying::CreationMenu;
+                    }
+                    ImGui::SameLine(0, spacing);
+                    if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
+                    {
+                        cout << "reading from file" << endl;
+                        displaying = Displaying::SimulationMenu;
+                    }
+                }ImGui::End();
+                break;
+            }
+            case Displaying::CreationMenu:
+            {
+                // Creation window:
+                ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
+                if (ImGui::Begin("Create a new simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+
+                    // ballVelocity slider [0.1 , 200.0]
+                    // firingAngle slider (0, 90)
+                    // ballRadius slider [0.01 , 5]
+                    // ballMass slider [0.001 , 1000000]
+                    // gravitationalAcceleration slider [0 , 24]
+                    // windVelocity slider [0, 80]
+                    // windAngle circle slider [0, 360)
+                    // atmosfericDensity slider [0, 65]
+                    // initialDistanceFromGround double input
+
+                    ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
+
+                    ImGui::Checkbox("Enable gravity", &gravityEnable);
+                    if (!gravityEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!gravityEnable) ImGui::EndDisabled();
+
+                    ImGui::Checkbox("Enable wind", &windEnable);
+                    if (!windEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!windEnable) ImGui::EndDisabled();
+
+                    ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!atmosphereEnable) ImGui::EndDisabled();
+
+                    
+
+                    ImGui::Combo("Select planet", new int(0), planetNames);
+                }ImGui::End();
+                break;
+            }
+            case Displaying::SimulationMenu:
+            {
+                break;
+            }
+        }
 
         // render the imgui elements
         ImGui::Render();
@@ -168,6 +265,8 @@ int main() {
         glfwSwapBuffers(window); // swap back buffer with the front one
         glfwPollEvents(); // take care of all glfw events
     }
+
+    delete fileManager;
 
     // delete all imgui instances
     ImGui_ImplOpenGL3_Shutdown();
