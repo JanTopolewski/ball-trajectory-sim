@@ -8,6 +8,7 @@
 #include "../include/TrajectoryCalculator.h"
 #include "../include/FilesManager.h"
 #include "../include/Simulation.h"
+#include "../include/TestWindow.h"
 #include <iostream>
 #include <vector>
 #include <filesystem>
@@ -75,6 +76,34 @@ int main() {
     // set the glfw core profile, so only for the modern functions
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
+    //// Get primary monitor
+    //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+    //// Get video mode of the monitor
+    //const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
+
+    //glfwWindowHint(GLFW_RED_BITS, vidmode->redBits);
+    //glfwWindowHint(GLFW_GREEN_BITS, vidmode->greenBits);
+    //glfwWindowHint(GLFW_BLUE_BITS, vidmode->blueBits);
+    //glfwWindowHint(GLFW_REFRESH_RATE, vidmode->refreshRate);
+
+    //// Get width and height of a user's screen
+    //const int MONITOR_WIDTH = vidmode->width;
+    //const int MONITOR_HEIGHT = vidmode->height;
+
+    //// remove unused monitor objects
+    ////delete monitor;
+    ////delete vidmode;
+
+    //// printout for clarity
+    //cout << MONITOR_WIDTH << " x " << MONITOR_HEIGHT << endl;
+
+
+    glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+
+
     // Create the window 800x800
     GLFWwindow* window = glfwCreateWindow(800, 800, "Trajectory Simulations", NULL, NULL);
     // If the window fails to create
@@ -84,6 +113,13 @@ int main() {
         glfwTerminate();
         return -1;
     }
+    //// setting the window to be fullscreen
+    //glfwSetWindowMonitor(window, monitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
+
+    int WINDOW_WIDTH, WINDOW_HEIGHT;
+    glfwGetWindowSize(window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
+    cout << WINDOW_WIDTH << " x " << WINDOW_HEIGHT << endl;
+    
     // introduce the window to the current context
     glfwMakeContextCurrent(window);
 
@@ -100,24 +136,6 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-    // Get primary monitor
-    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-
-    // Get video mode of the monitor
-    const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-
-    // Get width and height of a user's screen
-    int width = vidmode->width;
-    int height = vidmode->height;
-
-    // remove unused monitor objects
-    delete monitor;
-    delete vidmode;
-
-    // printout for clarity
-    cout << width << " x " << height << endl;
-
 
     bool drawTriangle = true;
     float size = 1.0f;
@@ -151,6 +169,7 @@ int main() {
         ImGui::SliderFloat("Size", &size, 0.5f, 2.0f);
         ImGui::ColorEdit4("Color", color); // fancy color edit (with alpha)
         ImGui::End(); // end the window
+
 
         // render the imgui elements
         ImGui::Render();
