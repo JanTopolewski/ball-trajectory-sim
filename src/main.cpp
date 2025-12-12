@@ -114,6 +114,9 @@ int main() {
 
     Displaying displaying = Displaying::WelcomingMenu;
 
+    const int CREATION_WINDOW_WIDTH = 800;
+    const int CREATION_WINDOW_HEIGHT = 800;
+
     // variables for input data
     double ballVelocity = 25.0;
     double firingAngle = 45.0;
@@ -184,7 +187,46 @@ int main() {
             }
             case Displaying::CreationMenu:
             {
+                // Creation window:
+                ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
+                if (ImGui::Begin("Create a new simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    /*double ballVelocity = 25.0;
+                    double firingAngle = 45.0;
+                    double ballRadius = 0.05;
+                    double ballMass = 0.1;
+                    double gravitationalAcceleration = 9.81;
+                    double windVelocity = 2;
+                    double windAngle = 180.0;
+                    double atmosphericDensity = 1.225;
+                    double initialDistanceFromGround = 1.0;*/
 
+                    // ballVelocity slider [0.1 , 200.0]
+                    // firingAngle slider (0, 90)
+                    // ballRadius slider [0.01 , 5]
+                    // ballMass slider [0.001 , 1000000]
+                    // gravitationalAcceleration slider [0 , 24]
+                    // windVelocity slider [0, 80]
+                    // windAngle circle slider [0, 360)
+                    // atmosfericDensity slider [0, 65]
+                    // initialDistanceFromGround double input
+
+                    ImGui::SliderFloat("Initial ball velocity", (float*)&ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Firing angle", (float*)&firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball radius", (float*)&ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball mass", (float*)&ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::InputFloat("Initial distance from ground", (float*)&initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
+
+                    ImGui::Checkbox("Enable gravity", &gravityEnable);
+                    ImGui::SliderFloat("Gravitational acceleration", (float*)&gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+
+                    ImGui::Checkbox("Enable wind", &windEnable);
+                    ImGui::SliderFloat("Wind Velocity", (float*)&windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Wind angle", (float*)&windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+
+                    ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
+                    ImGui::SliderFloat("Atmosferic density", (float*)&atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                }ImGui::End();
                 break;
             }
             case Displaying::SimulationMenu:
