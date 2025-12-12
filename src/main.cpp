@@ -160,26 +160,34 @@ int main() {
         //    // your input functions here
         //}
 
+        // Welcome window:
         ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
         ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT /2 - WELCOME_WINDOW_HEIGHT/2));
-        ImGui::Begin("Welcome window");
+        if (ImGui::Begin("Welcome window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+            // Question
+            const char* text = "Create a new simulation or read from file?";
+            float textWidth = ImGui::CalcTextSize(text).x;
+            ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
+            ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
+            
+            ImGui::Text(text);
 
-        // Center the text
-        const char* text = "Create a new simulation or read from file?";
-        float windowWidth = ImGui::GetWindowSize().x;
-        float textWidth = ImGui::CalcTextSize(text).x;
-        ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-        ImGui::Text(text);
+            // Buttons
+            float buttonWidth = 120.0f;
+            float spacing = 10.0f;
+            float totalWidth = (buttonWidth * 2) + spacing;
+            ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - totalWidth) * 0.5f);
 
-        if (ImGui::Button("Create new"))
-        {
-            cout << "craeted new" << endl;
-        }
-        if (ImGui::Button("Read from file"))
-        {
-            cout << "reading from file" << endl;
-        }
-        ImGui::End();
+            if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
+            {
+                cout << "created new" << endl;
+            }
+            ImGui::SameLine(0, spacing);
+            if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
+            {
+                cout << "reading from file" << endl;
+            }
+        }ImGui::End();
 
 
         // render the imgui elements
