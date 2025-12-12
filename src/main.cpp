@@ -118,15 +118,15 @@ int main() {
     const int CREATION_WINDOW_HEIGHT = 800;
 
     // variables for input data
-    double ballVelocity = 25.0;
-    double firingAngle = 45.0;
-    double ballRadius = 0.05;
-    double ballMass = 0.1;
-    double gravitationalAcceleration = 9.81;
-    double windVelocity = 2;
-    double windAngle = 180.0;
-    double atmosphericDensity = 1.225;
-    double initialDistanceFromGround = 1.0;
+    float ballVelocity = 25.0;
+    float firingAngle = 45.0;
+    float ballRadius = 0.05;
+    float ballMass = 0.1;
+    float gravitationalAcceleration = 9.81;
+    float windVelocity = 2;
+    float windAngle = 180.0;
+    float atmosphericDensity = 1.225;
+    float initialDistanceFromGround = 1.0;
 
     bool windEnable = true;
     bool gravityEnable = true;
@@ -211,21 +211,27 @@ int main() {
                     // atmosfericDensity slider [0, 65]
                     // initialDistanceFromGround double input
 
-                    ImGui::SliderFloat("Initial ball velocity", (float*)&ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Firing angle", (float*)&firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Ball radius", (float*)&ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Ball mass", (float*)&ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::InputFloat("Initial distance from ground", (float*)&initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
+                    ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
 
                     ImGui::Checkbox("Enable gravity", &gravityEnable);
-                    ImGui::SliderFloat("Gravitational acceleration", (float*)&gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!gravityEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!gravityEnable) ImGui::EndDisabled();
 
                     ImGui::Checkbox("Enable wind", &windEnable);
-                    ImGui::SliderFloat("Wind Velocity", (float*)&windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Wind angle", (float*)&windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!windEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!windEnable) ImGui::EndDisabled();
 
                     ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
-                    ImGui::SliderFloat("Atmosferic density", (float*)&atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!atmosphereEnable) ImGui::EndDisabled();
                 }ImGui::End();
                 break;
             }
