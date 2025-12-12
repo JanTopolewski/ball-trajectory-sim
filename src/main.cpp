@@ -132,6 +132,21 @@ int main() {
     bool gravityEnable = true;
     bool atmosphereEnable = true;
 
+    // reading planet data from file
+    //reading from file
+    FilesManager* fileManager = new FilesManager();
+    fileManager->loadSpaceObjectsData();
+
+    vector<string> planets = fileManager->getSpaceObjectsNames();
+
+    // Convert vector<string> to const char* array 
+    vector<const char*> planetNamesCStr;
+    planetNamesCStr.reserve(planets.size());
+    for (const auto& planet : planets) {
+        planetNamesCStr.push_back(planet.c_str());
+    }
+    const char* const planetNames = *planetNamesCStr.data();
+
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -191,15 +206,6 @@ int main() {
                 ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Create a new simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    /*double ballVelocity = 25.0;
-                    double firingAngle = 45.0;
-                    double ballRadius = 0.05;
-                    double ballMass = 0.1;
-                    double gravitationalAcceleration = 9.81;
-                    double windVelocity = 2;
-                    double windAngle = 180.0;
-                    double atmosphericDensity = 1.225;
-                    double initialDistanceFromGround = 1.0;*/
 
                     // ballVelocity slider [0.1 , 200.0]
                     // firingAngle slider (0, 90)
@@ -232,6 +238,10 @@ int main() {
                     if (!atmosphereEnable) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!atmosphereEnable) ImGui::EndDisabled();
+
+                    
+
+                    ImGui::Combo("Select planet", 0, planetNames);
                 }ImGui::End();
                 break;
             }
@@ -248,6 +258,8 @@ int main() {
         glfwSwapBuffers(window); // swap back buffer with the front one
         glfwPollEvents(); // take care of all glfw events
     }
+
+    delete fileManager;
 
     // delete all imgui instances
     ImGui_ImplOpenGL3_Shutdown();
