@@ -8,7 +8,6 @@
 #include "../include/TrajectoryCalculator.h"
 #include "../include/FilesManager.h"
 #include "../include/Simulation.h"
-#include "../include/TestWindow.h"
 #include <iostream>
 #include <vector>
 #include <filesystem>
@@ -161,14 +160,13 @@ int main() {
         //    // your input functions here
         //}
 
-        ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT)); // Set width to 400, height to 300
-        ImGui::SetNextWindowPos(ImVec2(50, 50)); // Set position to x=50, y=50 from top-left
-        ImGui::Begin("My name is window, ImGui window"); // window creation
-        ImGui::Text("Hello there adventurer!"); // text in the window
-        ImGui::Checkbox("draw the triangle", &drawTriangle);
-        ImGui::SliderFloat("Size", &size, 0.5f, 2.0f);
-        ImGui::ColorEdit4("Color", color); // fancy color edit (with alpha)
-        ImGui::End(); // end the window
+        ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
+        ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT /2 - WELCOME_WINDOW_HEIGHT/2));
+        ImGui::Begin("Welcome window");
+        ImGui::Text("Create a new simulation or read from file?");
+        ImGui::Button("Create new", ImVec2(120, 30));
+        ImGui::Button("Read from file", ImVec2(120, 30));
+        ImGui::End();
 
 
         // render the imgui elements
