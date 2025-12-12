@@ -123,6 +123,9 @@ int main() {
     float size = 1.0f;
     float color[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
 
+    const int WELCOME_WINDOW_WIDTH = 400;
+    const int WELCOME_WINDOW_HEIGHT = 300;
+
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -140,7 +143,7 @@ int main() {
         //    // your input functions here
         //}
 
-        ImGui::SetNextWindowSize(ImVec2(400, 300)); // Set width to 400, height to 300
+        ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT)); // Set width to 400, height to 300
         ImGui::SetNextWindowPos(ImVec2(50, 50)); // Set position to x=50, y=50 from top-left
         ImGui::Begin("My name is window, ImGui window"); // window creation
         ImGui::Text("Hello there adventurer!"); // text in the window
