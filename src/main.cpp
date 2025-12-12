@@ -114,6 +114,21 @@ int main() {
 
     Displaying displaying = Displaying::WelcomingMenu;
 
+    // variables for input data
+    double ballVelocity = 25.0;
+    double firingAngle = 45.0;
+    double ballRadius = 0.05;
+    double ballMass = 0.1;
+    double gravitationalAcceleration = 9.81;
+    double windVelocity = 2;
+    double windAngle = 180.0;
+    double atmosphericDensity = 1.225;
+    double initialDistanceFromGround = 1.0;
+
+    bool windEnable = true;
+    bool gravityEnable = true;
+    bool atmosphereEnable = true;
+
 
     // render loop
     while (!glfwWindowShouldClose(window))
