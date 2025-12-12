@@ -101,6 +101,24 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+    // Get primary monitor
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+    // Get video mode of the monitor
+    const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
+
+    // Get width and height of a user's screen
+    int width = vidmode->width;
+    int height = vidmode->height;
+
+    // remove unused monitor objects
+    delete monitor;
+    delete vidmode;
+
+    // printout for clarity
+    cout << width << " x " << height << endl;
+
+
     bool drawTriangle = true;
     float size = 1.0f;
     float color[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
