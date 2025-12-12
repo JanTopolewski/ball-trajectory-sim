@@ -163,7 +163,14 @@ int main() {
         ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
         ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT /2 - WELCOME_WINDOW_HEIGHT/2));
         ImGui::Begin("Welcome window");
-        ImGui::Text("Create a new simulation or read from file?");
+
+        // Center the text
+        const char* text = "Create a new simulation or read from file?";
+        float windowWidth = ImGui::GetWindowSize().x;
+        float textWidth = ImGui::CalcTextSize(text).x;
+        ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+        ImGui::Text(text);
+
         if (ImGui::Button("Create new"))
         {
             cout << "craeted new" << endl;
