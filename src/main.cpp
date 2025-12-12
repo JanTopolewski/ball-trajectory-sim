@@ -119,7 +119,7 @@ int main() {
     {
 
         // rendering commands here
-        glClearColor(color[0], color[1], color[2], color[3]); // background color
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // background color
         glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
 
         ImGui_ImplOpenGL3_NewFrame();
