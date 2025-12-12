@@ -1,3 +1,10 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+//#include "imgui_impl_opengl3.h"
+
+//#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "../include/TrajectoryCalculator.h"
 #include "../include/FilesManager.h"
 #include "../include/Simulation.h"
@@ -8,7 +15,7 @@
 using namespace std;
 
 int main() {
-    TrajectoryCalculator calculator;
+    /*TrajectoryCalculator calculator;
     calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
     vector<double> xAxis = calculator.getXAxisCoordinates();
     vector<double> yAxis = calculator.getYAxisCoordinates();
@@ -25,40 +32,40 @@ int main() {
 
     for (size_t i = 0; i < xAxis2.size(); ++i) {
         cout << i << ". " << xAxis2[i] << " - " << yAxis2[i] << endl;
-    }
+    }*/
 
-    cout << "Do you want to save? (Y/n)";
-    char answer;
-    cin >> answer;
+    //cout << "Do you want to save? (Y/n)";
+    //char answer;
+    //cin >> answer;
 
-    if (answer == 'y')
-    {
-        Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
+    //if (answer == 'y')
+    //{
+    //    Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
 
-        cout << "Name a file: ";
-        string fileName;
-        cin >> fileName;
+    //    cout << "Name a file: ";
+    //    string fileName;
+    //    cin >> fileName;
 
-        if(filesystem::exists("data/"+fileName+".bin"))
-        {
-            cout << "Do you want to overwrite it? (Y/n)";
-            char answer;
-            cin >> answer;
-            if (answer == 'y')
-            {
-                FilesManager *fileManager = new FilesManager();
-                fileManager->saveSimulationData(simulation, fileName);
-                delete fileManager;
-            }
-        }
-        else
-        {
-            FilesManager *fileManager = new FilesManager();
-            fileManager->saveSimulationData(simulation, fileName);
-            delete fileManager;
-        }
-        // delete simulation;
-    }
+    //    if(filesystem::exists("data/"+fileName+".bin"))
+    //    {
+    //        cout << "Do you want to overwrite it? (Y/n)";
+    //        char answer;
+    //        cin >> answer;
+    //        if (answer == 'y')
+    //        {
+    //            FilesManager *fileManager = new FilesManager();
+    //            fileManager->saveSimulationData(simulation, fileName);
+    //            delete fileManager;
+    //        }
+    //    }
+    //    else
+    //    {
+    //        FilesManager *fileManager = new FilesManager();
+    //        fileManager->saveSimulationData(simulation, fileName);
+    //        delete fileManager;
+    //    }
+    //    // delete simulation;
+    //}
 
     return 0;
 }
