@@ -1,8 +1,8 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
-//#include "imgui_impl_opengl3.h"
+#include "imgui_impl_opengl3.h"
 
-//#include <glad/glad.h>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "../include/TrajectoryCalculator.h"
@@ -66,6 +66,87 @@ int main() {
     //    }
     //    // delete simulation;
     //}
+
+    glfwInit();
+    // set the opengl version 3.3
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    // set the glfw core profile, so only for the modern functions
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Create the window 800x800
+    GLFWwindow* window = glfwCreateWindow(800, 800, "Trajectory Simulations", NULL, NULL);
+    // If the window fails to create
+    if (window == NULL)
+    {
+        std::cout << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return -1;
+    }
+    // introduce the window to the current context
+    glfwMakeContextCurrent(window);
+
+    // load GLAD so it configures opengl
+    gladLoadGL();
+
+    // specify the viewport of OpenGL in the Window
+    glViewport(0, 0, 800, 800);
+
+    // initialize imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+
+    bool drawTriangle = true;
+    float size = 1.0f;
+    float color[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
+
+    // render loop
+    while (!glfwWindowShouldClose(window))
+    {
+
+        // rendering commands here
+        glClearColor(color[0], color[1], color[2], color[3]); // background color
+        glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        //if (!io.WantCaptureMouse) // for ignoring mouse inputs, when hovering over the imgui subwindow
+        //{
+        //    // your input functions here
+        //}
+
+        ImGui::SetNextWindowSize(ImVec2(400, 300)); // Set width to 400, height to 300
+        ImGui::SetNextWindowPos(ImVec2(50, 50)); // Set position to x=50, y=50 from top-left
+        ImGui::Begin("My name is window, ImGui window"); // window creation
+        ImGui::Text("Hello there adventurer!"); // text in the window
+        ImGui::Checkbox("draw the triangle", &drawTriangle);
+        ImGui::SliderFloat("Size", &size, 0.5f, 2.0f);
+        ImGui::ColorEdit4("Color", color); // fancy color edit (with alpha)
+        ImGui::End(); // end the window
+
+        // render the imgui elements
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwSwapBuffers(window); // swap back buffer with the front one
+        glfwPollEvents(); // take care of all glfw events
+    }
+
+    // delete all imgui instances
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    // delete window and glfw
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return 0;
 }
