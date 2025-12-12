@@ -75,30 +75,7 @@ int main() {
     // set the glfw core profile, so only for the modern functions
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-
-    //// Get primary monitor
-    //GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-
-    //// Get video mode of the monitor
-    //const GLFWvidmode* vidmode = glfwGetVideoMode(monitor);
-
-    //glfwWindowHint(GLFW_RED_BITS, vidmode->redBits);
-    //glfwWindowHint(GLFW_GREEN_BITS, vidmode->greenBits);
-    //glfwWindowHint(GLFW_BLUE_BITS, vidmode->blueBits);
-    //glfwWindowHint(GLFW_REFRESH_RATE, vidmode->refreshRate);
-
-    //// Get width and height of a user's screen
-    //const int MONITOR_WIDTH = vidmode->width;
-    //const int MONITOR_HEIGHT = vidmode->height;
-
-    //// remove unused monitor objects
-    ////delete monitor;
-    ////delete vidmode;
-
-    //// printout for clarity
-    //cout << MONITOR_WIDTH << " x " << MONITOR_HEIGHT << endl;
-
-
+    // Set the window to be maximized with control buttons
     glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
@@ -112,8 +89,6 @@ int main() {
         glfwTerminate();
         return -1;
     }
-    //// setting the window to be fullscreen
-    //glfwSetWindowMonitor(window, monitor, 0, 0, vidmode->width, vidmode->height, vidmode->refreshRate);
 
     int WINDOW_WIDTH, WINDOW_HEIGHT;
     glfwGetWindowSize(window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
@@ -135,10 +110,6 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-    bool drawTriangle = true;
-    float size = 1.0f;
-    float color[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
 
     const int WELCOME_WINDOW_WIDTH = 400;
     const int WELCOME_WINDOW_HEIGHT = 300;
