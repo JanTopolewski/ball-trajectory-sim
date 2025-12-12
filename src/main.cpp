@@ -164,8 +164,14 @@ int main() {
         ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT /2 - WELCOME_WINDOW_HEIGHT/2));
         ImGui::Begin("Welcome window");
         ImGui::Text("Create a new simulation or read from file?");
-        ImGui::Button("Create new", ImVec2(120, 30));
-        ImGui::Button("Read from file", ImVec2(120, 30));
+        if (ImGui::Button("Create new"))
+        {
+            cout << "craeted new" << endl;
+        }
+        if (ImGui::Button("Read from file"))
+        {
+            cout << "reading from file" << endl;
+        }
         ImGui::End();
 
 
