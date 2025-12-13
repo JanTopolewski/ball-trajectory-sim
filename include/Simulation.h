@@ -15,4 +15,8 @@ struct Simulation{
     std::vector<double> xAxisCoordinates;
     std::vector<double> yAxisCoordinates;
     std::string warning;
+    std::vector<double> xAxisAdditionalTrajectory;
+    std::vector<double> yAxisAdditionalTrajectory;
+    bool hasTarget;
+    double targetDistance;
 };

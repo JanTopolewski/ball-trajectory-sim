@@ -146,13 +146,6 @@ int main() {
         cout << planet << endl;
         planetNamesCStr.push_back(planet.c_str());
     }
-    const char* const planetNames = *planetNamesCStr.data();
-
-
-    for (int i = 0; i < 9; i++)
-    {
-        cout << planetNames[i] << endl;
-    }
 
 
     // render loop
@@ -247,8 +240,8 @@ int main() {
                     if (!atmosphereEnable) ImGui::EndDisabled();
 
                     
-
-                    ImGui::Combo("Select planet", new int(0), planetNames);
+                    static int currentPlanet = 0;
+                    ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
                 }ImGui::End();
                 break;
             }

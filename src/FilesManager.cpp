@@ -89,6 +89,18 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	size_t warningLength = simulation->warning.size();
 	file.write((char*)&warningLength, sizeof(size_t));
 	file.write(simulation->warning.data(), warningLength);
+
+	size_t xAdditionalVectorLength = simulation->xAxisAdditionalTrajectory.size();
+	size_t yAdditionalVectorLength = simulation->yAxisAdditionalTrajectory.size();
+
+	file.write((char*)&xAdditionalVectorLength, sizeof(size_t));
+	file.write((char*)simulation->xAxisAdditionalTrajectory.data(), sizeof(double) * xAdditionalVectorLength);
+
+	file.write((char*)&yAdditionalVectorLength, sizeof(size_t));
+	file.write((char*)simulation->yAxisAdditionalTrajectory.data(), sizeof(double) * yAdditionalVectorLength);
+
+	file.write((char*)&simulation->hasTarget, sizeof(bool));
+	file.write((char*)&simulation->targetDistance, sizeof(double));
 	
 	file.close();
 	delete simulation;
@@ -111,7 +123,7 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	file.read(reinterpret_cast<char*>(&simulation->windAngle), sizeof(double));
 	file.read(reinterpret_cast<char*>(&simulation->atmosfericDensity), sizeof(double));
 
-	size_t xVectorLength, yVectorLength, warningLength;
+	size_t xVectorLength, yVectorLength, warningLength, xAddtionalVectorLength, yAdditinalVectorLength;
 	file.read(reinterpret_cast<char*>(&xVectorLength), sizeof(size_t));
 	simulation->xAxisCoordinates.resize(xVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->xAxisCoordinates.data()), sizeof(double) * xVectorLength);
@@ -123,6 +135,22 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	file.read(reinterpret_cast<char*>(&warningLength), sizeof(size_t));
 	simulation->warning.resize(warningLength);
 	file.read(&simulation->warning[0], warningLength);
+
+	file.read(reinterpret_cast<char*>(&xAddtionalVectorLength), sizeof(size_t));
+	simulation->xAxisAdditionalTrajectory.resize(xAddtionalVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->xAxisAdditionalTrajectory.data()), sizeof(double) * xAddtionalVectorLength);
+
+	file.read(reinterpret_cast<char*>(&yAdditinalVectorLength), sizeof(size_t));
+	simulation->yAxisAdditionalTrajectory.resize(yAdditinalVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->yAxisAdditionalTrajectory.data()), sizeof(double) * yAdditinalVectorLength);
+
+	file.read(reinterpret_cast<char*>(&simulation->hasTarget), sizeof(bool));
+	if (simulation->hasTarget) {
+		file.read(reinterpret_cast<char*>(&simulation->targetDistance), sizeof(double));
+	}
+	else {
+		simulation->targetDistance = 0.0;
+	}
 
 	file.close();
 	return simulation;
