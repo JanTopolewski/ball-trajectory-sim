@@ -481,3 +481,5 @@ Makefile
 *.ninja
 *.ninja_deps
 *.ninja_log
+
+external/

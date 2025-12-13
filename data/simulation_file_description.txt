@@ -10,7 +10,13 @@ gęstość atmosfery (atmosfericDensity) 8 bytes
 odległość dołu kuli od powierzchni na początku lotu (initialDistanceFromGround) 8 bytes
 długość wektora współrzędnych x (nowa zmienna typu size_t) 4 bytes / 8 bytes
 wektor współrzędnych x (xAxisCoordinates) 8 bytes * długość
-długość współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
+długość wektora współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
 wektor współrzędnych y (yAxisCoordinates) 8 bytes * długość
 długość ostrzeżenia (nowa zmienna typu size_t) 4 bytes / 8 bytes
 ostrzeżenie na temat symulacji (warning) 1 bytes * długość
+długość porównawczego wektora współrzędnych x (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych x (xAxisAdditionalTrajectory) 8 bytes * długość
+długość porównawczego wektora współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych y (yAxisAdditionalTrajectory) 8 bytes * długość
+czy symulacja opiera się o trafianie w cel (hasTarget) 1 byte
+odległość celu od punktu startowego (targetDistance) )nie należy brać pod uwagę, gdy hasTarget jest false) 8 bytes

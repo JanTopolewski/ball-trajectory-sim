@@ -46,7 +46,7 @@ void TrajectoryCalculator::CalculateData(
 		k = 0.5 * atmosphericDensity * 0.47 * numbers::pi * ballRadius * ballRadius;
 
 		if (ballRadius / ballMass > 1.0) {
-			warning = "Nierealne proporcje masa/promień - symulacja może być niestabilna numerycznie.\n";
+			warning = "Unrealistic mass/radius ratios - simulation may be numerically unstable.\n";
 		}
 
 		if (windVelocity != 0.0) {
@@ -116,13 +116,13 @@ void TrajectoryCalculator::CalculateData(
 			verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
 
 			if (isnan(x) || isnan(y) || isnan(verticalBallVelocity) || isnan(horizontalBallVelocity) || isinf(verticalBallVelocity) || isinf(horizontalBallVelocity)) {
-				warning += "Symulacja została wstrzymana ze względu na wyjście właściwości lotu kuli poza poprawny zakres symulacji";
+				warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
 				break;
 			}
 			else if (isinf(x) || isinf(y)) {
 				xAxisCoordinates.push_back(x);
 				yAxisCoordinates.push_back(y);
-				warning += "Symulacja została wstrzymana ze względu na wyjście trajektorii lotu kuli poza poprawny zakres symulacji";
+				warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
 				break;
 			}
 			else {
@@ -145,10 +145,10 @@ void TrajectoryCalculator::CalculateData(
 		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
 
 		if (iterationsNumberForStopping == 0) {
-			warning += "Symulacja została wstrzymana po kolejnych 2 sekundach lotu od wykrycia, gdyż lot kuli trwa wiecznie";
+			warning += "The simulation was paused after another 2 seconds of flight from detection, as the ball's flight takes forever";
 		}
 		else if (iterationsLimit == 0) {
-			warning += "Symulacja została wstrzymana po 500 sekundach lotu kuli ze względu na przekroczenie maksymalnego dozwolonego czasu lotu";
+			warning += "The simulation was stopped after 500 seconds of ball flight due to exceeding the maximum allowed flight time";
 		}
 	}
 	else {
@@ -169,7 +169,7 @@ void TrajectoryCalculator::CalculateData(
 			// section III: no air resistance, no gravity
 			double time = timeStep;
 			int iterationsLimit = 10000; // required because the case goes on forever
-			warning = "Symulacja została wstrzymana po czasie 10 sekund lotu, gdyż lot kuli trwa wiecznie";
+			warning = "The simulation was paused after 10 seconds of flight because the ball's flight takes forever";
 			do {
 				x = horizontalBallVelocity * time;
 				y = verticalBallVelocity * time + ballRadius + initialDistanceFromGround;
