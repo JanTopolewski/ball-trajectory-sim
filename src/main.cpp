@@ -261,6 +261,10 @@ int main() {
 
                     if (ImGui::Button("Create simulation"))
                     {
+                        if (!windEnable) windVelocity = 0.0f;
+                        if (!atmosphereEnable) atmosphericDensity = 0.0f;
+                        if (!gravityEnable) gravitationalAcceleration = 0.0f;
+                        calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
                         displaying = Displaying::SimulationMenu;
                     }
 
