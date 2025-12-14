@@ -140,12 +140,17 @@ int main() {
     vector<string> planets = fileManager->getSpaceObjectsNames();
 
     // Convert vector<string> to const char* array 
+    const char* label = "Custom";
     vector<const char*> planetNamesCStr;
-    planetNamesCStr.reserve(planets.size());
+
+    planetNamesCStr.reserve(planets.size() + (size_t)sizeof(label));
+    planetNamesCStr.push_back(label);
+
     for (const auto& planet : planets) {
         cout << planet << endl;
         planetNamesCStr.push_back(planet.c_str());
     }
+    static int currentPlanet = 0;
 
 
     // render loop
@@ -224,24 +229,24 @@ int main() {
                     ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
 
                     ImGui::Checkbox("Enable gravity", &gravityEnable);
-                    if (!gravityEnable) ImGui::BeginDisabled();
+                    if (!gravityEnable || currentPlanet != 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!gravityEnable) ImGui::EndDisabled();
+                    if (!gravityEnable || currentPlanet != 0) ImGui::EndDisabled();
 
                     ImGui::Checkbox("Enable wind", &windEnable);
-                    if (!windEnable) ImGui::BeginDisabled();
+                    if (!windEnable || currentPlanet != 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!windEnable) ImGui::EndDisabled();
+                    if (!windEnable || currentPlanet != 0) ImGui::EndDisabled();
 
                     ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
-                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    if (!atmosphereEnable || currentPlanet != 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!atmosphereEnable) ImGui::EndDisabled();
-
+                    if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
                     
-                    static int currentPlanet = 0;
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
+
+
                 }ImGui::End();
                 break;
             }
