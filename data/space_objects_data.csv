@@ -1,7 +1,7 @@
 ObjectName,GravitationalAcceleration,AtmosphereDensity,Type
-Earth,9.80665,1.2252,Rocky
 Mercury,3.7,0,Rocky
 Venus,8.87,66.619,Rocky
+Earth,9.80665,1.2252,Rocky
 Mars,3.71,0.017314,Rocky
 Jupiter,24.79,0.16182,Gas
 Saturn,10.44,0.19172,Gas

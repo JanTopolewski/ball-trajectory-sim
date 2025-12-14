@@ -9,6 +9,7 @@
 #include "../include/FilesManager.h"
 #include "../include/Simulation.h"
 #include "../include/Displaying.h"
+#include "../include/SpaceObject.h"
 #include <iostream>
 #include <vector>
 #include <filesystem>
@@ -153,6 +154,7 @@ int main() {
     static int currentPlanet = 0;
 
     // loading .csv file to some sort of array
+    vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
 
 
     // render loop
@@ -214,15 +216,7 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Create a new simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
 
-                    // ballVelocity slider [0.1 , 200.0]
-                    // firingAngle slider (0, 90)
-                    // ballRadius slider [0.01 , 5]
-                    // ballMass slider [0.001 , 1000000]
-                    // gravitationalAcceleration slider [0 , 24]
-                    // windVelocity slider [0, 80]
-                    // windAngle circle slider [0, 360)
-                    // atmosfericDensity slider [0, 65]
-                    // initialDistanceFromGround double input
+                    ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
                     ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
@@ -230,9 +224,15 @@ int main() {
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
 
+                    // Spacing
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
+
                     if (currentPlanet != 0)
                     {
-                        // TODO: filling variables with data from .csv file
+                        SpaceObject planet = planetsData[currentPlanet - 1];
+
+                        gravitationalAcceleration = (float)planet.gravitationalAcceleration;
+                        atmosphericDensity = (float)planet.atmosphereDensity;
                     }
 
                     if (currentPlanet != 0) ImGui::BeginDisabled();
@@ -252,9 +252,17 @@ int main() {
                     if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
+
+                    // Spacing
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
+                    ImGui::Text("You can also preset values according to specific planet (leave \"Custom\" if you want to adjust them for your own)");
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
 
+                    if (ImGui::Button("Create simulation"))
+                    {
+                        displaying = Displaying::SimulationMenu;
+                    }
 
                 }ImGui::End();
                 break;
