@@ -158,7 +158,9 @@ int main() {
     // loading .csv file to some sort of array
     vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
 
+    int chosenFile = 0;
     vector<string> fileNames;
+    vector<const char*> fileNamesCStr;
 
 
     // render loop
@@ -211,8 +213,29 @@ int main() {
                         // get the possible filenames
                         fileNames = fileManager->getSavedSimulationsNames();
 
+                        for (const auto& file : fileNames) {
+                            cout << file << endl;
+                            fileNamesCStr.push_back(file.c_str());
+                        }
 
+                        displaying = Displaying::ReadFileMenu;
+                    }
+                }ImGui::End();
+                break;
+            }
+            case Displaying::ReadFileMenu:
+            {
+                // Read file window:
+                ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
+                if (ImGui::Begin("Choose a file to read from", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) 
+                {
+                    ImGui::Text("Choose a file from the list: ");
+                    ImGui::Combo(" ", &chosenFile, fileNamesCStr.data(), fileNamesCStr.size());
 
+                    if (ImGui::Button("Select"))
+                    {
+                        cout << fileNamesCStr[chosenFile] << endl;
                         displaying = Displaying::SimulationMenu;
                     }
                 }ImGui::End();
