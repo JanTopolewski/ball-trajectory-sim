@@ -152,6 +152,8 @@ int main() {
     }
     static int currentPlanet = 0;
 
+    // loading .csv file to some sort of array
+
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -228,19 +230,26 @@ int main() {
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
 
+                    if (currentPlanet != 0)
+                    {
+                        // TODO: filling variables with data from .csv file
+                    }
+
+                    if (currentPlanet != 0) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable gravity", &gravityEnable);
-                    if (!gravityEnable || currentPlanet != 0) ImGui::BeginDisabled();
+                    if (!gravityEnable && currentPlanet == 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!gravityEnable || currentPlanet != 0) ImGui::EndDisabled();
 
                     ImGui::Checkbox("Enable wind", &windEnable);
-                    if (!windEnable || currentPlanet != 0) ImGui::BeginDisabled();
+                    if (!windEnable) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!windEnable || currentPlanet != 0) ImGui::EndDisabled();
+                    if (!windEnable) ImGui::EndDisabled();
 
+                    if (currentPlanet != 0) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
-                    if (!atmosphereEnable || currentPlanet != 0) ImGui::BeginDisabled();
+                    if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
                     
