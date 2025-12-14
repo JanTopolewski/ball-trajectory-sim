@@ -12,6 +12,7 @@
 #include "../include/SpaceObject.h"
 #include <iostream>
 #include <vector>
+#include <string>
 #include <filesystem>
 
 using namespace std;
@@ -157,6 +158,8 @@ int main() {
     // loading .csv file to some sort of array
     vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
 
+    vector<string> fileNames;
+
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -205,6 +208,11 @@ int main() {
                     if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
                     {
                         cout << "reading from file" << endl;
+                        // get the possible filenames
+                        fileNames = fileManager->getSavedSimulationsNames();
+
+
+
                         displaying = Displaying::SimulationMenu;
                     }
                 }ImGui::End();
