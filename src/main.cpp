@@ -14,6 +14,8 @@
 #include <vector>
 #include <filesystem>
 
+#include "nfd.h"
+
 using namespace std;
 
 int main() {
@@ -135,7 +137,6 @@ int main() {
     bool atmosphereEnable = true;
 
     // reading planet data from file
-    //reading from file
     FilesManager* fileManager = new FilesManager();
     fileManager->loadSpaceObjectsData();
 
@@ -205,6 +206,21 @@ int main() {
                     if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
                     {
                         cout << "reading from file" << endl;
+                        // file dialog
+                        nfdchar_t* outPath = nullptr;
+                        nfdresult_t result = NFD_OpenDialog(NULL, NULL, &outPath);
+
+                        if (result == NFD_OKAY) {
+                            cout << outPath << endl;
+                            delete outPath;
+                        }
+                        else if (result == NFD_CANCEL) {
+                            cout << "User pressed cancel." << endl;
+                        }
+                        else {
+                            cout << "Error: " << NFD_GetError() << endl;
+                        }
+
                         displaying = Displaying::SimulationMenu;
                     }
                 }ImGui::End();
