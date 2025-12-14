@@ -128,6 +128,7 @@ int main() {
     float windAngle = 180.0;
     float atmosphericDensity = 1.225;
     float initialDistanceFromGround = 1.0;
+    float distanceFromAim = 20.0f;
 
     bool windEnable = true;
     bool gravityEnable = true;
@@ -223,6 +224,7 @@ int main() {
                     ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
+                    ImGui::InputFloat("Distance from the aim", &distanceFromAim, 0.1f, 1.0f, "%.2f");
 
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
