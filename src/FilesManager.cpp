@@ -169,3 +169,9 @@ vector<string> FilesManager::getSavedSimulationsNames(string dirname, string ext
 
 	return simulationsNames;
 }
+
+
+bool FilesManager::checkFileExistence(string fileName, string dirname, string extension) {
+	string filePath = dirname + OS_SEP + fileName + extension;
+	return filesystem::exists(filePath);
+}

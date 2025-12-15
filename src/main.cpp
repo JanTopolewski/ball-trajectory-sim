@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include <filesystem>
+#include <regex>
 
 using namespace std;
 
@@ -133,6 +134,7 @@ int main() {
     float atmosphericDensity = 1.225;
     float initialDistanceFromGround = 1.0;
     float distanceFromAim = 20.0f;
+    bool hasTarget = true;
 
     bool windEnable = true;
     bool gravityEnable = true;
@@ -236,9 +238,9 @@ int main() {
                 // Read file window:
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Choose a file to read from", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) 
+                if (ImGui::Begin("Choose a simulation to read from", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) 
                 {
-                    ImGui::Text("Choose a file from the list: ");
+                    ImGui::Text("Choose a simulation from the list: ");
                     ImGui::Combo(" ", &chosenFile, fileNamesCStr.data(), fileNamesCStr.size());
 
                     if (ImGui::Button("Select"))
@@ -259,6 +261,39 @@ int main() {
                         warning = sim->warning;
 
                         displaying = Displaying::SimulationMenu;
+                    }
+                }ImGui::End();
+                break;
+            }
+            case Displaying::SaveFileMenu:
+            {
+                ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
+                if (ImGui::Begin("Save simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    static char buf[6] = "";
+                    regex pattern("^[A-Za-z0-9_-]+$");
+
+                    ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+                    ImGui::InputTextWithHint("##FileName", "Simulation name (maximum 5 characters)", buf, IM_ARRAYSIZE(buf));
+                    string filename(buf);
+
+                    if (!regex_match(filename, pattern)) {
+                        ImGui::PushTextWrapPos(0.0f);
+                        ImGui::TextColored(ImVec4(1, 0, 0, 1), "The simulation name must consist only of english letters, numbers and the characters - and _");
+                        ImGui::PopTextWrapPos();
+                    }
+                    else if (fileManager->checkFileExistence(filename)) {
+                        ImGui::PushTextWrapPos(0.0f);
+                        ImGui::TextColored(ImVec4(1, 0, 0, 1), "This simulation name is already used");
+                        ImGui::PopTextWrapPos();
+                    }
+
+                    if (ImGui::Button("Save")) {
+                        if (regex_match(filename, pattern) && !fileManager->checkFileExistence(filename)) {
+                            Simulation* sim = new Simulation({ ballVelocity, firingAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windAngle, atmosphericDensity, initialDistanceFromGround, xAxis, yAxis, warning, {}, {}, hasTarget, distanceFromAim });
+                            fileManager->saveSimulationData(sim, filename);
+                            displaying = Displaying::WelcomingMenu;
+                        }
                     }
                 }ImGui::End();
                 break;
@@ -418,6 +453,11 @@ int main() {
                         xAxis = calculator.getXAxisCoordinates();
                         yAxis = calculator.getYAxisCoordinates();
                         warning = calculator.getWarning();
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::Button("Save results")) {
+                        displaying = Displaying::SaveFileMenu;
                     }
 
                     ImGui::EndChild();

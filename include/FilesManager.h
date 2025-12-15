@@ -71,4 +71,16 @@ public:
 	 * Vector that contains all names of files with simulations' data as strings without their extensions
 	 */
 	std::vector<std::string> getSavedSimulationsNames(std::string dirname = "data", std::string extension = ".bin");
+
+	/**
+	 * @brief allows checking the existence of a given simulation file in a given folder
+	 * 
+	 * @param fileName a filename the function is looking for
+	 * @param dirname a directory in which the function should look for the data
+	 * @param extension an extension that files with data have
+	 * 
+	 * @return
+	 * True if the file is present in the location and false otherwise
+	 */
+	bool checkFileExistence(std::string fileName, std::string dirname = "data", std::string extension = ".bin");
 };
