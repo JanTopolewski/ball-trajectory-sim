@@ -270,11 +270,11 @@ int main() {
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Save simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    static char buf[6] = "";
+                    static char buf[31] = "";
                     regex pattern("^[A-Za-z0-9_-]+$");
 
                     ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-                    ImGui::InputTextWithHint("##FileName", "Simulation name (maximum 5 characters)", buf, IM_ARRAYSIZE(buf));
+                    ImGui::InputTextWithHint("##FileName", "Simulation name (maximum 30 characters)", buf, IM_ARRAYSIZE(buf));
                     string filename(buf);
 
                     if (!regex_match(filename, pattern)) {
