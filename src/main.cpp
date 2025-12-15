@@ -2,6 +2,8 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+#include "implot.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -106,6 +108,7 @@ int main() {
     // initialize imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -254,7 +257,9 @@ int main() {
                     ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f");
+                    if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
+                        if (initialDistanceFromGround < 0.0f) initialDistanceFromGround = 0.0f;
+                    }
                     ImGui::InputFloat("Distance from the aim", &distanceFromAim, 0.1f, 1.0f, "%.2f");
 
                     // Spacing
@@ -289,7 +294,7 @@ int main() {
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
-                    ImGui::Text("You can also preset values according to specific planet (leave \"Custom\" if you want to adjust them for your own)");
+                    ImGui::Text("You can also preset values according to specific space object (leave \"Custom\" if you want to adjust them for your own)");
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
 
                     if (ImGui::Button("Create simulation"))
@@ -306,6 +311,79 @@ int main() {
             }
             case Displaying::SimulationMenu:
             {
+                ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
+                ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
+                if (ImGui::Begin("Simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
+
+
+                    if (ImPlot::BeginPlot("Space", ImVec2(-1, -1))) {
+                        ImPlot::SetNextLineStyle(ImVec4(1, 0, 0, 1), 2.0f);
+                        ImPlot::PlotLine("Trajectory", calculator.getXAxisCoordinates().data(), calculator.getYAxisCoordinates().data(), (int)calculator.getXAxisCoordinates().size());
+                        ImPlot::EndPlot();
+                    }
+
+                    ImGui::EndChild();
+
+                    ImGui::SameLine();
+
+                    ImGui::BeginChild("Data", ImVec2(0, 0), true);
+
+                    ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
+
+                    ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
+                        if (initialDistanceFromGround < 0.0f) initialDistanceFromGround = 0.0f;
+                    }
+                    ImGui::InputFloat("Distance from the aim", &distanceFromAim, 0.1f, 1.0f, "%.2f");
+
+                    // Spacing
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
+
+                    if (currentPlanet != 0)
+                    {
+                        SpaceObject planet = planetsData[currentPlanet - 1];
+
+                        gravitationalAcceleration = (float)planet.gravitationalAcceleration;
+                        atmosphericDensity = (float)planet.atmosphereDensity;
+                    }
+
+                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    ImGui::Checkbox("Enable gravity", &gravityEnable);
+                    if (!gravityEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!gravityEnable || currentPlanet != 0) ImGui::EndDisabled();
+
+                    ImGui::Checkbox("Enable wind", &windEnable);
+                    if (!windEnable) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!windEnable) ImGui::EndDisabled();
+
+                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
+                    if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
+
+                    // Spacing
+                    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
+
+                    ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
+
+                    if (ImGui::Button("Confirm"))
+                    {
+                        if (!windEnable) windVelocity = 0.0f;
+                        if (!atmosphereEnable) atmosphericDensity = 0.0f;
+                        if (!gravityEnable) gravitationalAcceleration = 0.0f;
+                        calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                    }
+
+                    ImGui::EndChild();
+                }ImGui::End();
                 break;
             }
         }
@@ -324,6 +402,7 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+    ImPlot::DestroyContext();
 
     // delete window and glfw
     glfwDestroyWindow(window);
