@@ -386,7 +386,7 @@ int main() {
 
                     ImVec2 avail = ImGui::GetContentRegionAvail();
                     ImVec2 plot_size(avail.x * 0.9f, avail.y * 0.9f);
-                    ImVec2 offset((avail.x - plot_size.x) * 0.5f, (avail.y - plot_size.y) * 0.5f);
+                    ImVec2 offset((avail.x - plot_size.x) * 0.7f, (avail.y - plot_size.y) * 0.5f);
                     ImVec2 cursor = ImGui::GetCursorPos();
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y + offset.y));
@@ -401,6 +401,18 @@ int main() {
 
                     string warningMessage = "Warning: " + warning;
                     if(warningMessage != "Warning: ") ImGui::TextColored(ImVec4(1, 0, 0, 1), warningMessage.c_str());
+
+                    cursor = ImGui::GetCursorPos();
+                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y));
+
+                    if (hasTarget && !dataChanged) {
+                        if (abs(xAxis.back() - distanceFromAim) <= ballRadius) {
+                            ImGui::TextColored(ImVec4(0, 1, 0, 1), "The ball hit the target");
+                        }
+                        else {
+                            ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
+                        }
+                    }
                     ImGui::EndChild();
 
                     ImGui::SameLine();
