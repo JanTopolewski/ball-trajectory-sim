@@ -138,6 +138,11 @@ int main() {
     bool gravityEnable = true;
     bool atmosphereEnable = true;
 
+    // variables for showing results
+    vector<double> xAxis;
+    vector<double> yAxis;
+    string warning;
+
     // reading planet data from file
     //reading from file
     FilesManager* fileManager = new FilesManager();
@@ -238,7 +243,21 @@ int main() {
 
                     if (ImGui::Button("Select"))
                     {
-                        cout << fileNamesCStr[chosenFile] << endl;
+                        Simulation* sim = fileManager->readSimulationData(fileNamesCStr[chosenFile]);
+                        ballVelocity = sim->ballVelocity;
+                        firingAngle = sim->firingAngle;
+                        ballRadius = sim->ballRadius;
+                        ballMass = sim->ballMass;
+                        initialDistanceFromGround = sim->initialDistanceFromGround;
+                        distanceFromAim = sim->targetDistance;
+                        windVelocity = sim->windVelocity;
+                        windAngle = sim->windAngle;
+                        gravitationalAcceleration = sim->gravitationalAcceleration;
+                        atmosphericDensity = sim->atmosfericDensity;
+                        xAxis = sim->xAxisCoordinates;
+                        yAxis = sim->yAxisCoordinates;
+                        warning = sim->warning;
+
                         displaying = Displaying::SimulationMenu;
                     }
                 }ImGui::End();
@@ -303,6 +322,11 @@ int main() {
                         if (!atmosphereEnable) atmosphericDensity = 0.0f;
                         if (!gravityEnable) gravitationalAcceleration = 0.0f;
                         calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                        
+                        xAxis = calculator.getXAxisCoordinates();
+                        yAxis = calculator.getYAxisCoordinates();
+                        warning = calculator.getWarning();
+
                         displaying = Displaying::SimulationMenu;
                     }
 
@@ -316,13 +340,23 @@ int main() {
                 if (ImGui::Begin("Simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
 
+                    ImVec2 avail = ImGui::GetContentRegionAvail();
+                    ImVec2 plot_size(avail.x * 0.9f, avail.y * 0.9f);
+                    ImVec2 offset((avail.x - plot_size.x) * 0.5f, (avail.y - plot_size.y) * 0.5f);
+                    ImVec2 cursor = ImGui::GetCursorPos();
 
-                    if (ImPlot::BeginPlot("Space", ImVec2(-1, -1))) {
+                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y + offset.y));
+
+                    if (ImPlot::BeginPlot("Space", plot_size)) {
                         ImPlot::SetNextLineStyle(ImVec4(1, 0, 0, 1), 2.0f);
-                        ImPlot::PlotLine("Trajectory", calculator.getXAxisCoordinates().data(), calculator.getYAxisCoordinates().data(), (int)calculator.getXAxisCoordinates().size());
+                        ImPlot::PlotLine("Trajectory", xAxis.data(), yAxis.data(), (int)xAxis.size());
                         ImPlot::EndPlot();
                     }
 
+                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y));
+
+                    string warningMessage = "Warning: " + warning;
+                    if(warningMessage != "Warning: ") ImGui::TextColored(ImVec4(1, 0, 0, 1), warningMessage.c_str());
                     ImGui::EndChild();
 
                     ImGui::SameLine();
@@ -380,6 +414,10 @@ int main() {
                         if (!atmosphereEnable) atmosphericDensity = 0.0f;
                         if (!gravityEnable) gravitationalAcceleration = 0.0f;
                         calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                    
+                        xAxis = calculator.getXAxisCoordinates();
+                        yAxis = calculator.getYAxisCoordinates();
+                        warning = calculator.getWarning();
                     }
 
                     ImGui::EndChild();
