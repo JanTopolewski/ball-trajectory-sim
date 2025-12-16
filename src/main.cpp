@@ -22,55 +22,6 @@
 using namespace std;
 
 int main() {
-    TrajectoryCalculator calculator;
-    /*calculator.CalculateData(50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0);
-    vector<double> xAxis = calculator.getXAxisCoordinates();
-    vector<double> yAxis = calculator.getYAxisCoordinates();
-
-    for (size_t i = 0; i < xAxis.size(); ++i) {
-        cout << i << ". " << xAxis[i] << " - " << yAxis[i] << endl;
-    }
-    
-    string resultWarning = calculator.getWarning();
-
-    calculator.CalculateData(25.0, 45.0, 0.05, 0.1, 9.81, 0.0, 0.0, 0.0, 0.0);
-    vector<double> xAxis2 = calculator.getXAxisCoordinates();
-    vector<double> yAxis2 = calculator.getYAxisCoordinates();
-
-    for (size_t i = 0; i < xAxis2.size(); ++i) {
-        cout << i << ". " << xAxis2[i] << " - " << yAxis2[i] << endl;
-    }*/
-
-    //cout << "Do you want to save? (Y/n)";
-    //char answer;
-    //cin >> answer;
-    //if (answer == 'y')
-    //{
-    //    Simulation *simulation = new Simulation({50.0, 45.0, 0.05, 2.0, 9.81, 5.0, 180.0, 1.225, 0.0, xAxis, yAxis, resultWarning});
-    //    cout << "Name a file: ";
-    //    string fileName;
-    //    cin >> fileName;
-    //    if(filesystem::exists("data/"+fileName+".bin"))
-    //    {
-    //        cout << "Do you want to overwrite it? (Y/n)";
-    //        char answer;
-    //        cin >> answer;
-    //        if (answer == 'y')
-    //        {
-    //            FilesManager *fileManager = new FilesManager();
-    //            fileManager->saveSimulationData(simulation, fileName);
-    //            delete fileManager;
-    //        }
-    //    }
-    //    else
-    //    {
-    //        FilesManager *fileManager = new FilesManager();
-    //        fileManager->saveSimulationData(simulation, fileName);
-    //        delete fileManager;
-    //    }
-    //    // delete simulation;
-    //}
-
     glfwInit();
     // set the opengl version 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -96,7 +47,6 @@ int main() {
 
     int WINDOW_WIDTH, WINDOW_HEIGHT;
     glfwGetWindowSize(window, &WINDOW_WIDTH, &WINDOW_HEIGHT);
-    cout << WINDOW_WIDTH << " x " << WINDOW_HEIGHT << endl;
     
     // introduce the window to the current context
     glfwMakeContextCurrent(window);
@@ -105,7 +55,7 @@ int main() {
     gladLoadGL();
 
     // specify the viewport of OpenGL in the Window
-    glViewport(0, 0, 800, 800);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     // initialize imgui
     IMGUI_CHECKVERSION();
@@ -116,13 +66,19 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+
+    // variables and object for displaying subwindows
     const int WELCOME_WINDOW_WIDTH = 400;
     const int WELCOME_WINDOW_HEIGHT = 300;
 
-    Displaying displaying = Displaying::WelcomingMenu;
-
     const int CREATION_WINDOW_WIDTH = 800;
     const int CREATION_WINDOW_HEIGHT = 800;
+
+    Displaying displaying = Displaying::WelcomingMenu;
+
+
+    // object for calculations
+    TrajectoryCalculator calculator;
 
     // variables for input data
     float ballVelocity = 25.0;
@@ -160,15 +116,13 @@ int main() {
 
     vector<string> planets = fileManager->getSpaceObjectsNames();
 
-    // Convert vector<string> to const char* array 
-    const char* label = "Custom";
+    const char* defaultPlanetLabel = "Custom";
     vector<const char*> planetNamesCStr;
 
-    planetNamesCStr.reserve(planets.size() + (size_t)sizeof(label));
-    planetNamesCStr.push_back(label);
+    planetNamesCStr.reserve(planets.size() + (size_t)sizeof(defaultPlanetLabel));
+    planetNamesCStr.push_back(defaultPlanetLabel);
 
     for (const auto& planet : planets) {
-        cout << planet << endl;
         planetNamesCStr.push_back(planet.c_str());
     }
     static int currentPlanet = 0;
@@ -183,7 +137,6 @@ int main() {
     // render loop
     while (!glfwWindowShouldClose(window))
     {
-
         // rendering commands here
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // background color
         glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
@@ -216,19 +169,16 @@ int main() {
 
                     if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
                     {
-                        cout << "created new" << endl;
                         displaying = Displaying::CreationMenu;
                     }
                     ImGui::SameLine(0, spacing);
                     if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
                     {
-                        cout << "reading from file" << endl;
                         // get the possible filenames
                         fileNames = fileManager->getSavedSimulationsNames();
 
                         fileNamesCStr.clear();
                         for (const auto& file : fileNames) {
-                            cout << file << endl;
                             fileNamesCStr.push_back(file.c_str());
                         }
 
