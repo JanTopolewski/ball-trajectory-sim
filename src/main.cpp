@@ -180,7 +180,6 @@ int main() {
     vector<string> fileNames;
     vector<const char*> fileNamesCStr;
 
-
     // render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -193,10 +192,6 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        //if (!io.WantCaptureMouse) // for ignoring mouse inputs, when hovering over the imgui subwindow
-        //{
-        //    // your input functions here
-        //}
         switch (displaying)
         {
             case Displaying::WelcomingMenu:
@@ -231,6 +226,7 @@ int main() {
                         // get the possible filenames
                         fileNames = fileManager->getSavedSimulationsNames();
 
+                        fileNamesCStr.clear();
                         for (const auto& file : fileNames) {
                             cout << file << endl;
                             fileNamesCStr.push_back(file.c_str());
@@ -249,6 +245,7 @@ int main() {
                 if (ImGui::Begin("Choose a simulation to read from", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) 
                 {
                     ImGui::Text("Choose a simulation from the list: ");
+                    
                     ImGui::Combo(" ", &chosenFile, fileNamesCStr.data(), fileNamesCStr.size());
 
                     if (ImGui::Button("Select"))
@@ -309,6 +306,7 @@ int main() {
                             Simulation* sim = new Simulation({ ballVelocity, firingAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windAngle, atmosphericDensity, initialDistanceFromGround, xAxis, yAxis, warning, {}, {}, hasTarget, distanceFromAim });
                             fileManager->saveSimulationData(sim, filename);
                             displaying = Displaying::WelcomingMenu;
+                            //memset(buf, 0, sizeof(buf));
                         }
                     }
                 }ImGui::End();
