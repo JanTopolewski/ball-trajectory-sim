@@ -3,20 +3,20 @@
 #include <string>
 
 struct Simulation{
-    double ballVelocity;
-    double firingAngle;
-    double ballRadius;
-    double ballMass;
-    double gravitationalAcceleration;
-    double windVelocity;
-    double windAngle;
-    double atmosfericDensity;
-    double initialDistanceFromGround;
+    float ballVelocity;
+    float firingAngle;
+    float ballRadius;
+    float ballMass;
+    float gravitationalAcceleration;
+    float windVelocity;
+    float windAngle;
+    float atmosfericDensity;
+    float initialDistanceFromGround;
     std::vector<double> xAxisCoordinates;
     std::vector<double> yAxisCoordinates;
     std::string warning;
     std::vector<double> xAxisAdditionalTrajectory;
     std::vector<double> yAxisAdditionalTrajectory;
     bool hasTarget;
-    double targetDistance;
+    float targetDistance;
 };

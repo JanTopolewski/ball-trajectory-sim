@@ -2,6 +2,7 @@
 enum class Displaying {
 	WelcomingMenu,
 	ReadFileMenu,
+	SaveFileMenu,
 	CreationMenu,
 	SimulationMenu
 };

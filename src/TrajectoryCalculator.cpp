@@ -3,6 +3,7 @@
 #include <cmath>
 #include <numbers>
 #include <functional>
+#include <limits>
 
 using namespace std;
 
@@ -120,8 +121,26 @@ void TrajectoryCalculator::CalculateData(
 				break;
 			}
 			else if (isinf(x) || isinf(y)) {
-				xAxisCoordinates.push_back(x);
-				yAxisCoordinates.push_back(y);
+				if (isinf(x) && x < 0) {
+					xAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(x) && x > 0) {
+					xAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					xAxisCoordinates.push_back(x);
+				}
+
+				if (isinf(y) && y < 0) {
+					yAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(y) && y > 0) {
+					yAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					yAxisCoordinates.push_back(y);
+				}
+
 				warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
 				break;
 			}
