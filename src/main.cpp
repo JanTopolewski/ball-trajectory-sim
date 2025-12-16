@@ -274,6 +274,10 @@ int main() {
 
                         displaying = Displaying::SimulationMenu;
                     }
+                    if (ImGui::Button("Back"))
+                    {
+                        displaying = Displaying::WelcomingMenu;
+                    }
                 }ImGui::End();
                 break;
             }
@@ -364,7 +368,9 @@ int main() {
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
+                    ImGui::PushTextWrapPos(0.0f);
                     ImGui::Text("You can also preset values according to specific space object (leave \"Custom\" if you want to adjust them for your own)");
+                    ImGui::PopTextWrapPos();
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
 
                     if (ImGui::Button("Create simulation"))
@@ -385,6 +391,10 @@ int main() {
                         axesSetting = true;
 
                         displaying = Displaying::SimulationMenu;
+                    }
+                    if (ImGui::Button("Back"))
+                    {
+                        displaying = Displaying::WelcomingMenu;
                     }
 
                 }ImGui::End();
@@ -449,8 +459,7 @@ int main() {
                             }
                         }
 
-                        ImPlot::EndPlot();
-                    }
+                    }ImPlot::EndPlot();
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
@@ -556,6 +565,10 @@ int main() {
                             dataChanged = false;
                         }
                         displaying = Displaying::SaveFileMenu;
+                    }
+                    if (ImGui::Button("Back"))
+                    {
+                        displaying = Displaying::WelcomingMenu;
                     }
 
                     ImGui::EndChild();
