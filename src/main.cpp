@@ -17,6 +17,7 @@
 #include <string>
 #include <filesystem>
 #include <regex>
+#include <algorithm>
 
 using namespace std;
 
@@ -147,6 +148,11 @@ int main() {
     vector<double> yAxis;
     string warning;
 
+    // variables for animations in implot
+    static int currentIndex = 0;
+    static double lastTime = ImGui::GetTime();
+    bool axesSetting = false;
+
     // reading planet data from file
     //reading from file
     FilesManager* fileManager = new FilesManager();
@@ -262,6 +268,10 @@ int main() {
                         yAxis = sim->yAxisCoordinates;
                         warning = sim->warning;
 
+                        lastTime = ImGui::GetTime();
+                        currentIndex = 0;
+                        axesSetting = true;
+
                         displaying = Displaying::SimulationMenu;
                     }
                 }ImGui::End();
@@ -370,6 +380,9 @@ int main() {
                         xAxis = calculator.getXAxisCoordinates();
                         yAxis = calculator.getYAxisCoordinates();
                         warning = calculator.getWarning();
+                        lastTime = ImGui::GetTime();
+                        currentIndex = 0;
+                        axesSetting = true;
 
                         displaying = Displaying::SimulationMenu;
                     }
@@ -384,26 +397,68 @@ int main() {
                 if (ImGui::Begin("Simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
 
-                    ImVec2 avail = ImGui::GetContentRegionAvail();
-                    ImVec2 plot_size(avail.x * 0.9f, avail.y * 0.9f);
-                    ImVec2 offset((avail.x - plot_size.x) * 0.7f, (avail.y - plot_size.y) * 0.5f);
                     ImVec2 cursor = ImGui::GetCursorPos();
 
-                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y + offset.y));
+                    ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
-                    if (ImPlot::BeginPlot("Space", plot_size)) {
-                        ImPlot::SetNextLineStyle(ImVec4(1, 0, 0, 1), 2.0f);
-                        ImPlot::PlotLine("Trajectory", xAxis.data(), yAxis.data(), (int)xAxis.size());
+                    double now = ImGui::GetTime();
+                    if (now - lastTime >= 0.001 && currentIndex < (int)xAxis.size()) {
+                        lastTime = now;
+                        currentIndex++;
+                    }
+
+                    auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
+                    auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
+                    double xMin = *xMinTemp;
+                    double xMax = *xMaxTemp;
+                    double yMin = *yMinTemp;
+                    double yMax = *yMaxTemp;
+                    if (yMin > 0.0) {
+                        yMin = 0.0;
+                    }
+
+                    double xMargin = (xMax - xMin) * 0.1;
+                    double yMargin = (yMax - yMin) * 0.1;
+
+                    if (axesSetting) {
+                        ImPlot::SetNextAxesLimits(xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlotCond_Always);
+                        axesSetting = false;
+                    }
+                    else {
+                        ImPlot::SetNextAxesLimits(xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlotCond_Once);
+                    }
+
+                    if (ImPlot::BeginPlot("Space", ImVec2(-1, -1), ImPlotFlags_Equal | ImPlotFlags_NoTitle | ImPlotFlags_NoLegend)) {
+                        if (currentIndex > 1) {
+                            ImPlot::SetNextLineStyle(ImVec4(1, 0, 0, 1), 2.0f);
+                            ImPlot::PlotLine("Trajectory", xAxis.data(), yAxis.data(), currentIndex);
+
+                            ImVec2 plotSize = ImPlot::GetPlotSize();
+
+                            float pixelsPerUnitX = plotSize.x / (float)(ImPlot::GetPlotLimits().X.Max - ImPlot::GetPlotLimits().X.Min);
+                            float markerSize = 2 * (float)ballRadius * pixelsPerUnitX;
+
+                            ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, markerSize, ImVec4(1, 0, 0, 1), 0.0f, ImVec4(0, 0, 0, 0));
+                            ImPlot::PlotScatter("Ball", &xAxis[currentIndex - 1], &yAxis[currentIndex - 1], 1);
+
+                            if (hasTarget && !dataChanged) {
+                                ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, 4.0f, ImVec4(1, 1, 0, 1), 0.0f, ImVec4(0, 0, 0, 0));
+                                double targetX = (double)distanceFromAim;
+                                double targetY = 0.0;
+                                ImPlot::PlotScatter("Target", &targetX, &targetY, 1);
+                            }
+                        }
+
                         ImPlot::EndPlot();
                     }
 
-                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y));
+                    ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
                     string warningMessage = "Warning: " + warning;
                     if(warningMessage != "Warning: ") ImGui::TextColored(ImVec4(1, 0, 0, 1), warningMessage.c_str());
 
                     cursor = ImGui::GetCursorPos();
-                    ImGui::SetCursorPos(ImVec2(cursor.x + offset.x, cursor.y));
+                    ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
                     if (hasTarget && !dataChanged) {
                         if (abs(xAxis.back() - distanceFromAim) <= ballRadius) {
@@ -483,6 +538,10 @@ int main() {
                         yAxis = calculator.getYAxisCoordinates();
                         warning = calculator.getWarning();
                         dataChanged = false;
+                        lastTime = ImGui::GetTime();
+                        currentIndex = 0;
+
+                        axesSetting = true;
                     }
 
                     ImGui::SameLine();
