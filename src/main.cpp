@@ -461,7 +461,7 @@ int main() {
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
                     if (hasTarget && !dataChanged) {
-                        if (abs(xAxis.back() - distanceFromAim) <= ballRadius) {
+                        if (abs(xAxis.back() - distanceFromAim) <= ballRadius && yAxis.back() - ballRadius <= 0) {
                             ImGui::TextColored(ImVec4(0, 1, 0, 1), "The ball hit the target");
                         }
                         else {
