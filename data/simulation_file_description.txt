@@ -1,0 +1,22 @@
+Kolejność danych w pliku z symulacją (wszystko w jednostkach zgodnych ze specyfikacją):
+początkowa prędkość kuli (ballVelocity) 8 bytes
+kąt rzutu w stopniach (firingAngle) 8 bytes
+promień kuli (ballRadius) 8 bytes
+masa kuli (ballMass) 8 bytes
+przyspieszenie grawitacyjne (gravitationalAcceleration) 8 bytes
+prędkość wiatru (windVelocity) 8 bytes
+kąt wiatru w stopniach (windAngle) 8 bytes
+gęstość atmosfery (atmosfericDensity) 8 bytes
+odległość dołu kuli od powierzchni na początku lotu (initialDistanceFromGround) 8 bytes
+długość wektora współrzędnych x (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych x (xAxisCoordinates) 8 bytes * długość
+długość wektora współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych y (yAxisCoordinates) 8 bytes * długość
+długość ostrzeżenia (nowa zmienna typu size_t) 4 bytes / 8 bytes
+ostrzeżenie na temat symulacji (warning) 1 bytes * długość
+długość porównawczego wektora współrzędnych x (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych x (xAxisAdditionalTrajectory) 8 bytes * długość
+długość porównawczego wektora współrzędnych y (nowa zmienna typu size_t) 4 bytes / 8 bytes
+wektor współrzędnych y (yAxisAdditionalTrajectory) 8 bytes * długość
+czy symulacja opiera się o trafianie w cel (hasTarget) 1 byte
+odległość celu od punktu startowego (targetDistance) )nie należy brać pod uwagę, gdy hasTarget jest false) 8 bytes
