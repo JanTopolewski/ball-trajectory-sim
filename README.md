@@ -1,2 +1,9 @@
-# ball-trajectory-sim
-Simulation of the ball's flight trajectory based on the given physical parameters of the ball and the environment
+# Instrukcja uruchomienia projektu
+
+## Wymagane paczki
+- [ImGui](https://github.com/ocornut/imgui)
+- [GLFW](https://www.glfw.org/download)
+- [Glad](https://glad.dav1d.de/)
+- [ImPlot](https://github.com/epezent/implot)
+- [CMake](https://cmake.org/download/)
+- OpenGL
