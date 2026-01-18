@@ -8,4 +8,8 @@ find_package(imgui REQUIRED)
 
 
 add_executable(TrajectorySimulation "${PROJECT_SOURCE_DIR}/src/main.cpp" "include/TrajectoryCalculator.h" "src/TrajectoryCalculator.cpp" "include/FilesManager.h" "src/FilesManager.cpp" "include/Displaying.h" "include/Simulation.h" "include/SpaceObject.h")
+target_include_directories(TrajectorySimulation
+    PRIVATE
+        "${PROJECT_SOURCE_DIR}/src"
+)
 file(COPY ${PROJECT_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR})
