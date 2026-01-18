@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(TrajectorySimulation VERSION 1.0 LANGUAGES CXX)
+project(TrajectorySimulation VERSION 1.0 LANGUAGES C CXX)
 
 # ============================================================================
 # Project Configuration
@@ -58,22 +58,25 @@ add_library(imgui STATIC
 )
 
 target_include_directories(imgui PUBLIC
-    libs/imgui
+    ${CMAKE_SOURCE_DIR}/libs/imgui
+    ${CMAKE_SOURCE_DIR}/libs/glad/include
+)
+
+# Fix for ImGui internal includes that use "../" relative paths
+# The ImGui source files use "#include ../imgui.h" so we need to add a parent-like path
+target_include_directories(imgui PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/imgui/..
+    ${CMAKE_SOURCE_DIR}/libs
 )
 
 target_link_libraries(imgui PUBLIC
+    glad
     glfw
     OpenGL::GL
 )
 
-# Platform-specific settings for ImGui
-if(WIN32)
-    target_compile_definitions(imgui PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
-elseif(APPLE)
-    target_compile_definitions(imgui PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
-else()
-    target_compile_definitions(imgui PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
-endif()
+# Tell ImGui to use a custom OpenGL loader (we're using GLAD)
+target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
 # ============================================================================
 # ImPlot - Plotting Library for ImGui

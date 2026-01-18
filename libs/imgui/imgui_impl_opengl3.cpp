@@ -123,7 +123,11 @@
 
 #include "imgui.h"
 #ifndef IMGUI_DISABLE
-#include "../imgui_impl_opengl3.h"
+#include "imgui_impl_opengl3.h"
+// Include GLAD for OpenGL function loading
+#if defined(IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+#include <glad/glad.h>
+#endif
 #include <stdio.h>
 #include <stdint.h>     // intptr_t
 #if defined(__APPLE__)
