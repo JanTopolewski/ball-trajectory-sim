@@ -483,3 +483,5 @@ Makefile
 *.ninja_log
 
 external/
+
+.idea
