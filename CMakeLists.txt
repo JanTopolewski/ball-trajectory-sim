@@ -11,12 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# GLFW - Window and input handling
-# On Linux: sudo apt install libglfw3-dev
-# On macOS: brew install glfw
-# On Windows: vcpkg install glfw3:x64-windows
-find_package(glfw3 REQUIRED)
-
 # ============================================================================
 # GLAD - OpenGL Function Loader
 # ============================================================================
