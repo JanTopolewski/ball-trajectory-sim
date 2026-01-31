@@ -40,22 +40,21 @@ target_include_directories(glfw INTERFACE
 # ============================================================================
 # Dear ImGui - Immediate Mode GUI Library
 # ============================================================================
-# ImGui is vendored in libs/imgui/
+
+# Dear ImGUI
 
 add_library(imgui STATIC
-    libs/imgui/imgui.cpp
-    libs/imgui/imgui_draw.cpp
-    libs/imgui/imgui_tables.cpp
-    libs/imgui/imgui_widgets.cpp
-    libs/imgui/imgui_demo.cpp
-    # ImGui backends for GLFW and OpenGL3
-    libs/imgui/imgui_impl_glfw.cpp
-    libs/imgui/imgui_impl_opengl3.cpp
+        external/include/imgui/imgui.cpp
+        external/include/imgui/imgui_demo.cpp
+        external/include/imgui/imgui_draw.cpp
+        external/include/imgui/imgui_tables.cpp
+        external/include/imgui/imgui_widgets.cpp
+        external/include/imgui/imgui_impl_glfw.cpp
+        external/include/imgui/imgui_impl_opengl3.cpp
 )
-
 target_include_directories(imgui PUBLIC
-    ${CMAKE_SOURCE_DIR}/libs/imgui
-    ${CMAKE_SOURCE_DIR}/libs/glad/include
+        ${CMAKE_SOURCE_DIR}/external/include/imgui
+        ${CMAKE_SOURCE_DIR}/external/include
 )
 
 # Fix for ImGui internal includes that use "../" relative paths
