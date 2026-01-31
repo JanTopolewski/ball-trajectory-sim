@@ -50,26 +50,8 @@ target_include_directories(imgui PUBLIC
         ${CMAKE_SOURCE_DIR}/external/include
 )
 
-# Fix for ImGui internal includes that use "../" relative paths
-# The ImGui source files use "#include ../imgui.h" so we need to add a parent-like path
-#target_include_directories(imgui PRIVATE
-#    ${CMAKE_SOURCE_DIR}/libs/imgui/..
-#    ${CMAKE_SOURCE_DIR}/libs
-#)
-
-#target_link_libraries(imgui PUBLIC
-#    glad
-#    glfw
-#    OpenGL::GL
-#)
-
-# Tell ImGui to use a custom OpenGL loader (we're using GLAD)
-#target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
-
-# ============================================================================
 # ImPlot - Plotting Library for ImGui
-# ============================================================================
-# ImPlot needs to be downloaded from: https://github.com/epezent/implot
+# needs to be downloaded from: https://github.com/epezent/implot
 # Clone or download and place in libs/implot/
 
 if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot/implot.cpp")
@@ -78,12 +60,12 @@ if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot/implot.cpp")
     message(WARNING "Place implot.h, implot.cpp, implot_items.cpp, implot_internal.h in /external/include/implot/")
 else()
     add_library(implot STATIC
-        /external/include/implot/implot.cpp
-        /external/include/implot/implot_items.cpp
+        external/include/implot/implot.cpp
+        external/include/implot/implot_items.cpp
     )
 
     target_include_directories(implot PUBLIC
-            /external/include/implot
+            external/include/implot
     )
 
     target_link_libraries(implot PUBLIC
@@ -99,7 +81,7 @@ add_executable(TrajectorySimulation
     # Main entry point
     src/main.cpp
 
-    # Your application source files
+    # Application source files
     src/TrajectoryCalculator.cpp
     src/FilesManager.cpp
 
