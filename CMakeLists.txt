@@ -36,7 +36,6 @@ target_include_directories(glfw INTERFACE
 )
 
 # Dear ImGUI
-
 add_library(imgui STATIC
         external/include/imgui/imgui.cpp
         external/include/imgui/imgui_demo.cpp
@@ -53,19 +52,19 @@ target_include_directories(imgui PUBLIC
 
 # Fix for ImGui internal includes that use "../" relative paths
 # The ImGui source files use "#include ../imgui.h" so we need to add a parent-like path
-target_include_directories(imgui PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/imgui/..
-    ${CMAKE_SOURCE_DIR}/libs
-)
+#target_include_directories(imgui PRIVATE
+#    ${CMAKE_SOURCE_DIR}/libs/imgui/..
+#    ${CMAKE_SOURCE_DIR}/libs
+#)
 
-target_link_libraries(imgui PUBLIC
-    glad
-    glfw
-    OpenGL::GL
-)
+#target_link_libraries(imgui PUBLIC
+#    glad
+#    glfw
+#    OpenGL::GL
+#)
 
 # Tell ImGui to use a custom OpenGL loader (we're using GLAD)
-target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
+#target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 
 # ============================================================================
 # ImPlot - Plotting Library for ImGui
@@ -73,18 +72,18 @@ target_compile_definitions(imgui PUBLIC IMGUI_IMPL_OPENGL_LOADER_CUSTOM)
 # ImPlot needs to be downloaded from: https://github.com/epezent/implot
 # Clone or download and place in libs/implot/
 
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/libs/implot/implot.cpp")
-    message(WARNING "ImPlot not found in libs/implot/. Please download from:")
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot/implot.cpp")
+    message(WARNING "ImPlot not found in /external/include/implot/. Please download from:")
     message(WARNING "  https://github.com/epezent/implot")
-    message(WARNING "Place implot.h, implot.cpp, implot_items.cpp, implot_internal.h in libs/implot/")
+    message(WARNING "Place implot.h, implot.cpp, implot_items.cpp, implot_internal.h in /external/include/implot/")
 else()
     add_library(implot STATIC
-        libs/implot/implot.cpp
-        libs/implot/implot_items.cpp
+        /external/include/implot/implot.cpp
+        /external/include/implot/implot_items.cpp
     )
 
     target_include_directories(implot PUBLIC
-        libs/implot
+            /external/include/implot
     )
 
     target_link_libraries(implot PUBLIC
@@ -120,15 +119,12 @@ target_include_directories(TrajectorySimulation PRIVATE
 # Link all dependencies
 target_link_libraries(TrajectorySimulation PRIVATE
     imgui
+    implot
     glad
     glfw
     OpenGL::GL
 )
 
-# Link implot if available
-if(TARGET implot)
-    target_link_libraries(TrajectorySimulation PRIVATE implot)
-endif()
 
 # ============================================================================
 # Platform-Specific Settings
