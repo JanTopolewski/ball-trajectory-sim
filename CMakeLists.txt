@@ -18,15 +18,15 @@ find_package(OpenGL REQUIRED)
 # Settings: gl Version 3.3+, Core profile, Generate a loader
 # Place generated files in libs/glad/
 
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/libs/glad/src/glad.c")
-    message(WARNING "GLAD not found in libs/glad/. Please download from https://glad.dav1d.de/")
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/glad/glad.c")
+    message(WARNING "GLAD not found in external/include/glad/glad.c. Please download from https://glad.dav1d.de/")
     message(WARNING "Settings: OpenGL Version 3.3+, Core Profile, Generate a loader")
 endif()
 
-add_library(glad STATIC
-    libs/glad/src/glad.c
+add_library(glad external/include/glad/glad.c)
+target_include_directories(glad PUBLIC
+        external/include/glad
 )
-target_include_directories(glad PUBLIC libs/glad/include)
 
 # ============================================================================
 # Dear ImGui - Immediate Mode GUI Library
