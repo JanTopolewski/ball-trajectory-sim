@@ -11,10 +11,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # OpenGL
 find_package(OpenGL REQUIRED)
 
-# ============================================================================
-# GLAD - OpenGL Function Loader
-# ============================================================================
-# GLAD needs to be downloaded from: https://glad.dav1d.de/
+# GLAD
+# needs to be downloaded from: https://glad.dav1d.de/
 # Settings: gl Version 3.3+, Core profile, Generate a loader
 # Place generated files in libs/glad/
 
@@ -36,10 +34,6 @@ set_target_properties(glfw PROPERTIES
 target_include_directories(glfw INTERFACE
         ${CMAKE_SOURCE_DIR}/external/include/GLFW
 )
-
-# ============================================================================
-# Dear ImGui - Immediate Mode GUI Library
-# ============================================================================
 
 # Dear ImGUI
 
