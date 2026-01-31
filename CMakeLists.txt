@@ -28,6 +28,15 @@ target_include_directories(glad PUBLIC
         external/include/glad
 )
 
+# GLFW
+add_library(glfw STATIC IMPORTED)
+set_target_properties(glfw PROPERTIES
+        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/libs/libglfw3.a
+)
+target_include_directories(glfw INTERFACE
+        ${CMAKE_SOURCE_DIR}/external/include/GLFW
+)
+
 # ============================================================================
 # Dear ImGui - Immediate Mode GUI Library
 # ============================================================================
