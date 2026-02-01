@@ -60,6 +60,29 @@ cd ball-trajectory-sim
    - Extract to `external/include/glad/` 
 
 2. **GLFW**
+   <details>
+   <summary>Linux</summary>
+   
+   </details>
+   
+   <details>
+   <summary>Windows</summary>
+   
+   1. download the source package of [GLFW](https://www.glfw.org/download.html)
+   2. extract the glfw .zip file and open cmake gui
+   3. as the source code, select the just extracted folder
+   4. create the 'build' subfolder and select it as the build folder
+   5. click on configure and make sure you have 'Visual Studio ...' option selected as the generator
+   6. exit the modal window and click on 'configure'
+   7. click on 'generate' and exit from cmake
+   8. open the extracted glfw folder, go to ./build subfolder and open the generated .sln or .slnx file in Visual Studio
+   9. right click on solution 'GLFW' in solution explorer and choose 'Build Solution'
+   10. once the build is finished exit from Visual Studio
+   11. go to your extracted glfw folder then ./build/src/Debug 
+   12. copy-paste the glfw3.lib file to this project's ./external/libs/ folder
+   13. go back to the extracted glfw folder
+   14. go to ./include subfolder and copy-paste the ./GLFW folder into this project's ./external/include folder
+   </details>
 
 3. **ImPlot** 
    - Download the code in .zip archive from the [github repo](https://github.com/epezent/implot)
