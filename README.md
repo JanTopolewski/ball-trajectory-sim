@@ -6,6 +6,15 @@ A cross-platform C++ application for simulating and visualizing ball trajectorie
 ![CMake](https://img.shields.io/badge/CMake-3.15+-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20-lightgrey.svg)
 
+## Dependencies
+- **CMake** 3.15+
+- **OpenGL** 3.3+ - Graphics API
+- **C++20** compatible compiler (GCC 10+, Clang 10+, MSVC 2019+)
+- **ImGui** - Immediate mode GUI library
+- **ImPlot** - Plotting library for ImGui
+- **GLAD** - OpenGL function loader (requires manual download)
+- **GLFW** 3.x - Window and input handling
+
 ## Setup
 
 ### Prerequisites
@@ -22,7 +31,7 @@ A cross-platform C++ application for simulating and visualizing ball trajectorie
 On Linux you can install them by running this command:
 
 ```bash
-# Linux (Ubuntu/Debian)
+# Ubuntu/Debian
 sudo apt install cmake build-essential libgl1-mesa-dev git
 ```
 </details>
@@ -64,18 +73,32 @@ cd ball-trajectory-sim
 
 <details>
 <summary>Linux</summary>
+
 ```bash
-mkdir build
-cd build
-cmake -B build -DCMAKE_BUILD_TYPE=Release ..
-cmake --build . -j$(nproc)
-./TrajectorySimulation
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+./build/TrajectorySimulation
 ```
+
 </details>
 
 <details>
 <summary>Windows</summary>
 
+#### Visual Studio
+
+```bash
+cmake -B build -G "Visual Studio 17 2022"
+cmake --build build --config Release
+build\Release\TrajectorySimulation.exe
+```
+
+#### MinGW
+```bash
+cmake -B build -G "MinGW Makefiles"
+cmake --build build
+build\TrajectorySimulation.exe
+```
 </details>
 
 ## Project Structure
@@ -126,38 +149,6 @@ ball-trajectory-sim/
 3. **Load saved simulations**:
    - Choose "Read from file" at startup
    - Select a previously saved simulation
-
-## Building on Different Platforms
-
-### Linux
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(nproc)
-./build/TrajectorySimulation
-```
-
-### Windows (Visual Studio)
-```bash
-cmake -B build -G "Visual Studio 17 2022"
-cmake --build build --config Release
-build\Release\TrajectorySimulation.exe
-```
-
-### Windows (MinGW)
-```bash
-cmake -B build -G "MinGW Makefiles"
-cmake --build build
-build\TrajectorySimulation.exe
-```
-
-## Dependencies
-- **CMake** 3.15+
-- **OpenGL** 3.3+ - Graphics API
-- **C++20** compatible compiler (GCC 10+, Clang 10+, MSVC 2019+)
-- **ImGui** - Immediate mode GUI library
-- **ImPlot** - Plotting library for ImGui
-- **GLAD** - OpenGL function loader (requires manual download)
-- **GLFW** 3.x - Window and input handling
 
 ## License
 
