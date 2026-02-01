@@ -63,6 +63,17 @@ cd ball-trajectory-sim
    <details>
    <summary>Linux</summary>
    
+   1. download the source package of [GLFW](https://www.glfw.org/download.html)
+   2. extract the glfw .zip file and open cmake gui
+   3. as the source code, select the just extracted folder
+   4. create the 'build' subfolder and select it as the build folder
+   5. click on 'configure', then on 'generate'
+   6. open the extracted glfw folder, go to ./build subfolder, open it in terminal
+   7. type `make` to build glfw
+   8. go to generated glfw folder, goto ./build/src subfolder
+   9. copy-paste the libglfw3.a file to this project's ./extracted/libs subfolder
+   10. go back to the extracted glfw folder
+   11. go to ./include subfolder and copy-paste the ./GLFW folder into this project's ./external/include folder
    </details>
    
    <details>
