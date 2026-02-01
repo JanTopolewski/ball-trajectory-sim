@@ -93,13 +93,21 @@ ball-trajectory-sim/
 │   ├── Simulation.h
 │   ├── SpaceObject.h
 │   └── Displaying.h
-├── libs/                    # External libraries
-│   ├── imgui/              ✓ Included
-│   ├── implot/             ✓ Included
-│   └── glad/               ⚠️ Download required
+├── external/                # External libraries
+│   ├── include/             # .h and .cpp files
+│   │   ├── glad/
+│   │   │   ├── glad/
+│   │   │   ├── KHR/
+│   │   │   └── glad.c
+│   │   ├── GLFW/
+│   │   ├── imgui/
+│   │   └── implot/       
+│   └── libs/                # compiled static libraries
+│       ├── libglfw3.a       # for Linux
+│       └── glfw3.lib        # for Windows      
 ├── data/                    # Runtime data files
 │   └── space_objects_data.csv
-└── build/                   # Build directory (generated)
+└── build/                   # Build directory
 ```
 
 ## Usage
