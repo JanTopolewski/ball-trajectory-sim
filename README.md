@@ -3,7 +3,7 @@
 A cross-platform C++ application for simulating and visualizing ball trajectories with physics calculations, featuring a graphical interface built with ImGui and ImPlot.
 
 ![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)
-![CMake](https://img.shields.io/badge/CMake-4.0+-green.svg)
+![CMake](https://img.shields.io/badge/CMake-3.15+-green.svg)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20-lightgrey.svg)
 
 ## Setup
@@ -104,31 +104,20 @@ ball-trajectory-sim/
 └── build/                   # Build directory (generated)
 ```
 
-## Documentation
-
-- **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick commands and tips
-- **[CMAKE_TUTORIAL.md](CMAKE_TUTORIAL.md)** - Comprehensive CMake tutorial
-- **[SETUP_DEPENDENCIES.md](SETUP_DEPENDENCIES.md)** - Detailed dependency setup guide
-
 ## Usage
 
-1. **Launch the application**:
-   ```bash
-   ./build/TrajectorySimulation
-   ```
-
-2. **Create a new simulation**:
+1. **Create a new simulation**:
    - Set initial velocity, angle, mass, radius
    - Choose a space object preset (Earth, Moon, etc.) or custom values
    - Enable/disable gravity, wind, atmosphere
    - Set target distance
 
-3. **View results**:
+2. **View results**:
    - Watch the animated trajectory
    - Adjust parameters in real-time
    - Save simulations for later
 
-4. **Load saved simulations**:
+3. **Load saved simulations**:
    - Choose "Read from file" at startup
    - Select a previously saved simulation
 
@@ -155,13 +144,6 @@ cmake --build build
 build\TrajectorySimulation.exe
 ```
 
-### macOS
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j$(sysctl -n hw.ncpu)
-./build/TrajectorySimulation
-```
-
 ## Dependencies
 
 ### Required (System)
@@ -174,33 +156,6 @@ cmake --build build -j$(sysctl -n hw.ncpu)
 - **ImGui** - Immediate mode GUI library
 - **ImPlot** - Plotting library for ImGui
 - **GLAD** - OpenGL function loader (requires manual download)
-
-## Troubleshooting
-
-### "Could not find package glfw3"
-Install GLFW3 development libraries:
-```bash
-sudo apt install libglfw3-dev  # Linux
-brew install glfw              # macOS
-vcpkg install glfw3:x64-windows  # Windows
-```
-
-### "glad/glad.h: No such file or directory"
-Download GLAD from [https://glad.dav1d.de/](https://glad.dav1d.de/) and place in `libs/glad/`.
-See [SETUP_DEPENDENCIES.md](SETUP_DEPENDENCIES.md) for details.
-
-### "implot.h: No such file or directory"
-ImPlot should already be included. If missing:
-```bash
-cd libs
-git clone https://github.com/epezent/implot.git
-```
-
-For more troubleshooting, see [SETUP_DEPENDENCIES.md](SETUP_DEPENDENCIES.md).
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
@@ -217,13 +172,3 @@ See [LICENSE](LICENSE) file for details.
 - [GLFW](https://www.glfw.org/) - Marcus Geelnard, Camilla Löwy
 - [GLAD](https://glad.dav1d.de/) - David Herberth
 - [LearnOpenGL](https://learnopengl.com/) - Joey de Vries
-
-## Instalacja ImPlot
-
-Pobierz [ImPlot](https://github.com/epezent/implot) i wypakuj do z zipa
-
-Dalej zrób tak samo jak z folderem ImGui:
-
-- dodaj nowe filtry nazawne `implot` do `Header Files` i `Source Files` w projekcie TrajectorySimulation
-- do filtru w `Header Files` dodaj rozpakowane pliki `.h` z folderu implot
-- do filtru w `Source Files` dodaj rozpakowane pliki `.cpp` z folderu implot
