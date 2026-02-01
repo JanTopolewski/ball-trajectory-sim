@@ -1,35 +1,42 @@
-# Ball Trajectory Simulation
+# Ball trajectory simulation
 
 A cross-platform C++ application for simulating and visualizing ball trajectories with physics calculations, featuring a graphical interface built with ImGui and ImPlot.
 
 ![C++](https://img.shields.io/badge/C%2B%2B-20-blue.svg)
-![CMake](https://img.shields.io/badge/CMake-3.15+-green.svg)
-![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey.svg)
+![CMake](https://img.shields.io/badge/CMake-4.0+-green.svg)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20-lightgrey.svg)
 
-## Features
-
-- 🎯 Interactive trajectory simulation with real-time visualization
-- 📊 Beautiful plotting with ImPlot
-- 🌍 Multiple space object presets (Earth, Moon, Mars, etc.)
-- 💨 Wind and atmospheric effects
-- 💾 Save and load simulations
-- 🖥️ Cross-platform (Linux, Windows, macOS)
-
-## Quick Start
+## Setup
 
 ### Prerequisites
 
-**System Dependencies:**
+**You have to have certain system dependencies installed on your computer:**
+- OpenGL in version 3.3 or higher
+- CMake
+- git version control system
+
+**Installation**
+
+<details>
+<summary>Linux</summary>
+On Linux you can install them by running this command:
+
 ```bash
 # Linux (Ubuntu/Debian)
-sudo apt install cmake build-essential libglfw3-dev libgl1-mesa-dev git
-
-# macOS
-brew install cmake glfw
-
-# Windows
-# Use vcpkg: vcpkg install glfw3:x64-windows
+sudo apt install cmake build-essential libgl1-mesa-dev git
 ```
+</details>
+
+<details>
+<summary>Windows</summary>
+On Windows you need to manually install everything from a web browser
+
+1. First you should check if you already have OpenGL in 3.3 version, you can do it by installing and running an OpenGL checker program like [GLView](https://www.realtech-vr.com/glview/)
+2. Then you need to have [CMake](https://cmake.org/download/) installed for windows
+3. Git version control system is needed only to clone the repo, if you don't already have git installed, you can just download the .zip archive of code and extract it
+</details>
+
+
 
 ### Clone Repository
 
@@ -40,26 +47,38 @@ cd ball-trajectory-sim
 
 ### Setup Dependencies
 
-1. **Download GLAD** (OpenGL loader) from [https://glad.dav1d.de/](https://glad.dav1d.de/)
+1. **GLAD** (OpenGL loader) 
+   - Download it from [https://glad.dav1d.de/](https://glad.dav1d.de/)
    - Settings: OpenGL 3.3+, Core Profile, Generate loader
-   - Extract to `libs/glad/` (see [SETUP_DEPENDENCIES.md](SETUP_DEPENDENCIES.md))
+   - Extract to `external/include/glad/` 
 
-2. **ImPlot** is already included (automatically downloaded)
+2. **GLFW**
 
-3. **ImGui** is already included in the repository
+3. **ImPlot** 
+   - Download the code in .zip archive from the [github repo](https://github.com/epezent/implot)
+   - Extract the zip to `external/include/implot`
+
+4. **ImGui**
+   - Download the code in .zip archive from the [github repo](https://github.com/ocornut/imgui)
+   - Extract the zip to `external/include/imgui`
 
 ### Build
 
+<details>
+<summary>Linux</summary>
 ```bash
-# Configure
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-# Build
-cmake --build build -j$(nproc)
-
-# Run
-./build/TrajectorySimulation
+mkdir build
+cd build
+cmake -B build -DCMAKE_BUILD_TYPE=Release ..
+cmake --build . -j$(nproc)
+./TrajectorySimulation
 ```
+</details>
+
+<details>
+<summary>Windows</summary>
+
+</details>
 
 ## Project Structure
 
