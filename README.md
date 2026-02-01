@@ -36,8 +36,6 @@ On Windows you need to manually install everything from a web browser
 3. Git version control system is needed only to clone the repo, if you don't already have git installed, you can just download the .zip archive of code and extract it
 </details>
 
-
-
 ### Clone Repository
 
 ```bash
@@ -145,17 +143,13 @@ build\TrajectorySimulation.exe
 ```
 
 ## Dependencies
-
-### Required (System)
 - **CMake** 3.15+
-- **GLFW** 3.x - Window and input handling
 - **OpenGL** 3.3+ - Graphics API
 - **C++20** compatible compiler (GCC 10+, Clang 10+, MSVC 2019+)
-
-### Included (Vendored)
 - **ImGui** - Immediate mode GUI library
 - **ImPlot** - Plotting library for ImGui
 - **GLAD** - OpenGL function loader (requires manual download)
+- **GLFW** 3.x - Window and input handling
 
 ## License
 
