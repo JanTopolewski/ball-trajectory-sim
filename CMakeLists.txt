@@ -53,8 +53,9 @@ add_library(imgui STATIC
 )
 target_include_directories(imgui PUBLIC
         ${CMAKE_SOURCE_DIR}/external/include/imgui
-        ${CMAKE_SOURCE_DIR}/external/include
 )
+
+target_link_libraries(imgui PRIVATE glfw)
 
 # ImPlot - Plotting Library for ImGui
 # needs to be downloaded from: https://github.com/epezent/implot
