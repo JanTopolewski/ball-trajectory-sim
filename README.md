@@ -125,12 +125,9 @@ ball-trajectory-sim/
 │   │   │   ├── glad/
 │   │   │   ├── KHR/
 │   │   │   └── glad.c
-│   │   ├── GLFW/
 │   │   ├── imgui/
 │   │   └── implot/       
-│   └── libs/                # compiled static libraries
-│       ├── libglfw3.a       # for Linux
-│       └── glfw3.lib        # for Windows      
+│   └── glfw/   
 ├── data/                    # Runtime data files
 │   └── space_objects_data.csv
 └── build/                   # Build directory
