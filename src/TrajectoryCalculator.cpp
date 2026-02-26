@@ -134,11 +134,11 @@ void TrajectoryCalculator::CalculateData(
 			vy = originalVY + (kYVelocity[0] + 2 * kYVelocity[1] + 2 * kYVelocity[2] + kYVelocity[3]) / 6;
 			vz = originalVZ + (kZVelocity[0] + 2 * kZVelocity[1] + 2 * kZVelocity[2] + kZVelocity[3]) / 6;
 
-			if (isnan(posX) || isnan(posY) || isnan(vz) || isnan(vx) || isinf(vz) || isinf(vx)) {
+			if (isnan(posX) || isnan(posY) || isnan(posZ) || isnan(vx) || isnan(vy) || isnan(vz) || isinf(vx) || isinf(vy) || isinf(vz)) {
 				warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
 				break;
 			}
-			else if (isinf(posX) || isinf(posY)) {
+			else if (isinf(posX) || isinf(posY) || isinf(posZ)) {
 				if (isinf(posX) && posX < 0) {
 					xAxisCoordinates.push_back(numeric_limits<double>::lowest());
 				}
@@ -159,12 +159,23 @@ void TrajectoryCalculator::CalculateData(
 					yAxisCoordinates.push_back(posY);
 				}
 
+				if (isinf(posZ) && posZ < 0) {
+					zAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(posZ) && posZ > 0) {
+					zAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					zAxisCoordinates.push_back(posZ);
+				}
+
 				warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
 				break;
 			}
 			else {
 				xAxisCoordinates.push_back(posX);
 				yAxisCoordinates.push_back(posY);
+				zAxisCoordinates.push_back(posZ);
 			}
 
 			// actions to check whether there is an extreme case due to which the ball does not fall
@@ -173,13 +184,13 @@ void TrajectoryCalculator::CalculateData(
 
 			// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
 			calculatingFunc();
-			if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX) {
+			if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX && ay != 0.0 && vy == originalVY) {
 				iterationsNumberForStopping--;
 			}
 
 			if (edgeCase && (vz < 0.0 || vx < 0.0))
 				break;
-		} while (posY - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
+		} while (posZ - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY && zAxisCoordinates[pointsNumber - 2] == posZ) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
 
 		if (iterationsNumberForStopping == 0) {
 			warning += "The simulation was paused after another 2 seconds of flight from detection, as the ball's flight takes forever";
