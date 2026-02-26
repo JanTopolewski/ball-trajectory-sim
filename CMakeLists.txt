@@ -27,19 +27,11 @@ target_include_directories(glad PUBLIC
 )
 
 # GLFW
-add_library(glfw STATIC IMPORTED)
-if(WIN32)
-set_target_properties(glfw PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/libs/glfw3.lib
-)
-elseif(UNIX)
-set_target_properties(glfw PROPERTIES
-        IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/external/libs/libglfw3.a
-)
-endif()
-target_include_directories(glfw INTERFACE
-        ${CMAKE_SOURCE_DIR}/external/include/GLFW
-)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_INSTALL OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/glfw)
 
 # Dear ImGUI
 add_library(imgui STATIC
@@ -53,8 +45,9 @@ add_library(imgui STATIC
 )
 target_include_directories(imgui PUBLIC
         ${CMAKE_SOURCE_DIR}/external/include/imgui
-        ${CMAKE_SOURCE_DIR}/external/include
 )
+
+target_link_libraries(imgui PRIVATE glfw)
 
 # ImPlot - Plotting Library for ImGui
 # needs to be downloaded from: https://github.com/epezent/implot
