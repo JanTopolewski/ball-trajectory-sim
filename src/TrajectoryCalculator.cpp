@@ -9,35 +9,43 @@ using namespace std;
 
 std::vector<double> TrajectoryCalculator::getXAxisCoordinates() const { return xAxisCoordinates; }
 std::vector<double> TrajectoryCalculator::getYAxisCoordinates() const { return yAxisCoordinates; }
+std::vector<double> TrajectoryCalculator::getZAxisCoordinates() const { return zAxisCoordinates; }
 string TrajectoryCalculator::getWarning() const { return warning; }
 
 
 void TrajectoryCalculator::CalculateData(
 	double ballVelocity,
-	double firingAngle,
+	double horizontalAngle,
+	double verticalAngle,
 	double ballRadius,
 	double ballMass,
 	double gravitationalAcceleration,
 	double windVelocity,
-	double windAngle,
+	double windHorizontalAngle,
+	double windVerticalAngle,
 	double atmosphericDensity,
 	double initialDistanceFromGround
 ) {
 	// resetting vectors and warning message
 	vector<double>().swap(xAxisCoordinates);
 	vector<double>().swap(yAxisCoordinates);
+	vector<double>().swap(zAxisCoordinates);
 	warning = "";
 
 	// starting position
 	xAxisCoordinates.push_back(0.0);
-	yAxisCoordinates.push_back(ballRadius + initialDistanceFromGround);
+	yAxisCoordinates.push_back(0.0);
+	zAxisCoordinates.push_back(ballRadius + initialDistanceFromGround);
 
-	// converting angle to radians and splitting velocity to horizontal and vertical
-	double angleInRadians = firingAngle * numbers::pi / 180.0;
-	double horizontalBallVelocity = ballVelocity * cos(angleInRadians);
-	double verticalBallVelocity = ballVelocity * sin(angleInRadians);
+	// converting angles to radians and splitting velocity into the x, y and z axes
+	double horizontalAngleInRadians = horizontalAngle * numbers::pi / 180.0;
+	double verticalAngleInRadians = verticalAngle * numbers::pi / 180.0;
+	double horizontalBallVelocity = ballVelocity * cos(verticalAngleInRadians);
+	double vz = ballVelocity * sin(verticalAngleInRadians);
+	double vx = horizontalBallVelocity * cos(horizontalAngleInRadians);
+	double vy = horizontalBallVelocity * sin(horizontalAngleInRadians);
 
-	double timeStep = 0.001, horizontalAcceleration = 0.0, verticalAcceleration = 0.0, k, x = 0.0, y = ballRadius + initialDistanceFromGround;
+	double timeStep = 0.001, ax = 0.0, ay = 0.0, az = 0.0, k, posX = 0.0, posY = 0.0, posZ = ballRadius + initialDistanceFromGround;
 	bool edgeCase = false;
 
 	function<void()> calculatingFunc;
@@ -51,102 +59,112 @@ void TrajectoryCalculator::CalculateData(
 		}
 
 		if (windVelocity != 0.0) {
-			// calculating wind velocity and angle
-			double windAngleInRadians = windAngle * numbers::pi / 180.0;
-			double horizontalWindVelocity = windVelocity * cos(windAngleInRadians);
-			double verticalWindVelocity = windVelocity * sin(windAngleInRadians);
+			// calculating wind velocities and angles in radians
+			double windHorizontalAngleInRadians = windHorizontalAngle * numbers::pi / 180.0;
+			double windVerticalAngleInRadians = windVerticalAngle * numbers::pi / 180.0;
+			double horizontalWindVelocity = windVelocity * cos(windVerticalAngleInRadians);
+			double windVZ = windVelocity * sin(windVerticalAngleInRadians);
+			double windVX = horizontalWindVelocity * cos(windHorizontalAngleInRadians);
+			double windVY = horizontalWindVelocity * sin(windHorizontalAngleInRadians);
 
 			if (gravitationalAcceleration != 0.0) {
 				// section VIII: air resistance + wind + gravity
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
-					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, horizontalWindVelocity, verticalWindVelocity, ballMass);
-				};
+				calculatingFunc = [this, &ax, &ay, &az, &vx, &vy, &vz, k, gravitationalAcceleration, windVX, windVY, windVZ, ballMass]() {
+					this->CalculateAccelerations(ax, ay, az, vx, vy, vz, k, gravitationalAcceleration, windVX, windVY, windVZ, ballMass);
+					};
 			}
 			else {
 				// section VI: air resistance + wind
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass]() {
-					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, horizontalWindVelocity, verticalWindVelocity, ballMass);
-				};
+				calculatingFunc = [this, &ax, &ay, &az, &vx, &vy, &vz, k, windVX, windVY, windVZ, ballMass]() {
+					this->CalculateAccelerations(ax, ay, az, vx, vy, vz, k, windVX, windVY, windVZ, ballMass);
+					};
 			}
 		}
 		else {
 			if (gravitationalAcceleration != 0.0) {
 				// section VII: air resistance + gravity
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, gravitationalAcceleration, ballMass](){
-					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, gravitationalAcceleration, ballMass);
-				};
+				calculatingFunc = [this, &ax, &ay, &az, &vx, &vy, &vz, k, gravitationalAcceleration, ballMass]() {
+					this->CalculateAccelerations(ax, ay, az, vx, vy, vz, k, gravitationalAcceleration, ballMass);
+					};
 			}
 			else {
 				// section V: air resistance only
-				calculatingFunc = [this, &horizontalAcceleration, &verticalAcceleration, &horizontalBallVelocity, &verticalBallVelocity, k, ballMass](){
-					this->CalculateAccelerations(horizontalAcceleration, verticalAcceleration, horizontalBallVelocity, verticalBallVelocity, k, ballMass);
-				};
+				calculatingFunc = [this, &ax, &ay, &az, &vx, &vy, &vz, k, ballMass]() {
+					this->CalculateAccelerations(ax, ay, az, vx, vy, vz, k, ballMass);
+					};
 
 				edgeCase = true;
 			}
 		}
 
-		double kX[4], kY[4], kHorizontalVelocity[4], kVerticalVelocity[4], originalHorizontalBallVelocity, originalVerticalBallVelocity;
+		double kX[4], kY[4], kZ[4], kXVelocity[4], kYVelocity[4], kZVelocity[4], originalVX, originalVY, originalVZ;
 		size_t pointsNumber;
 		int iterationsLimit = 500000, iterationsNumberForStopping = 2000; // required for some cases because they may go on forever
 
 		do { //Runge-Kutta method
-			originalHorizontalBallVelocity = horizontalBallVelocity;
-			originalVerticalBallVelocity = verticalBallVelocity;
+			originalVX = vx;
+			originalVY = vy;
+			originalVZ = vz;
 
-			RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kHorizontalVelocity[0], kVerticalVelocity[0], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+			RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kZ[0], kXVelocity[0], kYVelocity[0], kZVelocity[0], timeStep, vx, vy, vz, ax, ay, az);
 
-			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[0] / 2;
-			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[0] / 2;
+			vx = originalVX + kXVelocity[0] / 2;
+			vy = originalVY + kYVelocity[0] / 2;
+			vz = originalVZ + kZVelocity[0] / 2;
 
-			RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kHorizontalVelocity[1], kVerticalVelocity[1], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+			RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kZ[0], kXVelocity[1], kYVelocity[1], kZVelocity[1], timeStep, vx, vy, vz, ax, ay, az);
 
-			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[1] / 2;
-			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[1] / 2;
+			vx = originalVX + kXVelocity[1] / 2;
+			vy = originalVY + kYVelocity[1] / 2;
+			vz = originalVZ + kZVelocity[1] / 2;
 
-			RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kHorizontalVelocity[2], kVerticalVelocity[2], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+			RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kZ[2], kXVelocity[2], kYVelocity[2], kZVelocity[2], timeStep, vx, vy, vz, ax, ay, az);
 
-			horizontalBallVelocity = originalHorizontalBallVelocity + kHorizontalVelocity[2];
-			verticalBallVelocity = originalVerticalBallVelocity + kVerticalVelocity[2];
+			vx = originalVX + kXVelocity[2];
+			vy = originalVY + kYVelocity[2];
+			vz = originalVZ + kZVelocity[2];
 
-			RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kHorizontalVelocity[3], kVerticalVelocity[3], timeStep, horizontalBallVelocity, verticalBallVelocity, horizontalAcceleration, verticalAcceleration);
+			RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kZ[3], kXVelocity[3], kYVelocity[3], kZVelocity[3], timeStep, vx, vy, vz, ax, ay, az);
 
-			x += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
-			y += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
-			horizontalBallVelocity = originalHorizontalBallVelocity + (kHorizontalVelocity[0] + 2 * kHorizontalVelocity[1] + 2 * kHorizontalVelocity[2] + kHorizontalVelocity[3]) / 6;
-			verticalBallVelocity = originalVerticalBallVelocity + (kVerticalVelocity[0] + 2 * kVerticalVelocity[1] + 2 * kVerticalVelocity[2] + kVerticalVelocity[3]) / 6;
+			posX += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
+			posY += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
+			posZ += (kZ[0] + 2 * kZ[1] + 2 * kZ[2] + kZ[3]) / 6;
 
-			if (isnan(x) || isnan(y) || isnan(verticalBallVelocity) || isnan(horizontalBallVelocity) || isinf(verticalBallVelocity) || isinf(horizontalBallVelocity)) {
+			vx = originalVX + (kXVelocity[0] + 2 * kXVelocity[1] + 2 * kXVelocity[2] + kXVelocity[3]) / 6;
+			vy = originalVY + (kYVelocity[0] + 2 * kYVelocity[1] + 2 * kYVelocity[2] + kYVelocity[3]) / 6;
+			vz = originalVZ + (kZVelocity[0] + 2 * kZVelocity[1] + 2 * kZVelocity[2] + kZVelocity[3]) / 6;
+
+			if (isnan(posX) || isnan(posY) || isnan(vz) || isnan(vx) || isinf(vz) || isinf(vx)) {
 				warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
 				break;
 			}
-			else if (isinf(x) || isinf(y)) {
-				if (isinf(x) && x < 0) {
+			else if (isinf(posX) || isinf(posY)) {
+				if (isinf(posX) && posX < 0) {
 					xAxisCoordinates.push_back(numeric_limits<double>::lowest());
 				}
-				else if (isinf(x) && x > 0) {
+				else if (isinf(posX) && posX > 0) {
 					xAxisCoordinates.push_back(numeric_limits<double>::max());
 				}
 				else {
-					xAxisCoordinates.push_back(x);
+					xAxisCoordinates.push_back(posX);
 				}
 
-				if (isinf(y) && y < 0) {
+				if (isinf(posY) && posY < 0) {
 					yAxisCoordinates.push_back(numeric_limits<double>::lowest());
 				}
-				else if (isinf(y) && y > 0) {
+				else if (isinf(posY) && posY > 0) {
 					yAxisCoordinates.push_back(numeric_limits<double>::max());
 				}
 				else {
-					yAxisCoordinates.push_back(y);
+					yAxisCoordinates.push_back(posY);
 				}
 
 				warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
 				break;
 			}
 			else {
-				xAxisCoordinates.push_back(x);
-				yAxisCoordinates.push_back(y);
+				xAxisCoordinates.push_back(posX);
+				yAxisCoordinates.push_back(posY);
 			}
 
 			// actions to check whether there is an extreme case due to which the ball does not fall
@@ -155,13 +173,13 @@ void TrajectoryCalculator::CalculateData(
 
 			// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
 			calculatingFunc();
-			if (verticalBallVelocity >= 0.0 && verticalAcceleration != 0.0 && verticalBallVelocity == originalVerticalBallVelocity && horizontalAcceleration != 0.0 && horizontalBallVelocity == originalHorizontalBallVelocity) {
+			if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX) {
 				iterationsNumberForStopping--;
 			}
 
-			if (edgeCase && (verticalBallVelocity < 0.0 || horizontalBallVelocity < 0.0))
+			if (edgeCase && (vz < 0.0 || vx < 0.0))
 				break;
-		} while (y - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == x && yAxisCoordinates[pointsNumber - 2] == y) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
+		} while (posY - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
 
 		if (iterationsNumberForStopping == 0) {
 			warning += "The simulation was paused after another 2 seconds of flight from detection, as the ball's flight takes forever";
@@ -175,14 +193,16 @@ void TrajectoryCalculator::CalculateData(
 			// section IV: no air resistance, gravity only
 			double time = timeStep;
 			do {
-				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time - 0.5 * gravitationalAcceleration * time * time + ballRadius + initialDistanceFromGround;
+				posX = vx * time;
+				posY = vz * time;
+				posZ = vz * time - 0.5 * gravitationalAcceleration * time * time + ballRadius + initialDistanceFromGround;
 
 				time += timeStep;
 
-				xAxisCoordinates.push_back(x);
-				yAxisCoordinates.push_back(y);
-			} while (y - ballRadius > 0.0);
+				xAxisCoordinates.push_back(posX);
+				yAxisCoordinates.push_back(posY);
+				zAxisCoordinates.push_back(posZ);
+			} while (posZ - ballRadius > 0.0);
 		}
 		else {
 			// section III: no air resistance, no gravity
@@ -190,14 +210,16 @@ void TrajectoryCalculator::CalculateData(
 			int iterationsLimit = 10000; // required because the case goes on forever
 			warning = "The simulation was paused after 10 seconds of flight because the ball's flight takes forever";
 			do {
-				x = horizontalBallVelocity * time;
-				y = verticalBallVelocity * time + ballRadius + initialDistanceFromGround;
+				posX = vx * time;
+				posY = vy * time;
+				posZ = vz * time + ballRadius + initialDistanceFromGround;
 
 				time += timeStep;
 				iterationsLimit--;
 
-				xAxisCoordinates.push_back(x);
-				yAxisCoordinates.push_back(y);
+				xAxisCoordinates.push_back(posX);
+				yAxisCoordinates.push_back(posY);
+				zAxisCoordinates.push_back(posZ);
 			} while (iterationsLimit > 0);
 		}
 	}
@@ -205,74 +227,90 @@ void TrajectoryCalculator::CalculateData(
 
 
 void TrajectoryCalculator::CalculateAccelerations( // V
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
+	double& ax,
+	double& ay,
+	double& az,
+	double vx,
+	double vy,
+	double vz,
 	double k,
 	double ballMass
 ) {
-	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
-	
-	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
-	verticalAcceleration = -(k / ballMass) * currentVelocity * verticalBallVelocity;
+	double currentVelocity = sqrt(vx * vx + vy * vy + vz * vz);
+
+	ax = -(k / ballMass) * currentVelocity * vx;
+	ay = -(k / ballMass) * currentVelocity * vy;
+	az = -(k / ballMass) * currentVelocity * vz;
 }
 
 
 void TrajectoryCalculator::CalculateAccelerations( // VI
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
+	double& ax,
+	double& ay,
+	double& az,
+	double vx,
+	double vy,
+	double vz,
 	double k,
-	double horizontalWindVelocity,
-	double verticalWindVelocity,
+	double windVX,
+	double windVY,
+	double windVZ,
 	double ballMass
 ) {
-	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
-	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
+	double vxDiff = vx - windVX;
+	double vyDiff = vy - windVY;
+	double vzDiff = vz - windVZ;
 
-	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
+	double relativeVelocity = sqrt(vxDiff * vxDiff + vyDiff * vyDiff + vzDiff * vzDiff);
 
-	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
-	verticalAcceleration = -(k / ballMass) * relativeVelocity * verticalVelocityDiff;
+	ax = -(k / ballMass) * relativeVelocity * vxDiff;
+	ay = -(k / ballMass) * relativeVelocity * vyDiff;
+	az = -(k / ballMass) * relativeVelocity * vzDiff;
 }
 
 
 void TrajectoryCalculator::CalculateAccelerations( // VII
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
+	double& ax,
+	double& ay,
+	double& az,
+	double vx,
+	double vy,
+	double vz,
 	double k,
 	double gravitationalAcceleration,
 	double ballMass
 ) {
-	double currentVelocity = sqrt(horizontalBallVelocity * horizontalBallVelocity + verticalBallVelocity * verticalBallVelocity);
-	
-	horizontalAcceleration = -(k / ballMass) * currentVelocity * horizontalBallVelocity;
-	verticalAcceleration = -gravitationalAcceleration -(k / ballMass) * currentVelocity * verticalBallVelocity;
+	double currentVelocity = sqrt(vx * vx + vy * vy + vz * vz);
+
+	ax = -(k / ballMass) * currentVelocity * vx;
+	ay = -(k / ballMass) * currentVelocity * vy;
+	az = -gravitationalAcceleration - (k / ballMass) * currentVelocity * vz;
 }
 
 
 void TrajectoryCalculator::CalculateAccelerations( // VIII
-	double& horizontalAcceleration,
-	double& verticalAcceleration,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
+	double& ax,
+	double& ay,
+	double& az,
+	double vx,
+	double vy,
+	double vz,
 	double k,
 	double gravitationalAcceleration,
-	double horizontalWindVelocity,
-	double verticalWindVelocity,
+	double windVX,
+	double windVY,
+	double windVZ,
 	double ballMass
 ) {
-	double horizontalVelocityDiff = horizontalBallVelocity - horizontalWindVelocity;
-	double verticalVelocityDiff = verticalBallVelocity - verticalWindVelocity;
+	double vxDiff = vx - windVX;
+	double vyDiff = vy - windVY;
+	double vzDiff = vz - windVZ;
 
-	double relativeVelocity = sqrt(horizontalVelocityDiff * horizontalVelocityDiff + verticalVelocityDiff * verticalVelocityDiff);
+	double relativeVelocity = sqrt(vxDiff * vxDiff + vyDiff * vyDiff + vzDiff * vzDiff);
 
-	horizontalAcceleration = -(k / ballMass) * relativeVelocity * horizontalVelocityDiff;
-	verticalAcceleration = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * verticalVelocityDiff;
+	ax = -(k / ballMass) * relativeVelocity * vxDiff;
+	ay = -(k / ballMass) * relativeVelocity * vyDiff;
+	az = -gravitationalAcceleration - (k / ballMass) * relativeVelocity * vzDiff;
 }
 
 
@@ -280,17 +318,23 @@ void TrajectoryCalculator::RungeKuttaMethodPart(
 	function<void()> calculatingFunc,
 	double& kX,
 	double& kY,
-	double& kHorizontalVelocity,
-	double& kVerticalVelocity,
+	double& kZ,
+	double& kXVelocity,
+	double& kYVelocity,
+	double& kZVelocity,
 	double timeStep,
-	double horizontalBallVelocity,
-	double verticalBallVelocity,
-	double& horizontalAcceleration,
-	double& verticalAcceleration
+	double vx,
+	double vy,
+	double vz,
+	double& ax,
+	double& ay,
+	double& az
 ) {
 	calculatingFunc();
-	kX = timeStep * horizontalBallVelocity;
-	kY = timeStep * verticalBallVelocity;
-	kHorizontalVelocity = timeStep * horizontalAcceleration;
-	kVerticalVelocity = timeStep * verticalAcceleration;
+	kX = timeStep * vx;
+	kY = timeStep * vy;
+	kZ = timeStep * vz;
+	kXVelocity = timeStep * ax;
+	kYVelocity = timeStep * ay;
+	kZVelocity = timeStep * az;
 }
