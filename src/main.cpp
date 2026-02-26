@@ -36,9 +36,9 @@ int main() {
 
 
     // Create the window 800x800
-    GLFWwindow* window = glfwCreateWindow(800, 800, "Trajectory Simulations", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "Trajectory Simulations", nullptr, nullptr);
     // If the window fails to create
-    if (window == NULL)
+    if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -81,15 +81,15 @@ int main() {
     TrajectoryCalculator calculator;
 
     // variables for input data
-    float ballVelocity = 25.0;
-    float firingAngle = 45.0;
-    float ballRadius = 0.05;
-    float ballMass = 0.1;
-    float gravitationalAcceleration = 9.81;
-    float windVelocity = 2;
-    float windAngle = 180.0;
-    float atmosphericDensity = 1.225;
-    float initialDistanceFromGround = 1.0;
+    float ballVelocity = 25.0f;
+    float firingAngle = 45.0f;
+    float ballRadius = 0.05f;
+    float ballMass = 0.1f;
+    float gravitationalAcceleration = 9.81f;
+    float windVelocity = 2.0f;
+    float windAngle = 180.0f;
+    float atmosphericDensity = 1.225f;
+    float initialDistanceFromGround = 1.0f;
     float distanceFromAim = 20.0f;
  
     bool hasTarget = true;
@@ -152,7 +152,7 @@ int main() {
                 // Welcome window:
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Welcome window", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     // Question
                     const char* text = "Create a new simulation or read from file?";
                     float textWidth = ImGui::CalcTextSize(text).x;
@@ -192,7 +192,7 @@ int main() {
                 // Read file window:
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Choose a simulation to read from", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) 
+                if (ImGui::Begin("Choose a simulation to read from", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
                 {
                     ImGui::Text("Choose a simulation from the list: ");
                     
@@ -232,7 +232,7 @@ int main() {
             {
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Save simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                if (ImGui::Begin("Save simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     static char buf[31] = "";
                     regex pattern("^[A-Za-z0-9_-]+$");
 
@@ -267,7 +267,7 @@ int main() {
                 // Creation window:
                 ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Create a new simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
 
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
@@ -352,7 +352,7 @@ int main() {
             {
                 ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
                 ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-                if (ImGui::Begin("Simulation", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                if (ImGui::Begin("Simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
 
                     ImVec2 cursor = ImGui::GetCursorPos();
