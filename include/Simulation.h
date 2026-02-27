@@ -22,6 +22,6 @@ struct Simulation{
     std::vector<double> yAxisAdditionalTrajectory;
     std::vector<double> zAxisAdditionalTrajectory;
     bool hasTarget;
-    float targetDistance;
-    float targetHorizontalAngle;
+    float targetXDistance;
+    float targetYDistance;
 };

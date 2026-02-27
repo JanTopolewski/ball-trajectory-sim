@@ -112,8 +112,8 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 
 	file.write((char*)&simulation->hasTarget, sizeof(bool));
 	if (simulation->hasTarget) {
-		file.write((char*)&simulation->targetDistance, sizeof(float));
-		file.write((char*)&simulation->targetHorizontalAngle, sizeof(float));
+		file.write((char*)&simulation->targetXDistance, sizeof(float));
+		file.write((char*)&simulation->targetYDistance, sizeof(float));
 	}
 	
 	file.close();
@@ -174,12 +174,12 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 
 	file.read(reinterpret_cast<char*>(&simulation->hasTarget), sizeof(bool));
 	if (simulation->hasTarget) {
-		file.read(reinterpret_cast<char*>(&simulation->targetDistance), sizeof(float));
-		file.read(reinterpret_cast<char*>(&simulation->targetHorizontalAngle), sizeof(float));
+		file.read(reinterpret_cast<char*>(&simulation->targetXDistance), sizeof(float));
+		file.read(reinterpret_cast<char*>(&simulation->targetYDistance), sizeof(float));
 	}
 	else {
-		simulation->targetDistance = 0.0f;
-		simulation->targetHorizontalAngle = 0.0f;
+		simulation->targetXDistance = 0.0f;
+		simulation->targetYDistance = 0.0f;
 	}
 
 	file.close();
