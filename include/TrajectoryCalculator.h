@@ -36,7 +36,46 @@ public:
 		double windHorizontalAngle,
 		double windVerticalAngle,
 		double atmosphericDensity,
-		double initialDistanceFromGround
+		double initialDistanceFromGround,
+		int odeSolver
+	);
+
+
+	void RK4(
+		function<void()>& calculatingFunc,
+		double& vx,
+		double& vy,
+		double& vz,
+		double& posX,
+		double& posY,
+		double& posZ,
+		double& ax,
+		double& ay,
+		double& az,
+		int& iterationsLimit,
+		int& iterationsNumberForStopping,
+		double timeStep,
+		double ballRadius,
+		bool edgeCase
+	);
+
+
+	void Euler(
+		function<void()>& calculatingFunc,
+		double& vx,
+		double& vy,
+		double& vz,
+		double& posX,
+		double& posY,
+		double& posZ,
+		double& ax,
+		double& ay,
+		double& az,
+		int& iterationsLimit,
+		int& iterationsNumberForStopping,
+		double timeStep,
+		double ballRadius,
+		bool edgeCase
 	);
 
 	/**
