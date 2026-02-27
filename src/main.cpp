@@ -259,7 +259,8 @@ int main() {
                             //memset(buf, 0, sizeof(buf));
                         }
                     }
-                }ImGui::End();
+                    ImGui::End();
+                }
                 break;
             }
             case Displaying::CreationMenu:
@@ -286,7 +287,8 @@ int main() {
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
 
-                    if (currentPlanet != 0)
+                    const bool planet_selected = currentPlanet != 0; // just for clarity
+                    if (planet_selected)
                     {
                         SpaceObject planet = planetsData[currentPlanet - 1];
 
@@ -294,24 +296,24 @@ int main() {
                         atmosphericDensity = (float)planet.atmosphereDensity;
                     }
 
-                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    if (planet_selected) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable gravity", &gravityEnable);
-                    if (!gravityEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    if (!gravityEnable && !planet_selected) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!gravityEnable || currentPlanet != 0) ImGui::EndDisabled();
+                    if (!gravityEnable || planet_selected) ImGui::EndDisabled();
 
                     if (atmosphericDensity == 0.0f) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable wind", &windEnable);
-                    if (!windEnable) ImGui::BeginDisabled();
+                    if (!windEnable && atmosphericDensity != 0.0f) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!windEnable || atmosphericDensity == 0.0f) ImGui::EndDisabled();
 
-                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    if (planet_selected) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
-                    if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    if (!atmosphereEnable && !planet_selected) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
+                    if (!atmosphereEnable || planet_selected) ImGui::EndDisabled();
 
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
@@ -344,8 +346,8 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-
-                }ImGui::End();
+                    ImGui::End();
+                }
                 break;
             }
             case Displaying::SimulationMenu:
@@ -466,7 +468,7 @@ int main() {
 
                     if (atmosphericDensity == 0.0f) ImGui::BeginDisabled();
                     if (ImGui::Checkbox("Enable wind", &windEnable)) dataChanged = true;
-                    if (!windEnable) ImGui::BeginDisabled();
+                    if (!windEnable && atmosphericDensity != 0) ImGui::BeginDisabled();
                     if (ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (!windEnable || atmosphericDensity == 0.0f) ImGui::EndDisabled();
