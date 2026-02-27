@@ -518,7 +518,7 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-                }
+                }ImGui::End();
 
                     // ImGui::EndChild();
 
