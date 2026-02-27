@@ -352,8 +352,7 @@ int main() {
             {
                 ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
                 ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-                if (ImGui::Begin("Simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
+                if (ImGui::Begin("Trajectory")) {
 
                     ImVec2 cursor = ImGui::GetCursorPos();
 
@@ -425,12 +424,13 @@ int main() {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
-                    ImGui::EndChild();
 
-                    ImGui::SameLine();
+                }ImGui::End();
 
-                    ImGui::BeginChild("Data", ImVec2(0, 0), true);
+                // ImGui::SameLine();
 
+                if (ImGui::Begin("Data"))
+                {
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
                     if (ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
@@ -490,7 +490,7 @@ int main() {
                         if (!gravityEnable) gravitationalAcceleration = 0.0f;
                         if (!hasTarget) distanceFromAim = 0.0f;
                         calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
-                    
+
                         xAxis = calculator.getXAxisCoordinates();
                         yAxis = calculator.getYAxisCoordinates();
                         warning = calculator.getWarning();
@@ -518,9 +518,10 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
+                }
 
-                    ImGui::EndChild();
-                }ImGui::End();
+                    // ImGui::EndChild();
+
                 break;
             }
         }
