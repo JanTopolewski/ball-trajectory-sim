@@ -22,7 +22,7 @@ vector<string> FilesManager::getSpaceObjectsNames()
 	std::vector<string> spaceObjectNames;
 
 	for (const SpaceObject& spaceObject : spaceObjectsData) {
-		spaceObjectNames.push_back(spaceObject.polishName);
+		spaceObjectNames.push_back(spaceObject.name);
 	}
 
 	return spaceObjectNames;
@@ -49,7 +49,7 @@ void FilesManager::loadSpaceObjectsData()
 
 		SpaceObject spaceObject;
 
-		spaceObject.polishName = columns[0];
+		spaceObject.name = columns[0];
 		spaceObject.gravitationalAcceleration = stod(columns[1]);
 		spaceObject.atmosphereDensity = stod(columns[2]);
 		spaceObject.compositionType = columns[3];
@@ -68,17 +68,21 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	
 	// double ballVelocity = simulation->ballVelocity;
 
-	file.write((char*)&simulation->ballVelocity, sizeof(double));
-	file.write((char*)&simulation->firingAngle, sizeof(double));
-	file.write((char*)&simulation->ballRadius, sizeof(double));
-	file.write((char*)&simulation->ballMass, sizeof(double));
-	file.write((char*)&simulation->gravitationalAcceleration, sizeof(double));
-	file.write((char*)&simulation->windVelocity, sizeof(double));
-	file.write((char*)&simulation->windAngle, sizeof(double));
-	file.write((char*)&simulation->atmosfericDensity, sizeof(double));
+	file.write((char*)&simulation->ballVelocity, sizeof(float));
+	file.write((char*)&simulation->horizontalAngle, sizeof(float));
+	file.write((char*)&simulation->verticalAngle, sizeof(float));
+	file.write((char*)&simulation->ballRadius, sizeof(float));
+	file.write((char*)&simulation->ballMass, sizeof(float));
+	file.write((char*)&simulation->gravitationalAcceleration, sizeof(float));
+	file.write((char*)&simulation->windVelocity, sizeof(float));
+	file.write((char*)&simulation->windHorizontalAngle, sizeof(float));
+	file.write((char*)&simulation->windVerticalAngle, sizeof(float));
+	file.write((char*)&simulation->atmosfericDensity, sizeof(float));
+	file.write((char*)&simulation->initialDistanceFromGround, sizeof(float));
 
 	size_t xVectorLength = simulation->xAxisCoordinates.size();
 	size_t yVecotrLength = simulation->yAxisCoordinates.size();
+	size_t zVecotrLength = simulation->zAxisCoordinates.size();
 
 	file.write((char*)&xVectorLength, sizeof(size_t));
 	file.write((char*)simulation->xAxisCoordinates.data(), sizeof(double) * xVectorLength);
@@ -86,12 +90,16 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	file.write((char*)&yVecotrLength, sizeof(size_t));
 	file.write((char*)simulation->yAxisCoordinates.data(), sizeof(double) * yVecotrLength);
 
+	file.write((char*)&zVecotrLength, sizeof(size_t));
+	file.write((char*)simulation->zAxisCoordinates.data(), sizeof(double) * yVecotrLength);
+
 	size_t warningLength = simulation->warning.size();
 	file.write((char*)&warningLength, sizeof(size_t));
 	file.write(simulation->warning.data(), warningLength);
 
 	size_t xAdditionalVectorLength = simulation->xAxisAdditionalTrajectory.size();
 	size_t yAdditionalVectorLength = simulation->yAxisAdditionalTrajectory.size();
+	size_t zAdditionalVectorLength = simulation->zAxisAdditionalTrajectory.size();
 
 	file.write((char*)&xAdditionalVectorLength, sizeof(size_t));
 	file.write((char*)simulation->xAxisAdditionalTrajectory.data(), sizeof(double) * xAdditionalVectorLength);
@@ -99,8 +107,12 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	file.write((char*)&yAdditionalVectorLength, sizeof(size_t));
 	file.write((char*)simulation->yAxisAdditionalTrajectory.data(), sizeof(double) * yAdditionalVectorLength);
 
+	file.write((char*)&zAdditionalVectorLength, sizeof(size_t));
+	file.write((char*)simulation->zAxisAdditionalTrajectory.data(), sizeof(double) * zAdditionalVectorLength);
+
 	file.write((char*)&simulation->hasTarget, sizeof(bool));
-	file.write((char*)&simulation->targetDistance, sizeof(double));
+	file.write((char*)&simulation->targetDistance, sizeof(float));
+	file.write((char*)&simulation->targetHorizontalAngle, sizeof(float));
 	
 	file.close();
 	delete simulation;
@@ -114,16 +126,19 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 
 	Simulation* simulation = new Simulation();
 
-	file.read(reinterpret_cast<char*>(&simulation->ballVelocity), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->firingAngle), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->ballRadius), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->ballMass), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->gravitationalAcceleration), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->windVelocity), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->windAngle), sizeof(double));
-	file.read(reinterpret_cast<char*>(&simulation->atmosfericDensity), sizeof(double));
+	file.read(reinterpret_cast<char*>(&simulation->ballVelocity), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->horizontalAngle), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->verticalAngle), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->ballRadius), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->ballMass), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->gravitationalAcceleration), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->windVelocity), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->windHorizontalAngle), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->windVerticalAngle), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->atmosfericDensity), sizeof(float));
+	file.read(reinterpret_cast<char*>(&simulation->initialDistanceFromGround), sizeof(float));
 
-	size_t xVectorLength, yVectorLength, warningLength, xAddtionalVectorLength, yAdditinalVectorLength;
+	size_t xVectorLength, yVectorLength, zVectorLength, warningLength, xAddtionalVectorLength, yAdditinalVectorLength, zAdditionalVectorLength;
 	file.read(reinterpret_cast<char*>(&xVectorLength), sizeof(size_t));
 	simulation->xAxisCoordinates.resize(xVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->xAxisCoordinates.data()), sizeof(double) * xVectorLength);
@@ -131,6 +146,10 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	file.read(reinterpret_cast<char*>(&yVectorLength), sizeof(size_t));
 	simulation->yAxisCoordinates.resize(yVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->yAxisCoordinates.data()), sizeof(double) * yVectorLength);
+
+	file.read(reinterpret_cast<char*>(&zVectorLength), sizeof(size_t));
+	simulation->zAxisCoordinates.resize(zVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->zAxisCoordinates.data()), sizeof(double) * zVectorLength);
 
 	file.read(reinterpret_cast<char*>(&warningLength), sizeof(size_t));
 	simulation->warning.resize(warningLength);
@@ -144,12 +163,18 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 	simulation->yAxisAdditionalTrajectory.resize(yAdditinalVectorLength);
 	file.read(reinterpret_cast<char*>(simulation->yAxisAdditionalTrajectory.data()), sizeof(double) * yAdditinalVectorLength);
 
+	file.read(reinterpret_cast<char*>(&zAdditionalVectorLength), sizeof(size_t));
+	simulation->zAxisAdditionalTrajectory.resize(zAdditionalVectorLength);
+	file.read(reinterpret_cast<char*>(simulation->zAxisAdditionalTrajectory.data()), sizeof(double) * zAdditionalVectorLength);
+
 	file.read(reinterpret_cast<char*>(&simulation->hasTarget), sizeof(bool));
 	if (simulation->hasTarget) {
-		file.read(reinterpret_cast<char*>(&simulation->targetDistance), sizeof(double));
+		file.read(reinterpret_cast<char*>(&simulation->targetDistance), sizeof(float));
+		file.read(reinterpret_cast<char*>(&simulation->targetHorizontalAngle), sizeof(float));
 	}
 	else {
-		simulation->targetDistance = 0.0;
+		simulation->targetDistance = 0.0f;
+		simulation->targetHorizontalAngle = 0.0f;
 	}
 
 	file.close();
