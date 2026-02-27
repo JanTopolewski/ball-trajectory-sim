@@ -350,10 +350,10 @@ int main() {
             }
             case Displaying::SimulationMenu:
             {
-                ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
-                ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-                if (ImGui::Begin("Trajectory")) {
-
+                ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT - 20));
+                ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x + 10, ImGui::GetMainViewport()->Pos.y + 10));
+                if (ImGui::Begin("Trajectory"))
+                {
                     ImVec2 cursor = ImGui::GetCursorPos();
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
@@ -405,8 +405,8 @@ int main() {
                                 ImPlot::PlotScatter("Target", &targetX, &targetY, 1);
                             }
                         }
-
-                    }ImPlot::EndPlot();
+                        ImPlot::EndPlot();
+                    }
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
@@ -424,10 +424,11 @@ int main() {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
+                    ImGui::End();
+                }
 
-                }ImGui::End();
+                ImGui::SameLine();
 
-                // ImGui::SameLine();
 
                 if (ImGui::Begin("Data"))
                 {
@@ -518,10 +519,8 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-                }ImGui::End();
-
-                    // ImGui::EndChild();
-
+                    ImGui::End();
+                }
                 break;
             }
         }
