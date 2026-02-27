@@ -134,6 +134,17 @@ int main() {
     // loading .csv file to some sort of array
     vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
 
+    // preparing ODE solvers list
+    vector<string> solvers = { "RK4", "Euler", "Option3" };
+
+    vector<const char*> solversCStr;
+    solversCStr.reserve(solvers.size());
+
+    for (auto& solver : solvers) {
+        solversCStr.push_back(solver.c_str());
+    }
+    static int currentSolver = 0;
+
     int chosenFile = 0;
     vector<string> fileNames;
     vector<const char*> fileNamesCStr;
@@ -220,6 +231,7 @@ int main() {
                         yAxis = sim->zAxisCoordinates;
                         zAxis = sim->xAxisCoordinates;
                         warning = sim->warning;
+                        currentSolver = sim->odeSolver;
 
                         lastTime = ImGui::GetTime();
                         currentIndex = 0;
@@ -259,7 +271,7 @@ int main() {
 
                     if (ImGui::Button("Save")) {
                         if (regex_match(filename, pattern) && !fileManager->checkFileExistence(filename)) {
-                            Simulation* sim = new Simulation({ ballVelocity, horizontalAngle, verticalAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windHorizontalAngle, windVerticalAngle, atmosphericDensity, initialDistanceFromGround, zAxis, xAxis, yAxis, warning, {}, {}, {}, hasTarget, targetZDistance, targetXDistance });
+                            Simulation* sim = new Simulation({ ballVelocity, horizontalAngle, verticalAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windHorizontalAngle, windVerticalAngle, atmosphericDensity, initialDistanceFromGround, zAxis, xAxis, yAxis, warning, {}, {}, {}, hasTarget, targetZDistance, targetXDistance, currentSolver });
                             fileManager->saveSimulationData(sim, filename);
                             displaying = Displaying::WelcomingMenu;
                             //memset(buf, 0, sizeof(buf));
@@ -322,6 +334,10 @@ int main() {
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
 
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    ImGui::Combo("Select calculation method", &currentSolver, solversCStr.data(), solversCStr.size());
+                    if (!atmosphereEnable) ImGui::EndDisabled();
+
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
@@ -352,7 +368,8 @@ int main() {
                             (double)windHorizontalAngle,
                             (double)windVerticalAngle,
                             (double)atmosphericDensity, 
-                            (double)initialDistanceFromGround
+                            (double)initialDistanceFromGround,
+                            currentSolver
                         );
                         
                         xAxis = calculator.getYAxisCoordinates();
@@ -504,6 +521,10 @@ int main() {
                     if (ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
 
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    if (ImGui::Combo("Select calculation method", &currentSolver, solversCStr.data(), solversCStr.size())) dataChanged = true;
+                    if (!atmosphereEnable) ImGui::EndDisabled();
+
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
 
@@ -531,7 +552,8 @@ int main() {
                             (double)windHorizontalAngle,
                             (double)windVerticalAngle,
                             (double)atmosphericDensity,
-                            (double)initialDistanceFromGround
+                            (double)initialDistanceFromGround,
+                            currentSolver
                         );
                     
                         xAxis = calculator.getYAxisCoordinates();
@@ -559,7 +581,8 @@ int main() {
                                 (double)windHorizontalAngle,
                                 (double)windVerticalAngle,
                                 (double)atmosphericDensity,
-                                (double)initialDistanceFromGround
+                                (double)initialDistanceFromGround,
+                                currentSolver
                             );
 
                             xAxis = calculator.getYAxisCoordinates();

@@ -30,7 +30,7 @@ void FilesManager::loadSpaceObjectsData()
 	spaceObjectsData = {};
 
 	ifstream file;
-	filesystem::path path = ROOT_PATH / "data" / "space_objects_data.csv";
+	filesystem::path path = ROOT_PATH / "build" / "data" / "space_objects_data.csv";
 	
 	file.open(path, ios::in);
 
@@ -62,7 +62,7 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 {
 	ofstream file;
 
-	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
+	filesystem::path filePath = ROOT_PATH / "build" / dirname / (fileName + extension);
 	file.open(filePath, ios::out | ios::binary | ios::trunc);
 	
 	// double ballVelocity = simulation->ballVelocity;
@@ -115,6 +115,8 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 		file.write((char*)&simulation->targetXDistance, sizeof(float));
 		file.write((char*)&simulation->targetYDistance, sizeof(float));
 	}
+
+	file.write((char*)&simulation->odeSolver, sizeof(int));
 	
 	file.close();
 	delete simulation;
@@ -124,7 +126,7 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 Simulation* FilesManager::readSimulationData(string fileName, string dirname, string extension) {
 	ifstream file;
 
-	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
+	filesystem::path filePath = ROOT_PATH / "build" / dirname / (fileName + extension);
 
 	file.open(filePath, ios::in | ios::binary);
 
@@ -182,6 +184,8 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 		simulation->targetYDistance = 0.0f;
 	}
 
+	file.read(reinterpret_cast<char*>(&simulation->odeSolver), sizeof(int));
+
 	file.close();
 	return simulation;
 }
@@ -191,7 +195,7 @@ vector<string> FilesManager::getSavedSimulationsNames(string dirname, string ext
 {
 	vector<string> simulationsNames;
 
-	filesystem::path path = ROOT_PATH / dirname;
+	filesystem::path path = ROOT_PATH / "build" / dirname;
 
 	for (const auto& fileEntry : filesystem::directory_iterator(path)) {
 		if (fileEntry.is_regular_file() && fileEntry.path().extension() == extension) {
@@ -204,6 +208,6 @@ vector<string> FilesManager::getSavedSimulationsNames(string dirname, string ext
 
 
 bool FilesManager::checkFileExistence(string fileName, string dirname, string extension) {
-	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
+	filesystem::path filePath = ROOT_PATH / "build" / dirname / (fileName + extension);
 	return filesystem::exists(filePath);
 }

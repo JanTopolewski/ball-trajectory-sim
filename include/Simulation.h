@@ -24,4 +24,5 @@ struct Simulation{
     bool hasTarget;
     float targetXDistance;
     float targetYDistance;
+    int odeSolver;
 };
