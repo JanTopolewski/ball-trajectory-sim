@@ -3,11 +3,7 @@
 #include <sstream>
 #include <filesystem>
 
-#ifdef WIN32
-#define OS_SEP '\\'
-#else
-#define OS_SEP '/'
-#endif
+const std::filesystem::path ROOT_PATH = PROJECT_ROOT_DIR;
 
 using namespace std;
 
@@ -34,7 +30,9 @@ void FilesManager::loadSpaceObjectsData()
 	spaceObjectsData = {};
 
 	ifstream file;
-	file.open(string("data") + OS_SEP + "space_objects_data.csv", ios::in);
+	filesystem::path path = ROOT_PATH / "data" / "space_objects_data.csv";
+	
+	file.open(path, ios::in);
 
 	string line;
 	getline(file, line); // used to skip columns' headers
@@ -63,7 +61,8 @@ void FilesManager::loadSpaceObjectsData()
 void FilesManager::saveSimulationData(Simulation *simulation, string fileName, string dirname, string extension)
 {
 	ofstream file;
-	string filePath = dirname+OS_SEP+fileName+extension;
+
+	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
 	file.open(filePath, ios::out | ios::binary | ios::trunc);
 	
 	// double ballVelocity = simulation->ballVelocity;
@@ -91,11 +90,12 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	file.write((char*)simulation->yAxisCoordinates.data(), sizeof(double) * yVecotrLength);
 
 	file.write((char*)&zVecotrLength, sizeof(size_t));
-	file.write((char*)simulation->zAxisCoordinates.data(), sizeof(double) * yVecotrLength);
+	file.write((char*)simulation->zAxisCoordinates.data(), sizeof(double) * zVecotrLength);
 
 	size_t warningLength = simulation->warning.size();
 	file.write((char*)&warningLength, sizeof(size_t));
-	file.write(simulation->warning.data(), warningLength);
+	if (warningLength > 0)
+		file.write(simulation->warning.data(), warningLength);
 
 	size_t xAdditionalVectorLength = simulation->xAxisAdditionalTrajectory.size();
 	size_t yAdditionalVectorLength = simulation->yAxisAdditionalTrajectory.size();
@@ -111,8 +111,10 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 	file.write((char*)simulation->zAxisAdditionalTrajectory.data(), sizeof(double) * zAdditionalVectorLength);
 
 	file.write((char*)&simulation->hasTarget, sizeof(bool));
-	file.write((char*)&simulation->targetDistance, sizeof(float));
-	file.write((char*)&simulation->targetHorizontalAngle, sizeof(float));
+	if (simulation->hasTarget) {
+		file.write((char*)&simulation->targetDistance, sizeof(float));
+		file.write((char*)&simulation->targetHorizontalAngle, sizeof(float));
+	}
 	
 	file.close();
 	delete simulation;
@@ -121,7 +123,9 @@ void FilesManager::saveSimulationData(Simulation *simulation, string fileName, s
 
 Simulation* FilesManager::readSimulationData(string fileName, string dirname, string extension) {
 	ifstream file;
-	string filePath = dirname + OS_SEP + fileName + extension;
+
+	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
+
 	file.open(filePath, ios::in | ios::binary);
 
 	Simulation* simulation = new Simulation();
@@ -153,7 +157,8 @@ Simulation* FilesManager::readSimulationData(string fileName, string dirname, st
 
 	file.read(reinterpret_cast<char*>(&warningLength), sizeof(size_t));
 	simulation->warning.resize(warningLength);
-	file.read(&simulation->warning[0], warningLength);
+	if (warningLength > 0)
+		file.read(&simulation->warning[0], warningLength);
 
 	file.read(reinterpret_cast<char*>(&xAddtionalVectorLength), sizeof(size_t));
 	simulation->xAxisAdditionalTrajectory.resize(xAddtionalVectorLength);
@@ -186,7 +191,9 @@ vector<string> FilesManager::getSavedSimulationsNames(string dirname, string ext
 {
 	vector<string> simulationsNames;
 
-	for (const auto& fileEntry : filesystem::directory_iterator(dirname)) {
+	filesystem::path path = ROOT_PATH / dirname;
+
+	for (const auto& fileEntry : filesystem::directory_iterator(path)) {
 		if (fileEntry.is_regular_file() && fileEntry.path().extension() == extension) {
 			simulationsNames.push_back(fileEntry.path().stem().string());
 		}
@@ -197,6 +204,6 @@ vector<string> FilesManager::getSavedSimulationsNames(string dirname, string ext
 
 
 bool FilesManager::checkFileExistence(string fileName, string dirname, string extension) {
-	string filePath = dirname + OS_SEP + fileName + extension;
+	filesystem::path filePath = ROOT_PATH / dirname / (fileName + extension);
 	return filesystem::exists(filePath);
 }
