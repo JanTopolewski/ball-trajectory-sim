@@ -52,11 +52,16 @@ public:
 		double& ax,
 		double& ay,
 		double& az,
-		int& iterationsLimit,
-		int& iterationsNumberForStopping,
-		double timeStep,
-		double ballRadius,
-		bool edgeCase
+		double& originalVX,
+		double& originalVY,
+		double& originalVZ,
+		double(&kX)[4],
+		double(&kY)[4],
+		double(&kZ)[4],
+		double(&kXVelocity)[4],
+		double(&kYVelocity)[4],
+		double(&kZVelocity)[4],
+		double timeStep
 	);
 
 
@@ -71,11 +76,28 @@ public:
 		double& ax,
 		double& ay,
 		double& az,
-		int& iterationsLimit,
-		int& iterationsNumberForStopping,
-		double timeStep,
-		double ballRadius,
-		bool edgeCase
+		double& originalVX,
+		double& originalVY,
+		double& originalVZ,
+		double timeStep
+	);
+
+
+	void Verlet(
+		function<void()>& calculatingFunc,
+		double& vx,
+		double& vy,
+		double& vz,
+		double& posX,
+		double& posY,
+		double& posZ,
+		double& ax,
+		double& ay,
+		double& az,
+		double& originalVX,
+		double& originalVY,
+		double& originalVZ,
+		double timeStep
 	);
 
 	/**

@@ -99,17 +99,81 @@ void TrajectoryCalculator::CalculateData(
 		}
 
 		int iterationsLimit = 500000, iterationsNumberForStopping = 2000; // required for some cases because they may go on forever
+		double kX[4], kY[4], kZ[4], kXVelocity[4], kYVelocity[4], kZVelocity[4], originalVX = 0.0, originalVY = 0.0, originalVZ = 0.0;
+		size_t pointsNumber;
 
-		switch (odeSolver) {
-			case 0:
-				RK4(calculatingFunc, vx, vy, vz, posX, posY, posZ, ax, ay, az, iterationsLimit, iterationsNumberForStopping, timeStep, ballRadius, edgeCase);
+		if (odeSolver == 2) calculatingFunc();
+
+		do {
+			switch (odeSolver) {
+				case 0:
+					RK4(calculatingFunc, vx, vy, vz, posX, posY, posZ, ax, ay, az, originalVX, originalVY, originalVZ, kX, kY, kZ, kXVelocity, kYVelocity, kZVelocity, timeStep);
+					break;
+				case 1:
+					Euler(calculatingFunc, vx, vy, vz, posX, posY, posZ, ax, ay, az, originalVX, originalVY, originalVZ, timeStep);
+					break;
+				case 2:
+					Verlet(calculatingFunc, vx, vy, vz, posX, posY, posZ, ax, ay, az, originalVX, originalVY, originalVZ, timeStep);
+					break;
+			}
+
+			if (isnan(posX) || isnan(posY) || isnan(posZ) || isnan(vx) || isnan(vy) || isnan(vz) || isinf(vx) || isinf(vy) || isinf(vz)) {
+				warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
 				break;
-			case 1:
-				Euler(calculatingFunc, vx, vy, vz, posX, posY, posZ, ax, ay, az, iterationsLimit, iterationsNumberForStopping, timeStep, ballRadius, edgeCase);
+			}
+			else if (isinf(posX) || isinf(posY) || isinf(posZ)) {
+				if (isinf(posX) && posX < 0) {
+					xAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(posX) && posX > 0) {
+					xAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					xAxisCoordinates.push_back(posX);
+				}
+
+				if (isinf(posY) && posY < 0) {
+					yAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(posY) && posY > 0) {
+					yAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					yAxisCoordinates.push_back(posY);
+				}
+
+				if (isinf(posZ) && posZ < 0) {
+					zAxisCoordinates.push_back(numeric_limits<double>::lowest());
+				}
+				else if (isinf(posZ) && posZ > 0) {
+					zAxisCoordinates.push_back(numeric_limits<double>::max());
+				}
+				else {
+					zAxisCoordinates.push_back(posZ);
+				}
+
+				warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
 				break;
-			case 2:
+			}
+			else {
+				xAxisCoordinates.push_back(posX);
+				yAxisCoordinates.push_back(posY);
+				zAxisCoordinates.push_back(posZ);
+			}
+
+			// actions to check whether there is an extreme case due to which the ball does not fall
+			pointsNumber = xAxisCoordinates.size();
+			iterationsLimit--;
+
+			// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
+			calculatingFunc();
+			if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX && ay != 0.0 && vy == originalVY) {
+				iterationsNumberForStopping--;
+			}
+
+			if (edgeCase && vz < 0.0)
 				break;
-		}
+		} while (posZ - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY && zAxisCoordinates[pointsNumber - 2] == posZ) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
 
 		if (iterationsNumberForStopping == 0) {
 			warning += "The simulation was paused after another 2 seconds of flight from detection, as the ball's flight takes forever";
@@ -167,105 +231,48 @@ void TrajectoryCalculator::RK4(
 	double& ax,
 	double& ay,
 	double& az,
-	int& iterationsLimit,
-	int& iterationsNumberForStopping,
-	double timeStep,
-	double ballRadius,
-	bool edgeCase
+	double& originalVX,
+	double& originalVY,
+	double& originalVZ,
+	double (& kX)[4],
+	double (& kY)[4],
+	double (& kZ)[4],
+	double (& kXVelocity)[4],
+	double (& kYVelocity)[4],
+	double (& kZVelocity)[4],
+	double timeStep
 ) {
-	double kX[4], kY[4], kZ[4], kXVelocity[4], kYVelocity[4], kZVelocity[4], originalVX, originalVY, originalVZ;
-	size_t pointsNumber;
+	originalVX = vx;
+	originalVY = vy;
+	originalVZ = vz;
 
-	do {
-		originalVX = vx;
-		originalVY = vy;
-		originalVZ = vz;
+	RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kZ[0], kXVelocity[0], kYVelocity[0], kZVelocity[0], timeStep, vx, vy, vz, ax, ay, az);
 
-		RungeKuttaMethodPart(calculatingFunc, kX[0], kY[0], kZ[0], kXVelocity[0], kYVelocity[0], kZVelocity[0], timeStep, vx, vy, vz, ax, ay, az);
+	vx = originalVX + kXVelocity[0] / 2;
+	vy = originalVY + kYVelocity[0] / 2;
+	vz = originalVZ + kZVelocity[0] / 2;
 
-		vx = originalVX + kXVelocity[0] / 2;
-		vy = originalVY + kYVelocity[0] / 2;
-		vz = originalVZ + kZVelocity[0] / 2;
+	RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kZ[1], kXVelocity[1], kYVelocity[1], kZVelocity[1], timeStep, vx, vy, vz, ax, ay, az);
 
-		RungeKuttaMethodPart(calculatingFunc, kX[1], kY[1], kZ[1], kXVelocity[1], kYVelocity[1], kZVelocity[1], timeStep, vx, vy, vz, ax, ay, az);
+	vx = originalVX + kXVelocity[1] / 2;
+	vy = originalVY + kYVelocity[1] / 2;
+	vz = originalVZ + kZVelocity[1] / 2;
 
-		vx = originalVX + kXVelocity[1] / 2;
-		vy = originalVY + kYVelocity[1] / 2;
-		vz = originalVZ + kZVelocity[1] / 2;
+	RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kZ[2], kXVelocity[2], kYVelocity[2], kZVelocity[2], timeStep, vx, vy, vz, ax, ay, az);
 
-		RungeKuttaMethodPart(calculatingFunc, kX[2], kY[2], kZ[2], kXVelocity[2], kYVelocity[2], kZVelocity[2], timeStep, vx, vy, vz, ax, ay, az);
+	vx = originalVX + kXVelocity[2];
+	vy = originalVY + kYVelocity[2];
+	vz = originalVZ + kZVelocity[2];
 
-		vx = originalVX + kXVelocity[2];
-		vy = originalVY + kYVelocity[2];
-		vz = originalVZ + kZVelocity[2];
+	RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kZ[3], kXVelocity[3], kYVelocity[3], kZVelocity[3], timeStep, vx, vy, vz, ax, ay, az);
 
-		RungeKuttaMethodPart(calculatingFunc, kX[3], kY[3], kZ[3], kXVelocity[3], kYVelocity[3], kZVelocity[3], timeStep, vx, vy, vz, ax, ay, az);
+	posX += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
+	posY += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
+	posZ += (kZ[0] + 2 * kZ[1] + 2 * kZ[2] + kZ[3]) / 6;
 
-		posX += (kX[0] + 2 * kX[1] + 2 * kX[2] + kX[3]) / 6;
-		posY += (kY[0] + 2 * kY[1] + 2 * kY[2] + kY[3]) / 6;
-		posZ += (kZ[0] + 2 * kZ[1] + 2 * kZ[2] + kZ[3]) / 6;
-
-		vx = originalVX + (kXVelocity[0] + 2 * kXVelocity[1] + 2 * kXVelocity[2] + kXVelocity[3]) / 6;
-		vy = originalVY + (kYVelocity[0] + 2 * kYVelocity[1] + 2 * kYVelocity[2] + kYVelocity[3]) / 6;
-		vz = originalVZ + (kZVelocity[0] + 2 * kZVelocity[1] + 2 * kZVelocity[2] + kZVelocity[3]) / 6;
-
-		if (isnan(posX) || isnan(posY) || isnan(posZ) || isnan(vx) || isnan(vy) || isnan(vz) || isinf(vx) || isinf(vy) || isinf(vz)) {
-			warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
-			break;
-		}
-		else if (isinf(posX) || isinf(posY) || isinf(posZ)) {
-			if (isinf(posX) && posX < 0) {
-				xAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posX) && posX > 0) {
-				xAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				xAxisCoordinates.push_back(posX);
-			}
-
-			if (isinf(posY) && posY < 0) {
-				yAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posY) && posY > 0) {
-				yAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				yAxisCoordinates.push_back(posY);
-			}
-
-			if (isinf(posZ) && posZ < 0) {
-				zAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posZ) && posZ > 0) {
-				zAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				zAxisCoordinates.push_back(posZ);
-			}
-
-			warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
-			break;
-		}
-		else {
-			xAxisCoordinates.push_back(posX);
-			yAxisCoordinates.push_back(posY);
-			zAxisCoordinates.push_back(posZ);
-		}
-
-		// actions to check whether there is an extreme case due to which the ball does not fall
-		pointsNumber = xAxisCoordinates.size();
-		iterationsLimit--;
-
-		// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
-		calculatingFunc();
-		if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX && ay != 0.0 && vy == originalVY) {
-			iterationsNumberForStopping--;
-		}
-
-		if (edgeCase && vz < 0.0)
-			break;
-	} while (posZ - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY && zAxisCoordinates[pointsNumber - 2] == posZ) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
+	vx = originalVX + (kXVelocity[0] + 2 * kXVelocity[1] + 2 * kXVelocity[2] + kXVelocity[3]) / 6;
+	vy = originalVY + (kYVelocity[0] + 2 * kYVelocity[1] + 2 * kYVelocity[2] + kYVelocity[3]) / 6;
+	vz = originalVZ + (kZVelocity[0] + 2 * kZVelocity[1] + 2 * kZVelocity[2] + kZVelocity[3]) / 6;
 }
 
 
@@ -280,16 +287,11 @@ void TrajectoryCalculator::Euler(
 	double& ax,
 	double& ay,
 	double& az,
-	int& iterationsLimit,
-	int& iterationsNumberForStopping,
-	double timeStep,
-	double ballRadius,
-	bool edgeCase
+	double& originalVX,
+	double& originalVY,
+	double& originalVZ,
+	double timeStep
 ) {
-	double originalVX, originalVY, originalVZ;
-	size_t pointsNumber;
-
-	do {
 		originalVX = vx;
 		originalVY = vy;
 		originalVZ = vz;
@@ -303,64 +305,42 @@ void TrajectoryCalculator::Euler(
 		posX = posX + originalVX * timeStep;
 		posY = posY + originalVY * timeStep;
 		posZ = posZ + originalVZ * timeStep;
+}
 
-		if (isnan(posX) || isnan(posY) || isnan(posZ) || isnan(vx) || isnan(vy) || isnan(vz) || isinf(vx) || isinf(vy) || isinf(vz)) {
-			warning += "The simulation was stopped due to the ball's flight properties going beyond the valid simulation range";
-			break;
-		}
-		else if (isinf(posX) || isinf(posY) || isinf(posZ)) {
-			if (isinf(posX) && posX < 0) {
-				xAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posX) && posX > 0) {
-				xAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				xAxisCoordinates.push_back(posX);
-			}
 
-			if (isinf(posY) && posY < 0) {
-				yAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posY) && posY > 0) {
-				yAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				yAxisCoordinates.push_back(posY);
-			}
+void TrajectoryCalculator::Verlet(
+	function<void()>& calculatingFunc,
+	double& vx,
+	double& vy,
+	double& vz,
+	double& posX,
+	double& posY,
+	double& posZ,
+	double& ax,
+	double& ay,
+	double& az,
+	double& originalVX,
+	double& originalVY,
+	double& originalVZ,
+	double timeStep
+) {
+		originalVX = vx;
+		originalVY = vy;
+		originalVZ = vz;
 
-			if (isinf(posZ) && posZ < 0) {
-				zAxisCoordinates.push_back(numeric_limits<double>::lowest());
-			}
-			else if (isinf(posZ) && posZ > 0) {
-				zAxisCoordinates.push_back(numeric_limits<double>::max());
-			}
-			else {
-				zAxisCoordinates.push_back(posZ);
-			}
+		posX += vx * timeStep + ax * timeStep * timeStep / 2;
+		posY += vy * timeStep + ay * timeStep * timeStep / 2;
+		posZ += vz * timeStep + az * timeStep * timeStep / 2;
 
-			warning += "The simulation was stopped due to the ball's trajectory going beyond the valid simulation range";
-			break;
-		}
-		else {
-			xAxisCoordinates.push_back(posX);
-			yAxisCoordinates.push_back(posY);
-			zAxisCoordinates.push_back(posZ);
-		}
+		vx += ax * timeStep / 2;
+		vy += ay * timeStep / 2;
+		vz += az * timeStep / 2;
 
-		// actions to check whether there is an extreme case due to which the ball does not fall
-		pointsNumber = xAxisCoordinates.size();
-		iterationsLimit--;
-
-		// checking whether the double type inaccuracy affects the lack of speed change at a certain acceleration
 		calculatingFunc();
-		if (vz >= 0.0 && az != 0.0 && vz == originalVZ && ax != 0.0 && vx == originalVX && ay != 0.0 && vy == originalVY) {
-			iterationsNumberForStopping--;
-		}
 
-		if (edgeCase && vz < 0.0)
-			break;
-	} while (posZ - ballRadius > 0.0 && !(pointsNumber >= 2 && xAxisCoordinates[pointsNumber - 2] == posX && yAxisCoordinates[pointsNumber - 2] == posY && zAxisCoordinates[pointsNumber - 2] == posZ) && iterationsNumberForStopping > 0 && iterationsLimit > 0);
+		vx += ax * timeStep / 2;
+		vy += ay * timeStep / 2;
+		vz += az * timeStep / 2;
 }
 
 

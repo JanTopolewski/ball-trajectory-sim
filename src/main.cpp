@@ -135,7 +135,7 @@ int main() {
     vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
 
     // preparing ODE solvers list
-    vector<string> solvers = { "RK4", "Euler", "Option3" };
+    vector<string> solvers = { "RK4", "Euler", "Verlet" };
 
     vector<const char*> solversCStr;
     solversCStr.reserve(solvers.size());
