@@ -183,14 +183,14 @@ int main() {
                     auto greeting = "Hello user!";
                     auto welcome = "Welcome in our application!";
                     auto proposition = "Have fun shoooting the ball!";
-                    ImGui::SetWindowFontScale(2.0f);
+                    ImGui::SetWindowFontScale(2.0f * fontSizeMultiplier);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(greeting).x) * 0.5f);
                     ImGui::Text(greeting);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(welcome).x) * 0.5f);
                     ImGui::Text(welcome);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(proposition).x) * 0.5f);
                     ImGui::Text(proposition);
-                    ImGui::SetWindowFontScale(1.2f);
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
 
                     ImGui::Spacing();
                     ImGui::Text(""); // just for spacing, otherwise there is no spacing visible
@@ -230,7 +230,7 @@ int main() {
                         glfwSetWindowShouldClose(window, GLFW_TRUE);
                     }
 
-                    ImGui::SetWindowFontScale(1.0f); // reset the font size
+                    ImGui::SetWindowFontScale(fontSizeMultiplier); // reset the font size
                 }ImGui::End();
                 break;
             }
@@ -241,8 +241,10 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Choose a simulation to read from", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
                 {
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Choose a simulation from the list: ");
-                    
+
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::Combo(" ", &chosenFile, fileNamesCStr.data(), fileNamesCStr.size());
 
                     if (ImGui::Button("Select"))
@@ -283,6 +285,7 @@ int main() {
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Save simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     static char buf[31] = "";
                     regex pattern("^[A-Za-z0-9_-]+$");
 
@@ -318,9 +321,10 @@ int main() {
                 ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
@@ -375,8 +379,10 @@ int main() {
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
                     ImGui::PushTextWrapPos(0.0f);
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("You can also preset values according to specific space object (leave \"Custom\" if you want to adjust them for your own)");
                     ImGui::PopTextWrapPos();
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
 
                     if (ImGui::Button("Create simulation"))
@@ -507,8 +513,10 @@ int main() {
 
                 if (ImGui::Begin("Data"))
                 {
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     if (ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
@@ -642,6 +650,7 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - (SETTINGS_WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2 - (SETTINGS_WINDOW_HEIGHT / 2)));
                 if (ImGui::Begin("Settigns", nullptr))
                 {
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
 
                     ImGui::InputFloat("Font size", &fontSizeMultiplier, 0.1f, 0, "%.1f");
