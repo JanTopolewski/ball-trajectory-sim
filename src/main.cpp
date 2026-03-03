@@ -439,7 +439,8 @@ int main() {
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
                     double now = ImGui::GetTime();
-                    if (now - lastTime >= (1 / plotFramesPerSecond) && currentIndex < (int)xAxis.size()) {
+                    bool animationFinished =  currentIndex >= (int)xAxis.size();
+                    if (now - lastTime >= (1 / plotFramesPerSecond) && !animationFinished) {
                         lastTime = now;
                         currentIndex++;
                     }
@@ -496,11 +497,14 @@ int main() {
                     cursor = ImGui::GetCursorPos();
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
-                    if (hasTarget && !dataChanged) {
-                        if (sqrt(pow(xAxis.back() - targetXDistance, 2) + pow(zAxis.back() - targetZDistance, 2) + yAxis.back() * yAxis.back()) <= ballRadius && yAxis.back() - ballRadius <= 0) {
+                    if (hasTarget && !dataChanged && animationFinished)
+                    {
+                        if (sqrt(pow(xAxis.back() - targetXDistance, 2) + pow(zAxis.back() - targetZDistance, 2) + yAxis.back() * yAxis.back()) <= ballRadius && yAxis.back() - ballRadius <= 0)
+                        {
                             ImGui::TextColored(ImVec4(0, 1, 0, 1), "The ball hit the target");
                         }
-                        else {
+                        else
+                        {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
