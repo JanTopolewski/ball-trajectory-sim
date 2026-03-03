@@ -75,6 +75,9 @@ int main() {
     const int CREATION_WINDOW_WIDTH = 800;
     const int CREATION_WINDOW_HEIGHT = 800;
 
+    const int SETTINGS_WINDOW_WIDTH = 600;
+    const int SETTINGS_WINDOW_HEIGHT = 600;
+
     Displaying displaying = Displaying::WelcomingMenu;
 
 
@@ -613,6 +616,13 @@ int main() {
             }
             case Displaying::SettingsMenu:
             {
+                ImGui::SetNextWindowSize(ImVec2(SETTINGS_WINDOW_WIDTH,SETTINGS_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT /2));
+                if (ImGui::Begin("Settigns", nullptr))
+                {
+                    ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
+                }
+                ImGui::End();
                 break;
             }
         }
