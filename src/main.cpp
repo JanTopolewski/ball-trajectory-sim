@@ -121,6 +121,8 @@ int main() {
     static double lastTime = ImGui::GetTime();
     bool axesSetting = false;
 
+    double frameDelta = 0.0; // used for debugging plot fps
+
     // reading planet data from file
     //reading from file
     FilesManager* fileManager = new FilesManager();
@@ -445,7 +447,9 @@ int main() {
 
                     double now = ImGui::GetTime();
                     bool animationFinished = currentIndex >= (int)xAxis.size();
-                    if (now - lastTime >= (1 / plotFramesPerSecond) && !animationFinished) {
+                    frameDelta = now - lastTime;
+                    if (now - lastTime >= (1 / plotFramesPerSecond) && !animationFinished && !isPaused)
+                    {
                         lastTime = now;
                         currentIndex++;
                     }
@@ -658,6 +662,7 @@ int main() {
 
                 if (ImGui::Begin("Simulation control"))
                 {
+                    ImGui::Text(to_string(frameDelta).c_str());
                     // play/pause
                     auto buttonPlayPauseText = "";
                     if (isPaused)
