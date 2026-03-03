@@ -644,6 +644,10 @@ int main() {
                 {
                     ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
 
+                    ImGui::InputFloat("Font size", &fontSizeMultiplier, 0.1f, 0, "%.1f");
+
+                    ImGui::ColorEdit4("Background color", backgroundColor);
+
                     if (ImGui::Button("Back"))
                     {
                         displaying = Displaying::WelcomingMenu;
