@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <regex>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -82,15 +83,18 @@ int main() {
 
     // variables for input data
     float ballVelocity = 25.0f;
-    float firingAngle = 45.0f;
+    float horizontalAngle = 90.0f;
+    float verticalAngle = 45.0f;
     float ballRadius = 0.05f;
     float ballMass = 0.1f;
     float gravitationalAcceleration = 9.81f;
     float windVelocity = 2.0f;
-    float windAngle = 180.0f;
+    float windHorizontalAngle = 270.0f;
+    float windVerticalAngle = 0.0f;
     float atmosphericDensity = 1.225f;
     float initialDistanceFromGround = 1.0f;
-    float distanceFromAim = 20.0f;
+    float targetXDistance = 10.0f;
+    float targetZDistance = 10.0f;
  
     bool hasTarget = true;
     bool windEnable = true;
@@ -102,6 +106,7 @@ int main() {
     // variables for showing results
     vector<double> xAxis;
     vector<double> yAxis;
+    vector<double> zAxis;
     string warning;
 
     // variables for animations in implot
@@ -129,6 +134,17 @@ int main() {
 
     // loading .csv file to some sort of array
     vector<SpaceObject> planetsData = fileManager->getSpaceObjectsData();
+
+    // preparing ODE solvers list
+    vector<string> solvers = { "RK4", "Euler", "Verlet" };
+
+    vector<const char*> solversCStr;
+    solversCStr.reserve(solvers.size());
+
+    for (auto& solver : solvers) {
+        solversCStr.push_back(solver.c_str());
+    }
+    static int currentSolver = 0;
 
     int chosenFile = 0;
     vector<string> fileNames;
@@ -202,18 +218,21 @@ int main() {
                     {
                         Simulation* sim = fileManager->readSimulationData(fileNamesCStr[chosenFile]);
                         ballVelocity = sim->ballVelocity;
-                        firingAngle = sim->firingAngle;
+                        horizontalAngle = sim->horizontalAngle;
                         ballRadius = sim->ballRadius;
                         ballMass = sim->ballMass;
                         initialDistanceFromGround = sim->initialDistanceFromGround;
-                        distanceFromAim = sim->targetDistance;
+                        targetXDistance = sim->targetYDistance;
+                        targetZDistance = sim->targetXDistance;
                         windVelocity = sim->windVelocity;
-                        windAngle = sim->windAngle;
+                        windHorizontalAngle = sim->windHorizontalAngle;
                         gravitationalAcceleration = sim->gravitationalAcceleration;
                         atmosphericDensity = sim->atmosfericDensity;
-                        xAxis = sim->xAxisCoordinates;
-                        yAxis = sim->yAxisCoordinates;
+                        xAxis = sim->yAxisCoordinates; // The change in axis results from a formal change in orientation from a mathematical coordinate system to one in OpenGL
+                        yAxis = sim->zAxisCoordinates;
+                        zAxis = sim->xAxisCoordinates;
                         warning = sim->warning;
+                        currentSolver = sim->odeSolver;
 
                         lastTime = ImGui::GetTime();
                         currentIndex = 0;
@@ -253,7 +272,7 @@ int main() {
 
                     if (ImGui::Button("Save")) {
                         if (regex_match(filename, pattern) && !fileManager->checkFileExistence(filename)) {
-                            Simulation* sim = new Simulation({ ballVelocity, firingAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windAngle, atmosphericDensity, initialDistanceFromGround, xAxis, yAxis, warning, {}, {}, hasTarget, distanceFromAim });
+                            Simulation* sim = new Simulation({ ballVelocity, horizontalAngle, verticalAngle, ballRadius, ballMass, gravitationalAcceleration, windVelocity, windHorizontalAngle, windVerticalAngle, atmosphericDensity, initialDistanceFromGround, zAxis, xAxis, yAxis, warning, {}, {}, {}, hasTarget, targetZDistance, targetXDistance, currentSolver });
                             fileManager->saveSimulationData(sim, filename);
                             displaying = Displaying::WelcomingMenu;
                             //memset(buf, 0, sizeof(buf));
@@ -273,7 +292,8 @@ int main() {
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
                     ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Horizontal firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
@@ -281,7 +301,8 @@ int main() {
                     }
                     ImGui::Checkbox("Enable target", &hasTarget);
                     if (!hasTarget) ImGui::BeginDisabled();
-                    ImGui::InputFloat("Distance from the aim", &distanceFromAim, 0.1f, 1.0f, "%.2f");
+                    ImGui::InputFloat("Distance to target on the x-axis", &targetZDistance, 0.1f, 1.0f, "%.2f");
+                    ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f");
                     if (!hasTarget) ImGui::EndDisabled();
 
                     // Spacing
@@ -306,7 +327,8 @@ int main() {
                     ImGui::Checkbox("Enable wind", &windEnable);
                     if (!windEnable && atmosphericDensity != 0.0f) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Horizontal wind angle", &windHorizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Vertical wind angle", &windVerticalAngle, -90.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!windEnable || atmosphericDensity == 0.0f) ImGui::EndDisabled();
 
                     if (planet_selected) ImGui::BeginDisabled();
@@ -314,6 +336,10 @@ int main() {
                     if (!atmosphereEnable && !planet_selected) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!atmosphereEnable || planet_selected) ImGui::EndDisabled();
+
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    ImGui::Combo("Select calculation method", &currentSolver, solversCStr.data(), solversCStr.size());
+                    if (!atmosphereEnable) ImGui::EndDisabled();
 
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
@@ -330,11 +356,28 @@ int main() {
                             windVelocity = 0.0f;
                         }
                         if (!gravityEnable) gravitationalAcceleration = 0.0f;
-                        if (!hasTarget) distanceFromAim = 0.0f;
-                        calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                        if (!hasTarget) {
+                            targetXDistance = 0.0f;
+                            targetZDistance = 0.0f;
+                        }
+                        calculator.CalculateData(
+                            (double)ballVelocity,
+                            (double)horizontalAngle,
+                            (double)verticalAngle,
+                            (double)ballRadius,
+                            (double)ballMass,
+                            (double)gravitationalAcceleration,
+                            (double)windVelocity,
+                            (double)windHorizontalAngle,
+                            (double)windVerticalAngle,
+                            (double)atmosphericDensity,
+                            (double)initialDistanceFromGround,
+                            currentSolver
+                        );
                         
-                        xAxis = calculator.getXAxisCoordinates();
-                        yAxis = calculator.getYAxisCoordinates();
+                        xAxis = calculator.getYAxisCoordinates();
+                        yAxis = calculator.getZAxisCoordinates();
+                        zAxis = calculator.getXAxisCoordinates();
                         warning = calculator.getWarning();
                         lastTime = ImGui::GetTime();
                         currentIndex = 0;
@@ -402,7 +445,7 @@ int main() {
 
                             if (hasTarget && !dataChanged) {
                                 ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, 4.0f, ImVec4(1, 1, 0, 1), 0.0f, ImVec4(0, 0, 0, 0));
-                                double targetX = (double)distanceFromAim;
+                                double targetX = (double)targetXDistance;
                                 double targetY = 0.0;
                                 ImPlot::PlotScatter("Target", &targetX, &targetY, 1);
                             }
@@ -419,7 +462,7 @@ int main() {
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
                     if (hasTarget && !dataChanged) {
-                        if (abs(xAxis.back() - distanceFromAim) <= ballRadius && yAxis.back() - ballRadius <= 0) {
+                        if (sqrt(pow(xAxis.back() - targetXDistance, 2) + pow(zAxis.back() - targetZDistance, 2) + yAxis.back() * yAxis.back()) <= ballRadius && yAxis.back() - ballRadius <= 0) {
                             ImGui::TextColored(ImVec4(0, 1, 0, 1), "The ball hit the target");
                         }
                         else {
@@ -437,7 +480,8 @@ int main() {
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
                     if (ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
-                    if (ImGui::SliderFloat("Firing angle", &firingAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
+                    if (ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
+                    if (ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
@@ -446,7 +490,8 @@ int main() {
                     }
                     if (ImGui::Checkbox("Enable target", &hasTarget)) dataChanged = true;
                     if (!hasTarget) ImGui::BeginDisabled();
-                    if (ImGui::InputFloat("Distance from the aim", &distanceFromAim, 0.1f, 1.0f, "%.2f")) dataChanged = true;
+                    if (ImGui::InputFloat("Distance to target on the x-axis", &targetZDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
+                    if (ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
                     if (!hasTarget) ImGui::EndDisabled();
 
                     // Spacing
@@ -470,7 +515,8 @@ int main() {
                     if (ImGui::Checkbox("Enable wind", &windEnable)) dataChanged = true;
                     if (!windEnable && atmosphericDensity != 0) ImGui::BeginDisabled();
                     if (ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
-                    if (ImGui::SliderFloat("Wind angle", &windAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
+                    if (ImGui::SliderFloat("Horizontal wind angle", &windHorizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
+                    if (ImGui::SliderFloat("Vertical wind angle", &windVerticalAngle, -90.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (!windEnable || atmosphericDensity == 0.0f) ImGui::EndDisabled();
 
                     if (currentPlanet != 0) ImGui::BeginDisabled();
@@ -478,6 +524,10 @@ int main() {
                     if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
                     if (ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
+
+                    if (!atmosphereEnable) ImGui::BeginDisabled();
+                    if (ImGui::Combo("Select calculation method", &currentSolver, solversCStr.data(), solversCStr.size())) dataChanged = true;
+                    if (!atmosphereEnable) ImGui::EndDisabled();
 
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
@@ -491,11 +541,28 @@ int main() {
                             windVelocity = 0.0f;
                         }
                         if (!gravityEnable) gravitationalAcceleration = 0.0f;
-                        if (!hasTarget) distanceFromAim = 0.0f;
-                        calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                        if (!hasTarget) {
+                            targetXDistance = 0.0f;
+                            targetZDistance = 0.0f;
+                        }
+                        calculator.CalculateData(
+                            (double)ballVelocity,
+                            (double)horizontalAngle,
+                            (double)verticalAngle,
+                            (double)ballRadius,
+                            (double)ballMass,
+                            (double)gravitationalAcceleration,
+                            (double)windVelocity,
+                            (double)windHorizontalAngle,
+                            (double)windVerticalAngle,
+                            (double)atmosphericDensity,
+                            (double)initialDistanceFromGround,
+                            currentSolver
+                        );
 
-                        xAxis = calculator.getXAxisCoordinates();
-                        yAxis = calculator.getYAxisCoordinates();
+                        xAxis = calculator.getYAxisCoordinates();
+                        yAxis = calculator.getZAxisCoordinates();
+                        zAxis = calculator.getXAxisCoordinates();
                         warning = calculator.getWarning();
                         dataChanged = false;
                         lastTime = ImGui::GetTime();
@@ -507,10 +574,24 @@ int main() {
                     ImGui::SameLine();
                     if (ImGui::Button("Save results")) {
                         if (dataChanged) {
-                            calculator.CalculateData((double)ballVelocity, (double)firingAngle, (double)ballRadius, (double)ballMass, (double)gravitationalAcceleration, (double)windVelocity, (double)windAngle, (double)atmosphericDensity, (double)initialDistanceFromGround);
+                            calculator.CalculateData(
+                                (double)ballVelocity,
+                                (double)horizontalAngle,
+                                (double)verticalAngle,
+                                (double)ballRadius,
+                                (double)ballMass,
+                                (double)gravitationalAcceleration,
+                                (double)windVelocity,
+                                (double)windHorizontalAngle,
+                                (double)windVerticalAngle,
+                                (double)atmosphericDensity,
+                                (double)initialDistanceFromGround,
+                                currentSolver
+                            );
 
-                            xAxis = calculator.getXAxisCoordinates();
-                            yAxis = calculator.getYAxisCoordinates();
+                            xAxis = calculator.getYAxisCoordinates();
+                            yAxis = calculator.getZAxisCoordinates();
+                            zAxis = calculator.getXAxisCoordinates();
                             warning = calculator.getWarning();
 
                             dataChanged = false;
