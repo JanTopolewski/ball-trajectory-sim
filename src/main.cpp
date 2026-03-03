@@ -610,8 +610,8 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-                    ImGui::End();
                 }
+                ImGui::End();
                 break;
             }
             case Displaying::SettingsMenu:
