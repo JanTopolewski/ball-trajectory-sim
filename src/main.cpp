@@ -116,6 +116,7 @@ int main() {
     int plotFramesPerSecond = 1000;
     bool isPaused = false;
     float plotSpeedMultiplier = 1.0f;
+    int secondsToPass = 5;
     static int currentIndex = 0;
     static double lastTime = ImGui::GetTime();
     bool axesSetting = false;
@@ -439,7 +440,7 @@ int main() {
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
                     double now = ImGui::GetTime();
-                    bool animationFinished =  currentIndex >= (int)xAxis.size();
+                    bool animationFinished = currentIndex >= (int)xAxis.size();
                     if (now - lastTime >= (1 / plotFramesPerSecond) && !animationFinished) {
                         lastTime = now;
                         currentIndex++;
@@ -508,12 +509,10 @@ int main() {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
-
                 }
                 ImGui::End();
 
                 ImGui::SameLine();
-
 
                 if (ImGui::Begin("Data", nullptr, ImGuiWindowFlags_HorizontalScrollbar))
                 {
@@ -643,6 +642,69 @@ int main() {
                     if (ImGui::Button("Back"))
                     {
                         displaying = Displaying::WelcomingMenu;
+                    }
+                }
+                ImGui::End();
+
+                ImGui::Spacing();
+
+                if (ImGui::Begin("Simulation control"))
+                {
+                    // play/pause
+                    auto buttonPlayPauseText = "";
+                    if (isPaused)
+                        buttonPlayPauseText = "Play";
+                    else
+                        buttonPlayPauseText = "Pause";
+                    if (ImGui::Button(buttonPlayPauseText))
+                    {
+                        isPaused = !isPaused;
+                    }
+
+                    // start/end
+                    if (ImGui::Button("Start"))
+                    {
+                        currentIndex = 0;
+                    }
+
+                    int animationLength = static_cast<int>(xAxis.size());
+
+                    if (ImGui::Button("End"))
+                    {
+                        currentIndex = animationLength;
+                    }
+
+                    // slider with animation
+                    ImGui::SliderInt(" ", &currentIndex, 0, animationLength, "%d", ImGuiSliderFlags_AlwaysClamp);
+
+                    // speed multiplier
+                    ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
+
+                    // +/- frames, seconds etc.
+                    if (ImGui::Button("Next frame"))
+                    {
+                        currentIndex = min(currentIndex+1, animationLength);
+                    }
+                    if (ImGui::Button("Previous frame"))
+                    {
+                        currentIndex = max(currentIndex-1, 0);
+                    }
+                    if (ImGui::Button("Add second"))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond, animationLength);
+                    }
+                    if (ImGui::Button("Subtract second"))
+                    {
+                        currentIndex = max(currentIndex - plotFramesPerSecond, 0);
+                    }
+                    ImGui::InputInt("Seconds", &secondsToPass);
+                    if (ImGui::Button(("Add " + to_string(secondsToPass) + " seconds").c_str()))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond * secondsToPass, animationLength);
+                    }
+                    if (ImGui::Button(("Subtract " + to_string(secondsToPass) + " seconds").c_str()))
+                    {
+                        currentIndex = max(currentIndex - plotFramesPerSecond * secondsToPass, 0);
                     }
                 }
                 ImGui::End();
