@@ -201,6 +201,11 @@ int main() {
 
                         displaying = Displaying::ReadFileMenu;
                     }
+
+                    if (ImGui::Button("Settings"))
+                    {
+                        displaying = Displaying::SettingsMenu;
+                    }
                 }ImGui::End();
                 break;
             }
