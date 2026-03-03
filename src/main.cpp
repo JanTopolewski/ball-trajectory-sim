@@ -292,7 +292,7 @@ int main() {
 
                     ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Horizontal firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
