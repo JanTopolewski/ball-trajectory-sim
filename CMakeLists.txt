@@ -92,6 +92,10 @@ add_executable(TrajectorySimulation
     include/SpaceObject.h
 )
 
+target_compile_definitions(TrajectorySimulation PRIVATE
+    PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
 # Include directories for your headers
 target_include_directories(TrajectorySimulation PRIVATE
     ${CMAKE_SOURCE_DIR}/include
