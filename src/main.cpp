@@ -616,8 +616,8 @@ int main() {
             }
             case Displaying::SettingsMenu:
             {
-                ImGui::SetNextWindowSize(ImVec2(SETTINGS_WINDOW_WIDTH,SETTINGS_WINDOW_HEIGHT));
-                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2, WINDOW_HEIGHT /2));
+                ImGui::SetNextWindowSize(ImVec2(SETTINGS_WINDOW_WIDTH, SETTINGS_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - (SETTINGS_WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2 - (SETTINGS_WINDOW_HEIGHT / 2)));
                 if (ImGui::Begin("Settigns", nullptr))
                 {
                     ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
