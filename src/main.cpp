@@ -69,8 +69,8 @@ int main() {
 
 
     // variables and object for displaying subwindows
-    const int WELCOME_WINDOW_WIDTH = 400;
-    const int WELCOME_WINDOW_HEIGHT = 300;
+    const int WELCOME_WINDOW_WIDTH = 800;
+    const int WELCOME_WINDOW_HEIGHT = 600;
 
     const int CREATION_WINDOW_WIDTH = 800;
     const int CREATION_WINDOW_HEIGHT = 800;
@@ -181,23 +181,31 @@ int main() {
                     //
                     // ImGui::Text(text);
 
-                    const char* text = "Hello user!\nWelcome in our application!\nHave fun shoooting the ball!";
+                    auto greeting = "Hello user!";
+                    auto welcome = "Welcome in our application!";
+                    auto proposition = "Have fun shoooting the ball!";
                     ImGui::SetWindowFontScale(2.0f); // Scale font up (e.g. 1.2x)
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(greeting).x) * 0.5f);
+                    ImGui::Text(greeting);
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(welcome).x) * 0.5f);
+                    ImGui::Text(welcome);
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(proposition).x) * 0.5f);
+                    ImGui::Text(proposition);
+                    ImGui::SetWindowFontScale(1.2f); // Reset font scale to default
 
-                    ImGui::Text(text);
-                    ImGui::SetWindowFontScale(1.0f); // Reset font scale to default
+                    ImGui::Spacing();
+                    ImGui::Text(""); // just for spacing, otherwise there is no spacing visible
 
                     // Buttons
-                    float buttonWidth = 120.0f;
-                    float spacing = 10.0f;
-                    float totalWidth = (buttonWidth * 2) + spacing;
-                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - totalWidth) * 0.5f);
+                    float buttonWidth = 220.0f;
 
-                    if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Create new simulation", ImVec2(buttonWidth, 0)))
                     {
                         displaying = Displaying::CreationMenu;
                     }
-                    ImGui::SameLine(0, spacing);
+
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
                     if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
                     {
                         // get the possible filenames
@@ -211,12 +219,14 @@ int main() {
                         displaying = Displaying::ReadFileMenu;
                     }
 
-                    if (ImGui::Button("Settings"))
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Settings", ImVec2(buttonWidth, 0)))
                     {
                         displaying = Displaying::SettingsMenu;
                     }
 
-                    if (ImGui::Button("Exit"))
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Exit", ImVec2(buttonWidth, 0)))
                     {
                         glfwSetWindowShouldClose(window, GLFW_TRUE);
                     }
