@@ -320,7 +320,7 @@ int main() {
                 // Creation window:
                 ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar)) {
                     ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
@@ -511,7 +511,7 @@ int main() {
                 ImGui::SameLine();
 
 
-                if (ImGui::Begin("Data"))
+                if (ImGui::Begin("Data", nullptr, ImGuiWindowFlags_HorizontalScrollbar))
                 {
                     ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
