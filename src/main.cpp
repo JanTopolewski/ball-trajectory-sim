@@ -431,7 +431,7 @@ int main() {
             case Displaying::SimulationMenu:
             {
                 ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT - 20));
-                ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x + 10, ImGui::GetMainViewport()->Pos.y + 10));
+                ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x + 10, ImGui::GetMainViewport()->Pos.y + 10), ImGuiCond_FirstUseEver);
                 if (ImGui::Begin("Trajectory"))
                 {
                     ImVec2 cursor = ImGui::GetCursorPos();
