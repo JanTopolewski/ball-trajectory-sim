@@ -621,6 +621,11 @@ int main() {
                 if (ImGui::Begin("Settigns", nullptr))
                 {
                     ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
+
+                    if (ImGui::Button("Back"))
+                    {
+                        displaying = Displaying::WelcomingMenu;
+                    }
                 }
                 ImGui::End();
                 break;
