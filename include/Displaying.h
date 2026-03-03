@@ -4,5 +4,6 @@ enum class Displaying {
 	ReadFileMenu,
 	SaveFileMenu,
 	CreationMenu,
-	SimulationMenu
+	SimulationMenu,
+	SettingsMenu
 };

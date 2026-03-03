@@ -606,6 +606,10 @@ int main() {
                 }
                 break;
             }
+            case Displaying::SettingsMenu:
+            {
+                break;
+            }
         }
 
         // render the imgui elements
