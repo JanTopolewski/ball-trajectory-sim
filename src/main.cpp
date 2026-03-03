@@ -110,6 +110,7 @@ int main() {
     string warning;
 
     // variables for animations in implot
+    int plotFramesPerSecond = 1000;
     static int currentIndex = 0;
     static double lastTime = ImGui::GetTime();
     bool axesSetting = false;
@@ -402,7 +403,7 @@ int main() {
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
                     double now = ImGui::GetTime();
-                    if (now - lastTime >= 0.001 && currentIndex < (int)xAxis.size()) {
+                    if (now - lastTime >= (1 / plotFramesPerSecond) && currentIndex < (int)xAxis.size()) {
                         lastTime = now;
                         currentIndex++;
                     }
