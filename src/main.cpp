@@ -114,6 +114,8 @@ int main() {
 
     // variables for animations in implot
     int plotFramesPerSecond = 1000;
+    bool isPaused = false;
+    float plotSpeedMultiplier = 1.0f;
     static int currentIndex = 0;
     static double lastTime = ImGui::GetTime();
     bool axesSetting = false;
@@ -154,11 +156,15 @@ int main() {
     vector<string> fileNames;
     vector<const char*> fileNamesCStr;
 
+    // settings
+    float fontSizeMultiplier = 1.0f;
+    float backgroundColor[4] = {0.07f, 0.13f, 0.17f, 1.0f};
+
     // render loop
     while (!glfwWindowShouldClose(window))
     {
         // rendering commands here
-        glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // background color
+        glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]); // background color
         glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
 
         ImGui_ImplOpenGL3_NewFrame();
