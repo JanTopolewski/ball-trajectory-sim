@@ -172,26 +172,19 @@ int main() {
                 // Welcome window:
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    // Question
-                    // const char* text = "Create a new simulation or read from file?";
-                    // float textWidth = ImGui::CalcTextSize(text).x;
-                    // ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
-                    // ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
-                    //
-                    // ImGui::Text(text);
-
+                if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+                {
                     auto greeting = "Hello user!";
                     auto welcome = "Welcome in our application!";
                     auto proposition = "Have fun shoooting the ball!";
-                    ImGui::SetWindowFontScale(2.0f); // Scale font up (e.g. 1.2x)
+                    ImGui::SetWindowFontScale(2.0f);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(greeting).x) * 0.5f);
                     ImGui::Text(greeting);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(welcome).x) * 0.5f);
                     ImGui::Text(welcome);
                     ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(proposition).x) * 0.5f);
                     ImGui::Text(proposition);
-                    ImGui::SetWindowFontScale(1.2f); // Reset font scale to default
+                    ImGui::SetWindowFontScale(1.2f);
 
                     ImGui::Spacing();
                     ImGui::Text(""); // just for spacing, otherwise there is no spacing visible
@@ -230,6 +223,8 @@ int main() {
                     {
                         glfwSetWindowShouldClose(window, GLFW_TRUE);
                     }
+
+                    ImGui::SetWindowFontScale(1.0f); // reset the font size
                 }ImGui::End();
                 break;
             }
