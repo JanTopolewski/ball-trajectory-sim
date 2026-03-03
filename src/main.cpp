@@ -278,8 +278,7 @@ int main() {
                             //memset(buf, 0, sizeof(buf));
                         }
                     }
-                    ImGui::End();
-                }
+                }ImGui::End();
                 break;
             }
             case Displaying::CreationMenu:
@@ -389,8 +388,7 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-                    ImGui::End();
-                }
+                }ImGui::End();
                 break;
             }
             case Displaying::SimulationMenu:
@@ -469,8 +467,9 @@ int main() {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
-                    ImGui::End();
+
                 }
+                ImGui::End();
 
                 ImGui::SameLine();
 
