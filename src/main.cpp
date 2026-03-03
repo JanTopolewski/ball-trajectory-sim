@@ -174,12 +174,18 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
                     // Question
-                    const char* text = "Create a new simulation or read from file?";
-                    float textWidth = ImGui::CalcTextSize(text).x;
-                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
-                    ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
+                    // const char* text = "Create a new simulation or read from file?";
+                    // float textWidth = ImGui::CalcTextSize(text).x;
+                    // ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
+                    // ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
+                    //
+                    // ImGui::Text(text);
+
+                    const char* text = "Hello user!\nWelcome in our application!\nHave fun shoooting the ball!";
+                    ImGui::SetWindowFontScale(2.0f); // Scale font up (e.g. 1.2x)
 
                     ImGui::Text(text);
+                    ImGui::SetWindowFontScale(1.0f); // Reset font scale to default
 
                     // Buttons
                     float buttonWidth = 120.0f;
