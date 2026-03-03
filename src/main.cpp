@@ -209,6 +209,11 @@ int main() {
                     {
                         displaying = Displaying::SettingsMenu;
                     }
+
+                    if (ImGui::Button("Exit"))
+                    {
+                        glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    }
                 }ImGui::End();
                 break;
             }
