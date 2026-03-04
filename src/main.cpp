@@ -448,10 +448,11 @@ int main() {
                     double now = ImGui::GetTime();
                     bool animationFinished = currentIndex >= (int)xAxis.size();
                     frameDelta = now - lastTime;
-                    if (now - lastTime >= (1 / plotFramesPerSecond) && !animationFinished && !isPaused)
+                    int mult = (int)((frameDelta / (1/(double)plotFramesPerSecond)) * (double)plotSpeedMultiplier);
+                    if (now - lastTime >= ((1/(double)plotFramesPerSecond) * (double)plotSpeedMultiplier) && !animationFinished && !isPaused)
                     {
                         lastTime = now;
-                        currentIndex++;
+                        currentIndex = min(currentIndex + mult, (int)xAxis.size());
                     }
 
                     auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
