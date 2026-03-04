@@ -731,7 +731,6 @@ int main() {
                 if (ImGui::Begin("Settigns", nullptr))
                 {
                     ImGui::SetWindowFontScale(fontSizeMultiplier);
-                    ImGui::InputInt("Maximum fps", &plotFramesPerSecond);
 
                     ImGui::InputFloat("Font size", &fontSizeMultiplier, 0.1f, 0, "%.1f");
 
