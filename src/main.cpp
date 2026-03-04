@@ -663,7 +663,7 @@ int main() {
 
                 if (ImGui::Begin("Simulation control"))
                 {
-                    ImGui::Text(to_string(frameDelta).c_str());
+                    // ImGui::Text(to_string(frameDelta).c_str());
                     // play/pause
                     auto buttonPlayPauseText = "";
                     if (isPaused)
