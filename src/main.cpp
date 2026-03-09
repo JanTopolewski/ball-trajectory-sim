@@ -69,11 +69,14 @@ int main() {
 
 
     // variables and object for displaying subwindows
-    const int WELCOME_WINDOW_WIDTH = 400;
-    const int WELCOME_WINDOW_HEIGHT = 300;
+    const int WELCOME_WINDOW_WIDTH = 800;
+    const int WELCOME_WINDOW_HEIGHT = 600;
 
     const int CREATION_WINDOW_WIDTH = 800;
     const int CREATION_WINDOW_HEIGHT = 800;
+
+    const int SETTINGS_WINDOW_WIDTH = 600;
+    const int SETTINGS_WINDOW_HEIGHT = 600;
 
     Displaying displaying = Displaying::WelcomingMenu;
 
@@ -110,9 +113,15 @@ int main() {
     string warning;
 
     // variables for animations in implot
+    int plotFramesPerSecond = 1000;
+    bool isPaused = false;
+    float plotSpeedMultiplier = 1.0f;
+    int secondsToPass = 5;
     static int currentIndex = 0;
     static double lastTime = ImGui::GetTime();
     bool axesSetting = false;
+
+    double frameDelta = 0.0; // used for debugging plot fps
 
     // reading planet data from file
     //reading from file
@@ -150,11 +159,15 @@ int main() {
     vector<string> fileNames;
     vector<const char*> fileNamesCStr;
 
+    // settings
+    float fontSizeMultiplier = 1.0f;
+    float backgroundColor[4] = {0.07f, 0.13f, 0.17f, 1.0f};
+
     // render loop
     while (!glfwWindowShouldClose(window))
     {
         // rendering commands here
-        glClearColor(0.07f, 0.13f, 0.17f, 1.0f); // background color
+        glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]); // background color
         glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
 
         ImGui_ImplOpenGL3_NewFrame();
@@ -168,26 +181,33 @@ int main() {
                 // Welcome window:
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    // Question
-                    const char* text = "Create a new simulation or read from file?";
-                    float textWidth = ImGui::CalcTextSize(text).x;
-                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - textWidth) * 0.5f);
-                    ImGui::SetCursorPosY(WELCOME_WINDOW_HEIGHT / 2 - ImGui::CalcTextSize(text).y);
+                if (ImGui::Begin("Welcome window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
+                {
+                    auto greeting = "Hello user!";
+                    auto welcome = "Welcome in our application!";
+                    auto proposition = "Have fun shoooting the ball!";
+                    ImGui::SetWindowFontScale(2.0f * fontSizeMultiplier);
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(greeting).x) * 0.5f);
+                    ImGui::Text(greeting);
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(welcome).x) * 0.5f);
+                    ImGui::Text(welcome);
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - ImGui::CalcTextSize(proposition).x) * 0.5f);
+                    ImGui::Text(proposition);
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
 
-                    ImGui::Text(text);
+                    ImGui::Spacing();
+                    ImGui::Text(""); // just for spacing, otherwise there is no spacing visible
 
                     // Buttons
-                    float buttonWidth = 120.0f;
-                    float spacing = 10.0f;
-                    float totalWidth = (buttonWidth * 2) + spacing;
-                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - totalWidth) * 0.5f);
+                    float buttonWidth = 220.0f;
 
-                    if (ImGui::Button("Create new", ImVec2(buttonWidth, 0)))
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Create new simulation", ImVec2(buttonWidth, 0)))
                     {
                         displaying = Displaying::CreationMenu;
                     }
-                    ImGui::SameLine(0, spacing);
+
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
                     if (ImGui::Button("Read from file", ImVec2(buttonWidth, 0)))
                     {
                         // get the possible filenames
@@ -200,6 +220,20 @@ int main() {
 
                         displaying = Displaying::ReadFileMenu;
                     }
+
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Settings", ImVec2(buttonWidth, 0)))
+                    {
+                        displaying = Displaying::SettingsMenu;
+                    }
+
+                    ImGui::SetCursorPosX((WELCOME_WINDOW_WIDTH - buttonWidth) * 0.5f);
+                    if (ImGui::Button("Exit", ImVec2(buttonWidth, 0)))
+                    {
+                        glfwSetWindowShouldClose(window, GLFW_TRUE);
+                    }
+
+                    ImGui::SetWindowFontScale(fontSizeMultiplier); // reset the font size
                 }ImGui::End();
                 break;
             }
@@ -210,8 +244,10 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Choose a simulation to read from", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse))
                 {
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Choose a simulation from the list: ");
-                    
+
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::Combo(" ", &chosenFile, fileNamesCStr.data(), fileNamesCStr.size());
 
                     if (ImGui::Button("Select"))
@@ -252,6 +288,7 @@ int main() {
                 ImGui::SetNextWindowSize(ImVec2(WELCOME_WINDOW_WIDTH, WELCOME_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - WELCOME_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - WELCOME_WINDOW_HEIGHT / 2));
                 if (ImGui::Begin("Save simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     static char buf[31] = "";
                     regex pattern("^[A-Za-z0-9_-]+$");
 
@@ -286,13 +323,14 @@ int main() {
                 // Creation window:
                 ImGui::SetNextWindowSize(ImVec2(CREATION_WINDOW_WIDTH, CREATION_WINDOW_HEIGHT));
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - CREATION_WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2 - CREATION_WINDOW_HEIGHT / 2));
-                if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-
+                if (ImGui::Begin("Create a new simulation", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_HorizontalScrollbar)) {
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    ImGui::SliderFloat("Horizontal firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                    ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
@@ -307,7 +345,8 @@ int main() {
                     // Spacing
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
 
-                    if (currentPlanet != 0)
+                    const bool planet_selected = currentPlanet != 0; // just for clarity
+                    if (planet_selected)
                     {
                         SpaceObject planet = planetsData[currentPlanet - 1];
 
@@ -315,25 +354,25 @@ int main() {
                         atmosphericDensity = (float)planet.atmosphereDensity;
                     }
 
-                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    if (planet_selected) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable gravity", &gravityEnable);
-                    if (!gravityEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    if (!gravityEnable && !planet_selected) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Gravitational acceleration", &gravitationalAcceleration, 0.0f, 24.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!gravityEnable || currentPlanet != 0) ImGui::EndDisabled();
+                    if (!gravityEnable || planet_selected) ImGui::EndDisabled();
 
                     if (atmosphericDensity == 0.0f) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable wind", &windEnable);
-                    if (!windEnable) ImGui::BeginDisabled();
+                    if (!windEnable && atmosphericDensity != 0.0f) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Horizontal wind angle", &windHorizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     ImGui::SliderFloat("Vertical wind angle", &windVerticalAngle, -90.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                     if (!windEnable || atmosphericDensity == 0.0f) ImGui::EndDisabled();
 
-                    if (currentPlanet != 0) ImGui::BeginDisabled();
+                    if (planet_selected) ImGui::BeginDisabled();
                     ImGui::Checkbox("Enable atmosphere", &atmosphereEnable);
-                    if (!atmosphereEnable && currentPlanet == 0) ImGui::BeginDisabled();
+                    if (!atmosphereEnable && !planet_selected) ImGui::BeginDisabled();
                     ImGui::SliderFloat("Atmosferic density", &atmosphericDensity, 0.0f, 65.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                    if (!atmosphereEnable || currentPlanet != 0) ImGui::EndDisabled();
+                    if (!atmosphereEnable || planet_selected) ImGui::EndDisabled();
 
                     if (!atmosphereEnable) ImGui::BeginDisabled();
                     ImGui::Combo("Select calculation method", &currentSolver, solversCStr.data(), solversCStr.size());
@@ -343,8 +382,10 @@ int main() {
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
                     
                     ImGui::PushTextWrapPos(0.0f);
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("You can also preset values according to specific space object (leave \"Custom\" if you want to adjust them for your own)");
                     ImGui::PopTextWrapPos();
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     ImGui::Combo("Select space object", &currentPlanet, planetNamesCStr.data(), planetNamesCStr.size());
 
                     if (ImGui::Button("Create simulation"))
@@ -359,8 +400,8 @@ int main() {
                             targetZDistance = 0.0f;
                         }
                         calculator.CalculateData(
-                            (double)ballVelocity, 
-                            (double)horizontalAngle, 
+                            (double)ballVelocity,
+                            (double)horizontalAngle,
                             (double)verticalAngle,
                             (double)ballRadius,
                             (double)ballMass,
@@ -368,7 +409,7 @@ int main() {
                             (double)windVelocity,
                             (double)windHorizontalAngle,
                             (double)windVerticalAngle,
-                            (double)atmosphericDensity, 
+                            (double)atmosphericDensity,
                             (double)initialDistanceFromGround,
                             currentSolver
                         );
@@ -387,26 +428,32 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
-
                 }ImGui::End();
                 break;
             }
             case Displaying::SimulationMenu:
             {
-                ImGui::SetNextWindowSize(ImGui::GetMainViewport()->Size);
-                ImGui::SetNextWindowPos(ImGui::GetMainViewport()->Pos);
-                if (ImGui::Begin("Simulation", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse)) {
-                    ImGui::BeginChild("Trajectory", ImVec2(ImGui::GetMainViewport()->Size.x * 0.6, 0), true);
+                // needed for calculating the position of "Simulation control" window
+                // ImVec2 dataWindowPos;
+                // ImVec2 dataWindowSize;
 
+                ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT - 20));
+                ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x + 10, ImGui::GetMainViewport()->Pos.y + 10), ImGuiCond_FirstUseEver);
+                if (ImGui::Begin("Trajectory"))
+                {
                     ImVec2 cursor = ImGui::GetCursorPos();
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
                     double now = ImGui::GetTime();
-                    if (now - lastTime >= 0.001 && currentIndex < (int)xAxis.size()) {
-                        lastTime = now;
-                        currentIndex++;
+                    bool animationFinished = currentIndex >= (int)xAxis.size();
+                    frameDelta = now - lastTime;
+                    int mult = (int)((frameDelta / (1/(double)plotFramesPerSecond)) * (double)plotSpeedMultiplier);
+                    if (now - lastTime >= ((1/(double)plotFramesPerSecond) * (double)plotSpeedMultiplier) && !animationFinished && !isPaused)
+                    {
+                        currentIndex = min(currentIndex + mult, (int)xAxis.size());
                     }
+                    lastTime = now;
 
                     auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
                     auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
@@ -449,8 +496,8 @@ int main() {
                                 ImPlot::PlotScatter("Target", &targetX, &targetY, 1);
                             }
                         }
-
-                    }ImPlot::EndPlot();
+                        ImPlot::EndPlot();
+                    }
 
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
@@ -460,22 +507,33 @@ int main() {
                     cursor = ImGui::GetCursorPos();
                     ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
 
-                    if (hasTarget && !dataChanged) {
-                        if (sqrt(pow(xAxis.back() - targetXDistance, 2) + pow(zAxis.back() - targetZDistance, 2) + yAxis.back() * yAxis.back()) <= ballRadius && yAxis.back() - ballRadius <= 0) {
+                    if (hasTarget && !dataChanged && animationFinished)
+                    {
+                        if (sqrt(pow(xAxis.back() - targetXDistance, 2) + pow(zAxis.back() - targetZDistance, 2) + yAxis.back() * yAxis.back()) <= ballRadius && yAxis.back() - ballRadius <= 0)
+                        {
                             ImGui::TextColored(ImVec4(0, 1, 0, 1), "The ball hit the target");
                         }
-                        else {
+                        else
+                        {
                             ImGui::TextColored(ImVec4(1, 0, 0, 1), "The ball missed the target");
                         }
                     }
-                    ImGui::EndChild();
+                }
+                ImGui::End();
 
-                    ImGui::SameLine();
+                ImGui::SameLine();
 
-                    ImGui::BeginChild("Data", ImVec2(0, 0), true);
+                ImGui::SetNextWindowSize(ImVec2((WINDOW_WIDTH - 30) * 1 / 3, (WINDOW_HEIGHT - 30) * 3 / 4), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, 10), ImGuiCond_FirstUseEver);
+                if (ImGui::Begin("Data", nullptr, ImGuiWindowFlags_HorizontalScrollbar))
+                {
+                    // dataWindowPos = ImGui::GetWindowPos();
+                    // dataWindowSize = ImGui::GetWindowSize();
 
+                    ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
                     if (ImGui::SliderFloat("Initial ball velocity", &ballVelocity, 0.1f, 200.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
@@ -510,7 +568,7 @@ int main() {
 
                     if (atmosphericDensity == 0.0f) ImGui::BeginDisabled();
                     if (ImGui::Checkbox("Enable wind", &windEnable)) dataChanged = true;
-                    if (!windEnable) ImGui::BeginDisabled();
+                    if (!windEnable && atmosphericDensity != 0) ImGui::BeginDisabled();
                     if (ImGui::SliderFloat("Wind Velocity", &windVelocity, 0.0f, 80.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Horizontal wind angle", &windHorizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
                     if (ImGui::SliderFloat("Vertical wind angle", &windVerticalAngle, -90.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp)) dataChanged = true;
@@ -556,7 +614,7 @@ int main() {
                             (double)initialDistanceFromGround,
                             currentSolver
                         );
-                    
+
                         xAxis = calculator.getYAxisCoordinates();
                         yAxis = calculator.getZAxisCoordinates();
                         zAxis = calculator.getXAxisCoordinates();
@@ -599,9 +657,115 @@ int main() {
                     {
                         displaying = Displaying::WelcomingMenu;
                     }
+                }
+                ImGui::End();
 
-                    ImGui::EndChild();
-                }ImGui::End();
+                // ImGui::SetNextWindowPos(ImVec2(dataWindowPos.x, dataWindowPos.y + dataWindowSize.y + 10), ImGuiCond_FirstUseEver);
+                // ImGui::SetNextWindowSize(ImVec2(dataWindowSize.x, 0), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowSize(ImVec2((WINDOW_WIDTH - 30) * 1 / 3, (WINDOW_HEIGHT - 30) * 1 / 4), ImGuiCond_FirstUseEver);
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, WINDOW_HEIGHT * 3 / 4 + 20), ImGuiCond_FirstUseEver);
+                if (ImGui::Begin("Simulation control"))
+                {
+                    int animationLength = static_cast<int>(xAxis.size());
+
+                    // speed multiplier
+                    ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
+
+                    // slider with animation
+                    ImGui::SliderInt(" ", &currentIndex, 0, animationLength, "%d", ImGuiSliderFlags_AlwaysClamp);
+
+                    ImGui::Spacing();
+
+                    // start
+                    if (ImGui::Button("Start"))
+                    {
+                        currentIndex = 0;
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Previous frame"))
+                    {
+                        currentIndex = max(currentIndex-1, 0);
+                    }
+
+                    ImGui::SameLine();
+
+                    // play/pause
+                    auto buttonPlayPauseText = "";
+                    if (isPaused)
+                        buttonPlayPauseText = "Play";
+                    else
+                        buttonPlayPauseText = "Pause";
+                    if (ImGui::Button(buttonPlayPauseText))
+                    {
+                        isPaused = !isPaused;
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Next frame"))
+                    {
+                        currentIndex = min(currentIndex+1, animationLength);
+                    }
+
+                    ImGui::SameLine();
+
+                    // end
+                    if (ImGui::Button("End"))
+                    {
+                        currentIndex = animationLength;
+                    }
+
+                    ImGui::Spacing();
+
+                    // +/- frames, seconds etc.
+                    if (ImGui::Button(("Subtract " + to_string(secondsToPass) + " seconds").c_str()))
+                    {
+                        currentIndex = max(currentIndex - plotFramesPerSecond * secondsToPass, 0);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Subtract second"))
+                    {
+                        currentIndex = max(currentIndex - plotFramesPerSecond, 0);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Add second"))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond, animationLength);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(("Add " + to_string(secondsToPass) + " seconds").c_str()))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond * secondsToPass, animationLength);
+                    }
+
+
+                    ImGui::InputInt("Seconds", &secondsToPass);
+
+
+                }
+                ImGui::End();
+                break;
+            }
+            case Displaying::SettingsMenu:
+            {
+                ImGui::SetNextWindowSize(ImVec2(SETTINGS_WINDOW_WIDTH, SETTINGS_WINDOW_HEIGHT));
+                ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH / 2 - (SETTINGS_WINDOW_WIDTH / 2), WINDOW_HEIGHT / 2 - (SETTINGS_WINDOW_HEIGHT / 2)));
+                if (ImGui::Begin("Settigns", nullptr))
+                {
+                    ImGui::SetWindowFontScale(fontSizeMultiplier);
+
+                    ImGui::InputFloat("Font size", &fontSizeMultiplier, 0.1f, 0, "%.1f");
+
+                    ImGui::ColorEdit4("Background color", backgroundColor);
+
+                    if (ImGui::Button("Back"))
+                    {
+                        displaying = Displaying::WelcomingMenu;
+                    }
+                }
+                ImGui::End();
                 break;
             }
         }
