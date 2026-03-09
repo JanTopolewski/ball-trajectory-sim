@@ -200,7 +200,7 @@ int main() {
     // Creating a sphere
     int longitude_points = 72; // 360 / 5 = 72
     int latitude_points = 36; // 180 / 5 = 36
-    double sphere_radius = 10.0;
+    double sphere_radius = 1.0;
 
     int vertices_amount = (2 + longitude_points * (latitude_points - 1))*3;
     int indices_amount = (2*longitude_points + (longitude_points-1)*(latitude_points-1)*2)*3;
@@ -313,6 +313,7 @@ int main() {
 
 
     glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Also clear depth buffer in render loop
 
     Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
@@ -321,7 +322,7 @@ int main() {
     {
         // rendering commands here
         glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]); // background color
-        glClear(GL_COLOR_BUFFER_BIT); // clean the back buffer and assign the new color to it
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clean the back buffer and assign the new color to it
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -329,6 +330,12 @@ int main() {
 
         // tell opengl, that we want to use our shader program
 		shaderProgram.Activate();
+
+        // Create a model matrix to position the sphere
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f)); // Move sphere 5 units away
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
 
         if (!io.WantCaptureMouse)
         {
