@@ -330,9 +330,11 @@ int main() {
         // tell opengl, that we want to use our shader program
 		shaderProgram.Activate();
 
-
-		camera.Inputs(window);
-		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        if (!io.WantCaptureMouse)
+        {
+            camera.Inputs(window);
+        }
+        camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
         vao1.Bind(); // bind the VAO so OpenGl knows to use it
 		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
