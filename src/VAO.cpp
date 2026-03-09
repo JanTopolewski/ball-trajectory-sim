@@ -5,7 +5,17 @@ VAO::VAO()
     glGenVertexArrays(1, &ID);
 }
 
-// Links a VBO Attribute such as a position or color to the VAO
+/**
+     * @brief
+     * Links a VBO Attribute such as a position or color to the VAO
+     *
+     * @param VBO The Vertex Buffer Object to link to
+     * @param layout to which layout in shader to bind the elements
+     * @param numComponents how many elements are we binding now
+     * @param type what type are the elements
+     * @param stride how many bytes are between the beginnings of the elements
+     * @param offset where do elements start
+     */
 void VAO::LinkAttrib(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset)
 {
     VBO.Bind();
