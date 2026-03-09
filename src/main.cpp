@@ -451,9 +451,9 @@ int main() {
                     int mult = (int)((frameDelta / (1/(double)plotFramesPerSecond)) * (double)plotSpeedMultiplier);
                     if (now - lastTime >= ((1/(double)plotFramesPerSecond) * (double)plotSpeedMultiplier) && !animationFinished && !isPaused)
                     {
-                        lastTime = now;
                         currentIndex = min(currentIndex + mult, (int)xAxis.size());
                     }
+                    lastTime = now;
 
                     auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
                     auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
