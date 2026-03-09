@@ -196,11 +196,10 @@ int main() {
     float fontSizeMultiplier = 1.0f;
     float backgroundColor[4] = {0.07f, 0.13f, 0.17f, 1.0f};
 
-
     // Creating a sphere
     int longitude_points = 72; // 360 / 5 = 72
     int latitude_points = 36; // 180 / 5 = 36
-    double sphere_radius = 1.0;
+    float sphere_radius = 1.0f;
 
     int vertices_amount = (2 + longitude_points * (latitude_points - 1))*3;
     int indices_amount = (2*longitude_points + (longitude_points-1)*(latitude_points-1)*2)*3;
@@ -290,6 +289,9 @@ int main() {
         }
     }
 
+    // rendering sphere
+    float rendered_sphere_color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+
 
     // Creates shader object using shaders default.vert and default.frag
     Shader shaderProgram("../Shaders/default.vert", "../Shaders/default.frag");
@@ -310,6 +312,11 @@ int main() {
     vao1.Unbind();
     vbo1.Unbind();
     ebo1.Unbind();
+
+    // apply color to sphere
+    shaderProgram.Activate();
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+    glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
 
     glEnable(GL_DEPTH_TEST);
@@ -923,6 +930,10 @@ int main() {
 
                     ImGui::ColorEdit4("Background color", backgroundColor);
 
+                    ImGui::SliderFloat("Ball size", &sphere_radius, 0.1f, 10.0f);
+
+                    ImGui::ColorEdit4("Sphere color", rendered_sphere_color);
+
                     if (ImGui::Button("Back"))
                     {
                         displaying = Displaying::WelcomingMenu;
@@ -932,6 +943,10 @@ int main() {
                 break;
             }
         }
+
+        shaderProgram.Activate();
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
         // render the imgui elements
         ImGui::Render();
