@@ -196,6 +196,7 @@ int main() {
     float fontSizeMultiplier = 1.0f;
     float backgroundColor[4] = {0.07f, 0.13f, 0.17f, 1.0f};
 
+
     // Creating a sphere
     int longitude_points = 72; // 360 / 5 = 72
     int latitude_points = 36; // 180 / 5 = 36
@@ -293,36 +294,71 @@ int main() {
     float rendered_sphere_color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
 
 
+    // terrain
+    GLfloat terrain_vertices[12]
+    {
+        -1.0f, 0.0f, -1.0f, //0
+        -1.0f, 0.0f,  1.0f, //1
+        1.0f,  0.0f, -1.0f, //2
+        1.0f,  0.0f,  1.0f  //3
+    };
+    GLuint terrain_indices[6] = {
+        0, 1, 2,
+        1, 2, 3
+    };
+
+    float terrain_color[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+
+
     // Creates shader object using shaders default.vert and default.frag
     Shader shaderProgram("../Shaders/default.vert", "../Shaders/default.frag");
+    Shader terrainShader("../Shaders/terrain.vert", "../Shaders/terrain.frag");
 
     // Generates Vertex Array Object and binds it
-    VAO vao1;
-    vao1.Bind();
+    VAO vao_sphere, vao_terrain;
+    vao_sphere.Bind();
 
     // Generate Vertex Buffer Object and Element Buffer Object linking the vertices and indices
     VBO vbo1(vertices, sizeof(vertices));
     EBO ebo1(indices, sizeof(indices));
 
     // links VBO attributes such as coordinates and colors to VAO
-    vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-    // vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
-    // vao1.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+    vao_sphere.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+    // vao_sphere.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    // vao_sphere.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     // unbind all to prevent accidentally modifying the buffers
-    vao1.Unbind();
+    vao_sphere.Unbind();
     vbo1.Unbind();
     ebo1.Unbind();
+
+    vao_terrain.Bind();
+    VBO vbo_terrain(terrain_vertices, sizeof(terrain_vertices));
+    EBO ebo_terrain(terrain_indices, sizeof(terrain_indices));
+
+    vao_terrain.LinkAttrib(vbo_terrain, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_terrain.Unbind();
+    vbo_terrain.Unbind();
+    ebo_terrain.Unbind();
 
     // apply color to sphere
     shaderProgram.Activate();
     glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
     glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
+    // Create a model matrix to position the sphere
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 1.0f, -5.0f)); // Move sphere 5 units away
+    glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    terrainShader.Activate();
+    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 100.0f);
+    glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
+
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Also clear depth buffer in render loop
 
-    Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
+    Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 1.0f, 2.0f));
 
     // render loop
     while (!glfwWindowShouldClose(window))
@@ -335,13 +371,7 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // tell opengl, that we want to use our shader program
-		shaderProgram.Activate();
 
-        // Create a model matrix to position the sphere
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f)); // Move sphere 5 units away
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
 
         if (!io.WantCaptureMouse)
@@ -349,9 +379,23 @@ int main() {
             camera.Inputs(window);
         }
         camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+        camera.Matrix(45.0f, 0.1f, 100.0f, terrainShader, "camMatrix");
 
-        vao1.Bind(); // bind the VAO so OpenGl knows to use it
+        // tell opengl, that we want to use our shader program
+        shaderProgram.Activate();
+
+        vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
 		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+        vao_sphere.Unbind();
+
+        terrainShader.Activate();
+
+        glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 100.0f);
+        glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
+
+        vao_terrain.Bind();
+        glDrawElements(GL_TRIANGLES, sizeof(terrain_indices)/sizeof(int), GL_UNSIGNED_INT, 0);
+        vao_terrain.Unbind();
 
         switch (displaying)
         {
@@ -965,7 +1009,7 @@ int main() {
     ImPlot::DestroyContext();
 
     // remove all objects
-    vao1.Delete();
+    vao_sphere.Delete();
 	vbo1.Delete();
 	ebo1.Delete();
 	shaderProgram.Delete();
