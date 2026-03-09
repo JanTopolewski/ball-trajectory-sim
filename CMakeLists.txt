@@ -98,6 +98,12 @@ add_executable(TrajectorySimulation
     # Application source files
     src/TrajectoryCalculator.cpp
     src/FilesManager.cpp
+        src/BallMath.cpp
+        src/Camera.cpp
+        src/EBO.cpp
+        src/shaderClass.cpp
+        src/VAO.cpp
+        src/VBO.cpp
 
     # Header files (optional but helps IDEs)
     include/TrajectoryCalculator.h
@@ -105,6 +111,12 @@ add_executable(TrajectorySimulation
     include/Displaying.h
     include/Simulation.h
     include/SpaceObject.h
+        include/BallMath.h
+        include/Camera.h
+        include/EBO.h
+        include/shaderClass.h
+        include/VAO.h
+        include/VBO.h
 )
 
 target_compile_definitions(TrajectorySimulation PRIVATE
