@@ -2,6 +2,11 @@
 #define TRAJECTORYSIMULATION_BALLMATH_H
 #include <vector>
 
+/**
+ * The 3D world here is the Y axis pointing upwards, X axis sideways to the right, Z axis to the user
+ *
+ * right hand rule
+ */
 namespace ballMath
 {
     /**
