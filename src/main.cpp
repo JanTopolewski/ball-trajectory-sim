@@ -500,10 +500,6 @@ int main() {
             }
             case Displaying::SimulationMenu:
             {
-                // needed for calculating the position of "Simulation control" window
-                // ImVec2 dataWindowPos;
-                // ImVec2 dataWindowSize;
-
                 ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH * 2 / 3, WINDOW_HEIGHT - 20));
                 ImGui::SetNextWindowPos(ImVec2(ImGui::GetMainViewport()->Pos.x + 10, ImGui::GetMainViewport()->Pos.y + 10), ImGuiCond_FirstUseEver);
                 if (ImGui::Begin("Trajectory"))
@@ -594,9 +590,6 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, 10), ImGuiCond_FirstUseEver);
                 if (ImGui::Begin("Data", nullptr, ImGuiWindowFlags_HorizontalScrollbar))
                 {
-                    // dataWindowPos = ImGui::GetWindowPos();
-                    // dataWindowSize = ImGui::GetWindowSize();
-
                     ImGui::SetWindowFontScale(1.2f * fontSizeMultiplier);
                     ImGui::Text("Enter values by adjusting sliders or by Ctrl+click to enter a specific number: ");
 
@@ -727,8 +720,6 @@ int main() {
                 }
                 ImGui::End();
 
-                // ImGui::SetNextWindowPos(ImVec2(dataWindowPos.x, dataWindowPos.y + dataWindowSize.y + 10), ImGuiCond_FirstUseEver);
-                // ImGui::SetNextWindowSize(ImVec2(dataWindowSize.x, 0), ImGuiCond_FirstUseEver);
                 ImGui::SetNextWindowSize(ImVec2((WINDOW_WIDTH - 30) * 1 / 3, (WINDOW_HEIGHT - 30) * 1 / 4), ImGuiCond_FirstUseEver);
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, WINDOW_HEIGHT * 3 / 4 + 20), ImGuiCond_FirstUseEver);
                 if (ImGui::Begin("Simulation control"))
