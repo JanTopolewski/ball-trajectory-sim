@@ -25,6 +25,7 @@
 #include "../include/Simulation.h"
 #include "../include/Displaying.h"
 #include "../include/SpaceObject.h"
+#include "../include/BallMath.h"
 #include "../include/EBO.h"
 #include "../include/shaderClass.h"
 #include "../include/VAO.h"
@@ -35,12 +36,12 @@ using namespace std;
 
 // Vertices coordinates
 GLfloat vertices[] =
-{ //     COORDINATES     /        COLORS      /   TexCoord  //
-	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
-	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
-	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+{ //     COORDINATES     /        COLORS      /
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,
 };
 
 // Indices for vertices order
@@ -91,25 +92,6 @@ int main() {
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
 
-    Shader shaderProgram("../Shaders/default.vert", "../Shaders/default.frag");
-	// Creates shader object using shaders default.vert and default.frag
-
-	// Generates Vertex Array Object and binds it
-	VAO vao1;
-	vao1.Bind();
-
-	// Generate Vertex Buffer Object and Element Buffer Object linking the vertices and indices
-	VBO vbo1(vertices, sizeof(vertices));
-	EBO ebo1(indices, sizeof(indices));
-
-	// links VBO attributes such as coordinates and colors to VAO
-	vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
-	vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	vao1.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	// unbind all to prevent accidentally modifying the buffers
-	vao1.Unbind();
-	vbo1.Unbind();
-	ebo1.Unbind();
 
     // initialize imgui
     IMGUI_CHECKVERSION();
@@ -119,11 +101,6 @@ int main() {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-
-
-    glEnable(GL_DEPTH_TEST);
-
-	Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // variables and object for displaying subwindows
     const int WELCOME_WINDOW_WIDTH = 800;
@@ -181,7 +158,6 @@ int main() {
     double frameDelta = 0.0; // used for debugging plot fps
 
     // reading planet data from file
-    //reading from file
     FilesManager* fileManager = new FilesManager();
     fileManager->loadSpaceObjectsData();
 
@@ -219,6 +195,32 @@ int main() {
     // settings
     float fontSizeMultiplier = 1.0f;
     float backgroundColor[4] = {0.07f, 0.13f, 0.17f, 1.0f};
+
+
+    // Creates shader object using shaders default.vert and default.frag
+    Shader shaderProgram("../Shaders/default.vert", "../Shaders/default.frag");
+
+    // Generates Vertex Array Object and binds it
+    VAO vao1;
+    vao1.Bind();
+
+    // Generate Vertex Buffer Object and Element Buffer Object linking the vertices and indices
+    VBO vbo1(vertices, sizeof(vertices));
+    EBO ebo1(indices, sizeof(indices));
+
+    // links VBO attributes such as coordinates and colors to VAO
+    vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
+    vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    // vao1.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
+    // unbind all to prevent accidentally modifying the buffers
+    vao1.Unbind();
+    vbo1.Unbind();
+    ebo1.Unbind();
+
+
+    glEnable(GL_DEPTH_TEST);
+
+    Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // render loop
     while (!glfwWindowShouldClose(window))
