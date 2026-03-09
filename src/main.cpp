@@ -29,8 +29,30 @@
 #include "../include/shaderClass.h"
 #include "../include/VAO.h"
 #include "../include/VBO.h"
+#include "../include/Camera.h"
 
 using namespace std;
+
+// Vertices coordinates
+GLfloat vertices[] =
+{ //     COORDINATES     /        COLORS      /   TexCoord  //
+	-0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+	-0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+	 0.5f, 0.0f, -0.5f,     0.83f, 0.70f, 0.44f,	0.0f, 0.0f,
+	 0.5f, 0.0f,  0.5f,     0.83f, 0.70f, 0.44f,	5.0f, 0.0f,
+	 0.0f, 0.8f,  0.0f,     0.92f, 0.86f, 0.76f,	2.5f, 5.0f
+};
+
+// Indices for vertices order
+GLuint indices[] =
+{
+	0, 1, 2,
+	0, 2, 3,
+	0, 1, 4,
+	1, 2, 4,
+	2, 3, 4,
+	3, 0, 4
+};
 
 int main() {
     glfwInit();
@@ -68,6 +90,27 @@ int main() {
     // specify the viewport of OpenGL in the Window
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
+
+    Shader shaderProgram("../Shaders/default.vert", "../Shaders/default.frag");
+	// Creates shader object using shaders default.vert and default.frag
+
+	// Generates Vertex Array Object and binds it
+	VAO vao1;
+	vao1.Bind();
+
+	// Generate Vertex Buffer Object and Element Buffer Object linking the vertices and indices
+	VBO vbo1(vertices, sizeof(vertices));
+	EBO ebo1(indices, sizeof(indices));
+
+	// links VBO attributes such as coordinates and colors to VAO
+	vao1.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+	vao1.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	vao1.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	// unbind all to prevent accidentally modifying the buffers
+	vao1.Unbind();
+	vbo1.Unbind();
+	ebo1.Unbind();
+
     // initialize imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -77,6 +120,10 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 
+
+    glEnable(GL_DEPTH_TEST);
+
+	Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 0.0f, 2.0f));
 
     // variables and object for displaying subwindows
     const int WELCOME_WINDOW_WIDTH = 800;
@@ -183,6 +230,16 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+
+        // tell opengl, that we want to use our shader program
+		shaderProgram.Activate();
+
+
+		camera.Inputs(window);
+		camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+
+        vao1.Bind(); // bind the VAO so OpenGl knows to use it
+		glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(int), GL_UNSIGNED_INT, 0);
 
         switch (displaying)
         {
@@ -795,6 +852,12 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     ImPlot::DestroyContext();
+
+    // remove all objects
+    vao1.Delete();
+	vbo1.Delete();
+	ebo1.Delete();
+	shaderProgram.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
