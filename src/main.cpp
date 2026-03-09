@@ -351,14 +351,14 @@ int main() {
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
     terrainShader.Activate();
-    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 100.0f);
+    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 10.0f);
     glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
 
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Also clear depth buffer in render loop
 
-    Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 1.0f, 2.0f));
+    Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 5.0f, 2.0f));
 
     // render loop
     while (!glfwWindowShouldClose(window))
