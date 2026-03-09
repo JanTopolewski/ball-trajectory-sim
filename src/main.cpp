@@ -666,7 +666,31 @@ int main() {
                 ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, WINDOW_HEIGHT * 3 / 4 + 20), ImGuiCond_FirstUseEver);
                 if (ImGui::Begin("Simulation control"))
                 {
-                    // ImGui::Text(to_string(frameDelta).c_str());
+                    int animationLength = static_cast<int>(xAxis.size());
+
+                    // speed multiplier
+                    ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
+
+                    // slider with animation
+                    ImGui::SliderInt(" ", &currentIndex, 0, animationLength, "%d", ImGuiSliderFlags_AlwaysClamp);
+
+                    ImGui::Spacing();
+
+                    // start
+                    if (ImGui::Button("Start"))
+                    {
+                        currentIndex = 0;
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Previous frame"))
+                    {
+                        currentIndex = max(currentIndex-1, 0);
+                    }
+
+                    ImGui::SameLine();
+
                     // play/pause
                     auto buttonPlayPauseText = "";
                     if (isPaused)
@@ -678,51 +702,48 @@ int main() {
                         isPaused = !isPaused;
                     }
 
-                    // start/end
-                    if (ImGui::Button("Start"))
+                    ImGui::SameLine();
+
+                    if (ImGui::Button("Next frame"))
                     {
-                        currentIndex = 0;
+                        currentIndex = min(currentIndex+1, animationLength);
                     }
 
-                    int animationLength = static_cast<int>(xAxis.size());
+                    ImGui::SameLine();
 
+                    // end
                     if (ImGui::Button("End"))
                     {
                         currentIndex = animationLength;
                     }
 
-                    // slider with animation
-                    ImGui::SliderInt(" ", &currentIndex, 0, animationLength, "%d", ImGuiSliderFlags_AlwaysClamp);
-
-                    // speed multiplier
-                    ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
+                    ImGui::Spacing();
 
                     // +/- frames, seconds etc.
-                    if (ImGui::Button("Next frame"))
-                    {
-                        currentIndex = min(currentIndex+1, animationLength);
-                    }
-                    if (ImGui::Button("Previous frame"))
-                    {
-                        currentIndex = max(currentIndex-1, 0);
-                    }
-                    if (ImGui::Button("Add second"))
-                    {
-                        currentIndex = min(currentIndex + plotFramesPerSecond, animationLength);
-                    }
-                    if (ImGui::Button("Subtract second"))
-                    {
-                        currentIndex = max(currentIndex - plotFramesPerSecond, 0);
-                    }
-                    ImGui::InputInt("Seconds", &secondsToPass);
-                    if (ImGui::Button(("Add " + to_string(secondsToPass) + " seconds").c_str()))
-                    {
-                        currentIndex = min(currentIndex + plotFramesPerSecond * secondsToPass, animationLength);
-                    }
                     if (ImGui::Button(("Subtract " + to_string(secondsToPass) + " seconds").c_str()))
                     {
                         currentIndex = max(currentIndex - plotFramesPerSecond * secondsToPass, 0);
                     }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Subtract second"))
+                    {
+                        currentIndex = max(currentIndex - plotFramesPerSecond, 0);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Add second"))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond, animationLength);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(("Add " + to_string(secondsToPass) + " seconds").c_str()))
+                    {
+                        currentIndex = min(currentIndex + plotFramesPerSecond * secondsToPass, animationLength);
+                    }
+
+
+                    ImGui::InputInt("Seconds", &secondsToPass);
+
+
                 }
                 ImGui::End();
                 break;
