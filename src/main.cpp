@@ -699,8 +699,8 @@ int main() {
                 }
                 ImGui::Checkbox("Enable target", &hasTarget);
                 if (!hasTarget) ImGui::BeginDisabled();
-                ImGui::InputFloat("Distance to target on the x-axis", &targetZDistance, 0.1f, 1.0f, "%.2f");
-                ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("Distance to target on the y-axis", &targetZDistance, 0.1f, 1.0f, "%.2f");
+                ImGui::InputFloat("Distance to target on the x-axis", &targetXDistance, 0.1f, 1.0f, "%.2f");
                 if (!hasTarget) ImGui::EndDisabled();
 
                 // Spacing
@@ -901,8 +901,8 @@ int main() {
                 }
                 if (ImGui::Checkbox("Enable target", &hasTarget)) dataChanged = true;
                 if (!hasTarget) ImGui::BeginDisabled();
-                if (ImGui::InputFloat("Distance to target on the x-axis", &targetZDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
-                if (ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
+                if (ImGui::InputFloat("Distance to target on the y-axis", &targetZDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
+                if (ImGui::InputFloat("Distance to target on the x-axis", &targetXDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
                 if (!hasTarget) ImGui::EndDisabled();
 
                 // Spacing
