@@ -426,11 +426,13 @@ int main() {
     VAO vao_target;
 
     VBO vbo_target(target_vertices, sizeof(target_vertices));
+    EBO ebo_target(target_indices, sizeof(target_indices));
     vao_target.Bind();
     vbo_target.Bind();
-    vao_xAxis.LinkAttrib(vbo_target, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_target.LinkAttrib(vbo_target, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
     vao_target.Unbind();
     vbo_target.Unbind();
+    ebo_target.Unbind();
 
     float target_color[4] = {1.0f, 0.843f, 0.0f, 1.0f}; // gold
 
@@ -568,6 +570,25 @@ int main() {
         vao_terrain.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(terrain_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
         vao_terrain.Unbind();
+
+
+        // Render target if needed
+        if (hasTarget && !xAxis.empty() && displaying == Displaying::SimulationMenu) {
+            targetShader.Activate();
+            camera.Matrix(45.0f, 0.1f, 1000.0f, targetShader, "camMatrix");
+
+            glm::mat4 targetModel = glm::mat4(1.0f);
+            targetModel = glm::translate(targetModel, glm::vec3(targetZDistance, 0.5f, targetXDistance));
+            targetModel = glm::scale(targetModel, glm::vec3(1.0f, 1.0f, 1.0f));
+
+            glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(targetModel));
+            glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
+            glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
+
+            vao_target.Bind();
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+            vao_target.Unbind();
+        }
 
         switch (displaying)
         {
@@ -743,19 +764,19 @@ int main() {
                 ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f");
                 if (!hasTarget) ImGui::EndDisabled();
 
-                if (hasTarget)
-                {
-                    targetShader.Activate();
-                    glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
-                    glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
-
-                    glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
-                    glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
-
-                    vao_target.Bind(); // bind the VAO so OpenGl knows to use it
-                    glDrawElements(GL_TRIANGLES, sizeof(target_indices), GL_UNSIGNED_INT, 0);
-                    vao_target.Unbind();
-                }
+                // if (hasTarget)
+                // {
+                //     targetShader.Activate();
+                //     glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
+                //     glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
+                //
+                //     glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
+                //     glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
+                //
+                //     vao_target.Bind(); // bind the VAO so OpenGl knows to use it
+                //     glDrawElements(GL_TRIANGLES, sizeof(target_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+                //     vao_target.Unbind();
+                // }
 
                 // Spacing
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
@@ -959,19 +980,19 @@ int main() {
                 if (ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
                 if (!hasTarget) ImGui::EndDisabled();
 
-                if (hasTarget && !dataChanged)
-                {
-                    targetShader.Activate();
-                    glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
-                    glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
-
-                    glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
-                    glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
-
-                    vao_target.Bind(); // bind the VAO so OpenGl knows to use it
-                    glDrawElements(GL_TRIANGLES, sizeof(target_indices), GL_UNSIGNED_INT, 0);
-                    vao_target.Unbind();
-                }
+                // if (hasTarget && !dataChanged)
+                // {
+                //     targetShader.Activate();
+                //     glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
+                //     glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
+                //
+                //     glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
+                //     glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
+                //
+                //     vao_target.Bind(); // bind the VAO so OpenGl knows to use it
+                //     glDrawElements(GL_TRIANGLES, sizeof(target_indices) / sizeof(int), GL_UNSIGNED_INT, 0);
+                //     vao_target.Unbind();
+                // }
 
                 // Spacing
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
@@ -1236,6 +1257,9 @@ int main() {
     vao_yAxis.Delete();
     vao_xAxis.Delete();
     vao_zAxis.Delete();
+    targetShader.Delete();
+    vao_target.Delete();
+    vbo_target.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
