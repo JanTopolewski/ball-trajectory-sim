@@ -1,6 +1,6 @@
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include "../include/BallMath.h"
-#define _USE_MATH_DEFINES
 
 namespace ballMath
 {

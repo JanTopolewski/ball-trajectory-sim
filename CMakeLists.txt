@@ -121,6 +121,7 @@ add_executable(TrajectorySimulation
 
 target_compile_definitions(TrajectorySimulation PRIVATE
     PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    GLM_ENABLE_EXPERIMENTAL
 )
 
 # Include directories for your headers
