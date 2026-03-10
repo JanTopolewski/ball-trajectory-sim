@@ -772,7 +772,7 @@ int main() {
                 double zMargin = maxRange - (zMax - zMin) * 1.1 + 2.0;
 
                 if (ImPlot3D::BeginPlot("Space", ImVec2(-1, -1), ImPlot3DFlags_Equal | ImPlot3DFlags_NoTitle | ImPlot3DFlags_NoLegend)) {
-					ImPlot3D::SetupAxes("Y", "X", "Z");
+					ImPlot3D::SetupAxes("X", "Y", "Z");
                     if (currentIndex > 1) {
                         if (axesSetting) {
                             ImPlot3D::SetupAxesLimits(zMin - zMargin, zMax + zMargin, xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlot3DCond_Always);
