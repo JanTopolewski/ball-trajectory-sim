@@ -11,7 +11,7 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 
-#include "implot.h"
+#include "implot3d.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -96,7 +96,7 @@ int main() {
     // initialize imgui
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImPlot::CreateContext();
+    ImPlot3D::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -757,46 +757,51 @@ int main() {
 
                 auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
                 auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
+                auto [zMinTemp, zMaxTemp] = minmax_element(zAxis.begin(), zAxis.end());
                 double xMin = *xMinTemp;
                 double xMax = *xMaxTemp;
                 double yMin = *yMinTemp;
                 double yMax = *yMaxTemp;
-                if (yMin > 0.0) {
-                    yMin = 0.0;
-                }
+                double zMin = *zMinTemp;
+                double zMax = *zMaxTemp;
 
-                double xMargin = (xMax - xMin) * 0.1;
-                double yMargin = (yMax - yMin) * 0.1;
+				double maxRange = max({ xMax - xMin, yMax - yMin, zMax - zMin });
 
-                if (axesSetting) {
-                    ImPlot::SetNextAxesLimits(xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlotCond_Always);
-                    axesSetting = false;
-                }
-                else {
-                    ImPlot::SetNextAxesLimits(xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlotCond_Once);
-                }
+                double xMargin = maxRange - (xMax - xMin) * 1.1 + 2.0;
+                double yMargin = maxRange - (yMax - yMin) * 1.1 + 2.0;
+                double zMargin = maxRange - (zMax - zMin) * 1.1 + 2.0;
 
-                if (ImPlot::BeginPlot("Space", ImVec2(-1, -1), ImPlotFlags_Equal | ImPlotFlags_NoTitle | ImPlotFlags_NoLegend)) {
+                if (ImPlot3D::BeginPlot("Space", ImVec2(-1, -1), ImPlot3DFlags_Equal | ImPlot3DFlags_NoTitle | ImPlot3DFlags_NoLegend)) {
+					ImPlot3D::SetupAxes("Y", "X", "Z");
                     if (currentIndex > 1) {
-                        ImPlot::SetNextLineStyle(ImVec4(1, 0, 0, 1), 2.0f);
-                        ImPlot::PlotLine("Trajectory", xAxis.data(), yAxis.data(), currentIndex);
+                        if (axesSetting) {
+                            ImPlot3D::SetupAxesLimits(zMin - zMargin, zMax + zMargin, xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlot3DCond_Always);
+                            axesSetting = false;
+                        }
+                        else {
+                            ImPlot3D::SetupAxesLimits(zMin - zMargin, zMax + zMargin, xMin - xMargin, xMax + xMargin, yMin - yMargin, yMax + yMargin, ImPlot3DCond_Once);
+                        }
 
-                        ImVec2 plotSize = ImPlot::GetPlotSize();
+                        ImPlot3D::PushStyleColor(ImPlot3DCol_Line, ImVec4(1, 0, 0, 1));
+                        ImPlot3D::PlotLine("Trajectory", zAxis.data(), xAxis.data(), yAxis.data(), currentIndex);
 
-                        float pixelsPerUnitX = plotSize.x / (float)(ImPlot::GetPlotLimits().X.Max - ImPlot::GetPlotLimits().X.Min);
-                        float markerSize = 2 * (float)ballRadius * pixelsPerUnitX;
+                        ImPlot3D::PopStyleColor();
 
-                        ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, markerSize, ImVec4(1, 0, 0, 1), 0.0f, ImVec4(0, 0, 0, 0));
-                        ImPlot::PlotScatter("Ball", &xAxis[currentIndex - 1], &yAxis[currentIndex - 1], 1);
+                        ImPlot3D::PushStyleColor(ImPlot3DCol_MarkerFill, ImVec4(1, 0, 0, 1));
+                        ImPlot3D::PlotScatter("Ball", &zAxis[currentIndex - 1], &xAxis[currentIndex - 1], &yAxis[currentIndex - 1], 1);
+
+                        ImPlot3D::PopStyleColor();
 
                         if (hasTarget && !dataChanged) {
-                            ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle, 4.0f, ImVec4(1, 1, 0, 1), 0.0f, ImVec4(0, 0, 0, 0));
+                            ImPlot3D::PushStyleColor(ImPlot3DCol_MarkerFill, ImVec4(1, 1, 0, 1));
                             double targetX = (double)targetXDistance;
                             double targetY = 0.0;
-                            ImPlot::PlotScatter("Target", &targetX, &targetY, 1);
+							double targetZ = (double)targetZDistance;
+                            ImPlot3D::PlotScatter("Target", &targetZ, &targetX, &targetY, 1);
                         }
+                        ImPlot3D::PopStyleColor();
                     }
-                    ImPlot::EndPlot();
+                    ImPlot3D::EndPlot();
                 }
 
                 ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y));
@@ -1093,7 +1098,7 @@ int main() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-    ImPlot::DestroyContext();
+    ImPlot3D::DestroyContext();
 
     // remove all objects
     vao_sphere.Delete();
