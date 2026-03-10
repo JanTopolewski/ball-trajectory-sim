@@ -49,25 +49,24 @@ target_include_directories(imgui PUBLIC
 
 target_link_libraries(imgui PRIVATE glfw)
 
-# ImPlot - Plotting Library for ImGui
-# needs to be downloaded from: https://github.com/epezent/implot
-# Clone or download and place in libs/implot/
+# ImPlot3D - Plotting Library for ImGui
+# needs to be downloaded from: https://github.com/brenocq/implot3d
 
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot/implot.cpp")
-    message(WARNING "ImPlot not found in /external/include/implot/. Please download from:")
-    message(WARNING "  https://github.com/epezent/implot")
-    message(WARNING "Place implot.h, implot.cpp, implot_items.cpp, implot_internal.h in /external/include/implot/")
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot3d/implot3d.cpp")
+    message(WARNING "ImPlot not found in /external/include/implot3d/. Please download from:")
+    message(WARNING "  https://github.com/brenocq/implot3d")
+    message(WARNING "Place implot3d.h, implot3d.cpp, implot3d_items.cpp, implot3d_internal.h in /external/include/implot3d/")
 else()
-    add_library(implot STATIC
-        external/include/implot/implot.cpp
-        external/include/implot/implot_items.cpp
+    add_library(implot3d STATIC
+        external/include/implot3d/implot3d.cpp
+        external/include/implot3d/implot3d_items.cpp
     )
 
-    target_include_directories(implot PUBLIC
-            external/include/implot
+    target_include_directories(implot3d PUBLIC
+            external/include/implot3d
     )
 
-    target_link_libraries(implot PUBLIC
+    target_link_libraries(implot3d PUBLIC
         imgui
     )
 endif()
@@ -134,7 +133,7 @@ target_link_libraries(TrajectorySimulation PRIVATE
     glm    
     stb
     imgui
-    implot
+    implot3d
     glad
     glfw
     OpenGL::GL
