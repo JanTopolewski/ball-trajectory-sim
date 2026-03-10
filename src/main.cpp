@@ -197,6 +197,11 @@ int main() {
     float fontSizeMultiplier = 1.0f;
     float backgroundColor[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
 
+    // Trajectory
+    std::vector<GLfloat> trajectoryVertices;
+    float trajectoryColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	VAO vao_trajectory;
+	VBO vbo_trajectory;
 
     // Creating a sphere
     int longitude_points = 72; // 360 / 5 = 72
@@ -292,7 +297,7 @@ int main() {
     }
 
     // rendering sphere
-    float rendered_sphere_color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+    float rendered_sphere_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 
     // terrain
@@ -341,6 +346,13 @@ int main() {
     vao_terrain.Unbind();
     vbo_terrain.Unbind();
     ebo_terrain.Unbind();
+
+    vbo_trajectory = VBO(nullptr, 500000 * 3 * sizeof(GLfloat), GL_DYNAMIC_DRAW);
+    vao_trajectory.Bind();
+    vbo_trajectory.Bind();
+	vao_trajectory.LinkAttrib(vbo_trajectory, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+    vao_trajectory.Unbind();
+    vbo_trajectory.Unbind();
 
     // apply color to sphere
     shaderProgram.Activate();
@@ -405,7 +417,7 @@ int main() {
 			int steps = (int)(accumulatedTime / step);
             if (steps > 0 && !animationFinished && !isPaused)
             {
-                currentIndex = min(currentIndex + steps, (int)xAxis.size() - 1);
+                currentIndex = min(currentIndex + steps, (int)xAxis.size());
                 accumulatedTime -= steps * step;
             }
 
@@ -418,8 +430,39 @@ int main() {
 			accumulatedTime = 0.0;
         }
 
+        if (!xAxis.empty() && !yAxis.empty() && !zAxis.empty())
+        {
+			int trailCount = clamp(currentIndex, 0, (int)xAxis.size());
+            if (trailCount > 0) 
+            {
+				trajectoryVertices.resize(static_cast<size_t>(trailCount) * 3);
+                for (int i = 0; i < trailCount; ++i) 
+                {
+					trajectoryVertices[3 * i] = static_cast<GLfloat>(xAxis[i]);
+					trajectoryVertices[3 * i + 1] = static_cast<GLfloat>(yAxis[i]);
+					trajectoryVertices[3 * i + 2] = static_cast<GLfloat>(zAxis[i]);
+                }
+
+				vbo_trajectory.Bind();
+				glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(500000 * 3 * sizeof(GLfloat)), nullptr, GL_DYNAMIC_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizeiptr>(trajectoryVertices.size() * sizeof(GLfloat)), trajectoryVertices.data());
+				vbo_trajectory.Unbind();
+
+                glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), trajectoryColor[0], trajectoryColor[1], trajectoryColor[2], trajectoryColor[3]);
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+				glBindVertexArray(vao_trajectory.ID);
+				glDrawArrays(GL_LINE_STRIP, 0, trailCount);
+				glBindVertexArray(0);
+            }
+		}
+
+        int sampleIdx = 0;
         if (xAxis.size() > 0)
-            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[currentIndex], (float)yAxis[currentIndex], (float)zAxis[currentIndex]))));
+        {
+            sampleIdx = clamp(currentIndex - 1, 0, (int)xAxis.size() - 1);
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[sampleIdx], (float)yAxis[sampleIdx], (float)zAxis[sampleIdx]))));
+        }
 
         vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -924,7 +967,7 @@ int main() {
             ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, WINDOW_HEIGHT * 3 / 4 + 20), ImGuiCond_FirstUseEver);
             if (ImGui::Begin("Simulation control"))
             {
-                int animationLength = static_cast<int>(xAxis.size() - 1);
+                int animationLength = static_cast<int>(xAxis.size());
 
                 // speed multiplier
                 ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
@@ -1061,6 +1104,8 @@ int main() {
     vbo_terrain.Delete();
     ebo_terrain.Delete();
     terrainShader.Delete();
+    vbo_trajectory.Delete();
+    vao_trajectory.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
