@@ -496,6 +496,8 @@ int main() {
 			accumulatedTime = 0.0;
         }
 
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 1.0f);
+
         if (!xAxis.empty() && !yAxis.empty() && !zAxis.empty())
         {
 			int trailCount = clamp(currentIndex, 0, (int)xAxis.size());
