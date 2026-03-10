@@ -397,9 +397,6 @@ int main() {
         vao_sphere.Unbind();
 
         terrainShader.Activate();
-
-        glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 50.0f);
-        // glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
         glm::mat4 terrainModel = glm::mat4(1.0f);
         glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(terrainModel));
 
@@ -506,6 +503,12 @@ int main() {
                     lastTime = ImGui::GetTime();
                     currentIndex = 0;
                     axesSetting = true;
+
+					terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
 
                     displaying = Displaying::SimulationMenu;
                 }
@@ -654,6 +657,12 @@ int main() {
                     lastTime = ImGui::GetTime();
                     currentIndex = 0;
                     axesSetting = true;
+
+                    terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
 
                     displaying = Displaying::SimulationMenu;
                 }
@@ -850,6 +859,12 @@ int main() {
                     currentIndex = 0;
 
                     axesSetting = true;
+
+                    terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
                 }
 
                 ImGui::SameLine();
