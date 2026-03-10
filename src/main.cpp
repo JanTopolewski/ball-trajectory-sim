@@ -392,7 +392,45 @@ int main() {
     vao_zAxis.Unbind();
     vbo_zAxis.Unbind();
 
+    GLfloat target_vertices[24] // cube
+    {
+        // bottom layer
+        -0.5f, -0.5f, -0.5f, // far left
+        -0.5f, -0.5f, 0.5f, // close left
+        0.5f, -0.5f, 0.5f, // close right
+        0.5f, -0.5f, -0.5f, // far right
+        // top layer
+        -0.5f, 0.5f, -0.5f, // far left
+        -0.5f, 0.5f, 0.5f, // close left
+        0.5f, 0.5f, 0.5f, // close right
+        0.5f, 0.5f, -0.5f, // far right
+    };
 
+    GLuint target_indices[36]
+    {
+        0, 1, 2, // bottom
+        0, 2, 3,
+        1, 2, 5, // front face
+        2, 5, 6,
+        2, 3, 6, // right side
+        3, 6, 7,
+        3, 0, 7, // back face
+        4, 7, 0,
+        1, 5, 0, // left side
+        5, 0, 4,
+        4, 5, 6, // top
+        4, 7, 6
+    };
+
+    Shader targetShader((string(PROJECT_ROOT_DIR) + "/Shaders/defaulr.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
+    VAO vao_target;
+
+    VBO vbo_target(target_vertices, sizeof(target_vertices));
+    vao_target.Bind();
+    vbo_target.Bind();
+    vao_xAxis.LinkAttrib(vbo_target, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_target.Unbind();
+    vbo_target.Unbind();
 
 
     glEnable(GL_DEPTH_TEST);
