@@ -296,7 +296,7 @@ int main() {
 
     // terrain
     GLfloat terrain_vertices[24]
-    {
+    {   // vertices             // colors
         -1.0f, 0.0f, -1.0f,     1.0f, 1.0f, 0.0f,
         -1.0f, 0.0f,  1.0f,     0.0f, 0.8f, 1.0f,
         1.0f,  0.0f, -1.0f,     0.1f, 0.9f, 0.0f,
