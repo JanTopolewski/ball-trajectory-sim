@@ -387,15 +387,29 @@ int main() {
     };
 
     Shader lineShader((string(PROJECT_ROOT_DIR) + "/Shaders/default.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
-    VAO vao_axis;
+    VAO vao_yAxis, vao_xAxis, vao_zAxis;
 
-    vao_axis.Bind();
     VBO vbo_yAxis(yAxisVertices, sizeof(yAxisVertices));
     VBO vbo_xAxis(xAxisVertices, sizeof(xAxisVertices));
     VBO vbo_zAxis(zAxisVertices, sizeof(zAxisVertices));
-    // vao_axis.LinkAttrib(vbo_yAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
 
-    vao_axis.Unbind();
+    vao_yAxis.Bind();
+    vbo_yAxis.Bind();
+    vao_yAxis.LinkAttrib(vbo_yAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_yAxis.Unbind();
+    vbo_yAxis.Unbind();
+
+    vao_xAxis.Bind();
+    vbo_xAxis.Bind();
+    vao_xAxis.LinkAttrib(vbo_xAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_xAxis.Unbind();
+    vbo_xAxis.Unbind();
+
+    vao_zAxis.Bind();
+    vbo_zAxis.Bind();
+    vao_zAxis.LinkAttrib(vbo_zAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_zAxis.Unbind();
+    vbo_zAxis.Unbind();
 
 
 
@@ -431,34 +445,28 @@ int main() {
 
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 1.0f);
 
-        vao_axis.Bind();
-
-        // Y
+        // Y axis (green)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::vec4(1.0f)));
-        vbo_yAxis.Bind();
-        vao_axis.LinkAttrib(vbo_yAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        vao_yAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
-        vbo_yAxis.Unbind();
+        vao_yAxis.Unbind();
 
-        // X
+        // X axis (red)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 1.0f, 0.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::vec4(1.0f)));
-        vbo_xAxis.Bind();
-        vao_axis.LinkAttrib(vbo_xAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        vao_xAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
-        vbo_xAxis.Unbind();
+        vao_xAxis.Unbind();
 
-        // Z
+        // Z axis (blue)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 0.0f, 1.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::vec4(1.0f)));
-        vbo_zAxis.Bind();
-        vao_axis.LinkAttrib(vbo_zAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        vao_zAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
-        vbo_zAxis.Unbind();
-
-        vao_axis.Unbind();
+        vao_zAxis.Unbind();
 
         double now = ImGui::GetTime();
         bool animationFinished = currentIndex >= (int)xAxis.size();
@@ -1162,6 +1170,9 @@ int main() {
     terrainShader.Delete();
     vbo_trajectory.Delete();
     vao_trajectory.Delete();
+    vao_yAxis.Delete();
+    vao_xAxis.Delete();
+    vao_zAxis.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
