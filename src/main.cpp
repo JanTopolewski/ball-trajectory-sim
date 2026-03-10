@@ -295,12 +295,12 @@ int main() {
 
 
     // terrain
-    GLfloat terrain_vertices[12]
+    GLfloat terrain_vertices[24]
     {
-        -1.0f, 0.0f, -1.0f, //0
-        -1.0f, 0.0f,  1.0f, //1
-        1.0f,  0.0f, -1.0f, //2
-        1.0f,  0.0f,  1.0f  //3
+        -1.0f, 0.0f, -1.0f,     1.0f, 1.0f, 0.0f,
+        -1.0f, 0.0f,  1.0f,     0.0f, 0.8f, 1.0f,
+        1.0f,  0.0f, -1.0f,     0.1f, 0.9f, 0.0f,
+        1.0f,  0.0f,  1.0f,     0.2f, 1.0f, 0.0f
     };
     GLuint terrain_indices[6] = {
         0, 1, 2,
@@ -324,7 +324,7 @@ int main() {
 
     // links VBO attributes such as coordinates and colors to VAO
     vao_sphere.LinkAttrib(vbo1, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
-    // vao_sphere.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
+    // vao_sphere.LinkAttrib(vbo1, 1, 3, GL_FLOAT, 8 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     // vao_sphere.LinkAttrib(vbo1, 2, 2, GL_FLOAT, 8 * sizeof(float), reinterpret_cast<void *>(6 * sizeof(float)));
     // unbind all to prevent accidentally modifying the buffers
     vao_sphere.Unbind();
@@ -335,7 +335,8 @@ int main() {
     VBO vbo_terrain(terrain_vertices, sizeof(terrain_vertices));
     EBO ebo_terrain(terrain_indices, sizeof(terrain_indices));
 
-    vao_terrain.LinkAttrib(vbo_terrain, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_terrain.LinkAttrib(vbo_terrain, 0, 3, GL_FLOAT, 6 * sizeof(float), nullptr);
+    vao_terrain.LinkAttrib(vbo_terrain, 1, 3, GL_FLOAT, 6 * sizeof(float), reinterpret_cast<void *>(3 * sizeof(float)));
     vao_terrain.Unbind();
     vbo_terrain.Unbind();
     ebo_terrain.Unbind();
@@ -352,8 +353,7 @@ int main() {
 
     terrainShader.Activate();
     glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 10.0f);
-    glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
-
+    // glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
 
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Also clear depth buffer in render loop
@@ -391,7 +391,7 @@ int main() {
         terrainShader.Activate();
 
         glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 100.0f);
-        glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
+        // glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
 
         vao_terrain.Bind();
         glDrawElements(GL_TRIANGLES, sizeof(terrain_indices)/sizeof(int), GL_UNSIGNED_INT, 0);
