@@ -422,7 +422,7 @@ int main() {
         4, 7, 6
     };
 
-    Shader targetShader((string(PROJECT_ROOT_DIR) + "/Shaders/defaulr.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
+    Shader targetShader((string(PROJECT_ROOT_DIR) + "/Shaders/default.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
     VAO vao_target;
 
     VBO vbo_target(target_vertices, sizeof(target_vertices));
@@ -431,6 +431,8 @@ int main() {
     vao_xAxis.LinkAttrib(vbo_target, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
     vao_target.Unbind();
     vbo_target.Unbind();
+
+    float target_color[4] = {1.0f, 0.843f, 0.0f, 1.0f}; // gold
 
 
     glEnable(GL_DEPTH_TEST);
@@ -741,6 +743,20 @@ int main() {
                 ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f");
                 if (!hasTarget) ImGui::EndDisabled();
 
+                if (hasTarget)
+                {
+                    targetShader.Activate();
+                    glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
+                    glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
+
+                    glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
+                    glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
+
+                    vao_target.Bind(); // bind the VAO so OpenGl knows to use it
+                    glDrawElements(GL_TRIANGLES, sizeof(target_indices), GL_UNSIGNED_INT, 0);
+                    vao_target.Unbind();
+                }
+
                 // Spacing
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
 
@@ -942,6 +958,20 @@ int main() {
                 if (ImGui::InputFloat("Distance to target on the x-axis", &targetZDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
                 if (ImGui::InputFloat("Distance to target on the y-axis", &targetXDistance, 0.1f, 1.0f, "%.2f")) dataChanged = true;
                 if (!hasTarget) ImGui::EndDisabled();
+
+                if (hasTarget && !dataChanged)
+                {
+                    targetShader.Activate();
+                    glUniform1f(glGetUniformLocation(targetShader.ID, "size"), 1.0f);
+                    glUniform4f(glGetUniformLocation(targetShader.ID, "color"), target_color[0], target_color[1], target_color[2], target_color[3]);
+
+                    glm::mat4 target_model = glm::translate(glm::mat4(1.0f), glm::vec3(targetXDistance, 1.0f, targetZDistance));
+                    glUniformMatrix4fv(glGetUniformLocation(targetShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(target_model));
+
+                    vao_target.Bind(); // bind the VAO so OpenGl knows to use it
+                    glDrawElements(GL_TRIANGLES, sizeof(target_indices), GL_UNSIGNED_INT, 0);
+                    vao_target.Unbind();
+                }
 
                 // Spacing
                 ImGui::SetCursorPosY(ImGui::GetCursorPosY() + ImGui::GetTextLineHeightWithSpacing());
