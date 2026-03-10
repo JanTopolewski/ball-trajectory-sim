@@ -9,10 +9,9 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-// #include "imgui_internal.h"
+#include "imgui_internal.h"
 
 #include "implot3d.h"
-// #include "implot3d_internal.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -392,13 +391,22 @@ int main() {
     vao_zAxis.Unbind();
     vbo_zAxis.Unbind();
 
-
-
-
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Also clear depth buffer in render loop
 
     Camera camera(WINDOW_WIDTH, WINDOW_HEIGHT, glm::vec3(0.0f, 2.0f, 10.0f));
+
+    //light settings
+    glm::vec3 lightDirection = glm::normalize(glm::vec3(-0.5f, 1.0f, -0.3f));
+
+    shaderProgram.Activate();
+    camera.Matrix(45.0f, 0.1f, 1000.0f, shaderProgram, "camMatrix");
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightDir"), lightDirection.x, lightDirection.y, lightDirection.z);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "lightColor"), 1.0f, 1.0f, 1.0f);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "ambient"), 0.15f, 0.15f, 0.15f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "shininess"), 38.0f);
+    glUniform1f(glGetUniformLocation(shaderProgram.ID, "specularStrength"), 0.5f);
+    glUniform3f(glGetUniformLocation(shaderProgram.ID, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
 
     // render loop
     while (!glfwWindowShouldClose(window))
