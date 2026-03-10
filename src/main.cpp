@@ -370,6 +370,48 @@ int main() {
     glm::mat4 terrainModel = glm::mat4(1.0f);
     glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(terrainModel));
 
+    // Lines for the axis
+    GLfloat yAxisVertices[6] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f
+    };
+
+    GLfloat xAxisVertices[6] = {
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f
+    };
+
+    GLfloat zAxisVertices[6] = {
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f
+    };
+
+    Shader lineShader((string(PROJECT_ROOT_DIR) + "/Shaders/default.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
+    VAO vao_yAxis, vao_xAxis, vao_zAxis;
+
+    VBO vbo_yAxis(yAxisVertices, sizeof(yAxisVertices));
+    VBO vbo_xAxis(xAxisVertices, sizeof(xAxisVertices));
+    VBO vbo_zAxis(zAxisVertices, sizeof(zAxisVertices));
+
+    vao_yAxis.Bind();
+    vbo_yAxis.Bind();
+    vao_yAxis.LinkAttrib(vbo_yAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_yAxis.Unbind();
+    vbo_yAxis.Unbind();
+
+    vao_xAxis.Bind();
+    vbo_xAxis.Bind();
+    vao_xAxis.LinkAttrib(vbo_xAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_xAxis.Unbind();
+    vbo_xAxis.Unbind();
+
+    vao_zAxis.Bind();
+    vbo_zAxis.Bind();
+    vao_zAxis.LinkAttrib(vbo_zAxis, 0, 3, GL_FLOAT, 3 * sizeof(float), nullptr);
+    vao_zAxis.Unbind();
+    vbo_zAxis.Unbind();
+
+
 
 
     glEnable(GL_DEPTH_TEST);
@@ -404,6 +446,30 @@ int main() {
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
 
+        // Draw axes with size 10.0f
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 10.0f);
+
+        // Y axis (green)
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        vao_yAxis.Bind();
+        glDrawArrays(GL_LINES, 0, 2);
+        vao_yAxis.Unbind();
+
+        // X axis (red)
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 1.0f, 0.0f, 0.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        vao_xAxis.Bind();
+        glDrawArrays(GL_LINES, 0, 2);
+        vao_xAxis.Unbind();
+
+        // Z axis (blue)
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 0.0f, 1.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        vao_zAxis.Bind();
+        glDrawArrays(GL_LINES, 0, 2);
+        vao_zAxis.Unbind();
+
         double now = ImGui::GetTime();
         bool animationFinished = currentIndex >= (int)xAxis.size();
         frameDelta = now - lastTime;
@@ -429,6 +495,8 @@ int main() {
         else {
 			accumulatedTime = 0.0;
         }
+
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 1.0f);
 
         if (!xAxis.empty() && !yAxis.empty() && !zAxis.empty())
         {
@@ -463,6 +531,10 @@ int main() {
             sampleIdx = clamp(currentIndex - 1, 0, (int)xAxis.size() - 1);
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[sampleIdx], (float)yAxis[sampleIdx], (float)zAxis[sampleIdx]))));
         }
+
+        shaderProgram.Activate();
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
         vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -640,7 +712,7 @@ int main() {
                 ImGui::SliderFloat("Horizontal firing angle", &horizontalAngle, 0.0f, 360.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                 ImGui::SliderFloat("Vertical firing angle", &verticalAngle, 0.0f, 90.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                 ImGui::SliderFloat("Ball radius", &ballRadius, 0.01f, 5.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
-                ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 1000000.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
+                ImGui::SliderFloat("Ball mass", &ballMass, 0.001f, 100.0f, "%.7f", ImGuiSliderFlags_AlwaysClamp);
                 if (ImGui::InputFloat("Initial distance from ground", &initialDistanceFromGround, 0.01f, 5.0f, "%.2f")) {
                     if (initialDistanceFromGround < 0.0f) initialDistanceFromGround = 0.0f;
                 }
@@ -1075,9 +1147,9 @@ int main() {
         }
         }
 
-        shaderProgram.Activate();
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
-        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
+        // shaderProgram.Activate();
+        // glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+        // glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
         // render the imgui elements
         ImGui::Render();
@@ -1106,6 +1178,9 @@ int main() {
     terrainShader.Delete();
     vbo_trajectory.Delete();
     vao_trajectory.Delete();
+    vao_yAxis.Delete();
+    vao_xAxis.Delete();
+    vao_zAxis.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
