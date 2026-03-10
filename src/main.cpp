@@ -390,7 +390,7 @@ int main() {
 
         terrainShader.Activate();
 
-        glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 100.0f);
+        glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 50.0f);
         // glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
 
         vao_terrain.Bind();
