@@ -445,25 +445,27 @@ int main() {
 
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 1.0f);
+
+        // Draw axes with size 10.0f
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 10.0f);
 
         // Y axis (green)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_yAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_yAxis.Unbind();
 
         // X axis (red)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 1.0f, 0.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_xAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_xAxis.Unbind();
 
         // Z axis (blue)
         glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 0.0f, 1.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(10.0f))));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_zAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_zAxis.Unbind();
@@ -527,6 +529,10 @@ int main() {
             sampleIdx = clamp(currentIndex - 1, 0, (int)xAxis.size() - 1);
             glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[sampleIdx], (float)yAxis[sampleIdx], (float)zAxis[sampleIdx]))));
         }
+
+        shaderProgram.Activate();
+        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
         vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -1139,9 +1145,9 @@ int main() {
         }
         }
 
-        shaderProgram.Activate();
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
-        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
+        // shaderProgram.Activate();
+        // glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
+        // glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), rendered_sphere_color[0], rendered_sphere_color[1], rendered_sphere_color[2], rendered_sphere_color[3]);
 
         // render the imgui elements
         ImGui::Render();
