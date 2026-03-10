@@ -156,6 +156,7 @@ int main() {
     bool axesSetting = false;
 
     double frameDelta = 0.0; // used for debugging plot fps
+	double accumulatedTime = 0.0;
 
     // reading planet data from file
     FilesManager* fileManager = new FilesManager();
@@ -196,6 +197,11 @@ int main() {
     float fontSizeMultiplier = 1.0f;
     float backgroundColor[4] = { 0.07f, 0.13f, 0.17f, 1.0f };
 
+    // Trajectory
+    std::vector<GLfloat> trajectoryVertices;
+    float trajectoryColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	VAO vao_trajectory;
+	VBO vbo_trajectory;
 
     // Creating a sphere
     int longitude_points = 72; // 360 / 5 = 72
@@ -291,7 +297,7 @@ int main() {
     }
 
     // rendering sphere
-    float rendered_sphere_color[4] = { 0.8f, 0.3f, 0.02f, 1.0f };
+    float rendered_sphere_color[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 
     // terrain
@@ -341,6 +347,13 @@ int main() {
     vbo_terrain.Unbind();
     ebo_terrain.Unbind();
 
+    vbo_trajectory = VBO(nullptr, 500000 * 3 * sizeof(GLfloat), GL_DYNAMIC_DRAW);
+    vao_trajectory.Bind();
+    vbo_trajectory.Bind();
+	vao_trajectory.LinkAttrib(vbo_trajectory, 0, 3, GL_FLOAT, 3 * sizeof(float), (void*)0);
+    vao_trajectory.Unbind();
+    vbo_trajectory.Unbind();
+
     // apply color to sphere
     shaderProgram.Activate();
     glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), sphere_radius);
@@ -348,7 +361,6 @@ int main() {
 
     // Create a model matrix to position the sphere
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 1.0f, -5.0f)); // Move sphere 5 units away
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
     terrainShader.Activate();
@@ -392,14 +404,71 @@ int main() {
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
 
+        double now = ImGui::GetTime();
+        bool animationFinished = currentIndex >= (int)xAxis.size();
+        frameDelta = now - lastTime;
+        lastTime = now;
+
+        if (!isPaused)
+        {
+            double step = 1.0 / (double)plotFramesPerSecond / (double)plotSpeedMultiplier;
+            accumulatedTime += frameDelta;
+
+			int steps = (int)(accumulatedTime / step);
+            if (steps > 0 && !animationFinished && !isPaused)
+            {
+                currentIndex = min(currentIndex + steps, (int)xAxis.size());
+                accumulatedTime -= steps * step;
+            }
+
+            if (animationFinished) 
+            {
+                accumulatedTime = 0.0;
+            }
+        }
+        else {
+			accumulatedTime = 0.0;
+        }
+
+        if (!xAxis.empty() && !yAxis.empty() && !zAxis.empty())
+        {
+			int trailCount = clamp(currentIndex, 0, (int)xAxis.size());
+            if (trailCount > 0) 
+            {
+				trajectoryVertices.resize(static_cast<size_t>(trailCount) * 3);
+                for (int i = 0; i < trailCount; ++i) 
+                {
+					trajectoryVertices[3 * i] = static_cast<GLfloat>(xAxis[i]);
+					trajectoryVertices[3 * i + 1] = static_cast<GLfloat>(yAxis[i]);
+					trajectoryVertices[3 * i + 2] = static_cast<GLfloat>(zAxis[i]);
+                }
+
+				vbo_trajectory.Bind();
+				glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(500000 * 3 * sizeof(GLfloat)), nullptr, GL_DYNAMIC_DRAW);
+				glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizeiptr>(trajectoryVertices.size() * sizeof(GLfloat)), trajectoryVertices.data());
+				vbo_trajectory.Unbind();
+
+                glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), trajectoryColor[0], trajectoryColor[1], trajectoryColor[2], trajectoryColor[3]);
+				glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
+
+				glBindVertexArray(vao_trajectory.ID);
+				glDrawArrays(GL_LINE_STRIP, 0, trailCount);
+				glBindVertexArray(0);
+            }
+		}
+
+        int sampleIdx = 0;
+        if (xAxis.size() > 0)
+        {
+            sampleIdx = clamp(currentIndex - 1, 0, (int)xAxis.size() - 1);
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[sampleIdx], (float)yAxis[sampleIdx], (float)zAxis[sampleIdx]))));
+        }
+
         vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         vao_sphere.Unbind();
 
         terrainShader.Activate();
-
-        glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), 50.0f);
-        // glUniform4f(glGetUniformLocation(terrainShader.ID, "color"), terrain_color[0], terrain_color[1], terrain_color[2], terrain_color[3]);
         glm::mat4 terrainModel = glm::mat4(1.0f);
         glUniformMatrix4fv(glGetUniformLocation(terrainShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(terrainModel));
 
@@ -506,6 +575,12 @@ int main() {
                     lastTime = ImGui::GetTime();
                     currentIndex = 0;
                     axesSetting = true;
+
+					terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
 
                     displaying = Displaying::SimulationMenu;
                 }
@@ -655,6 +730,12 @@ int main() {
                     currentIndex = 0;
                     axesSetting = true;
 
+                    terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
+
                     displaying = Displaying::SimulationMenu;
                 }
                 if (ImGui::Button("Back"))
@@ -673,16 +754,6 @@ int main() {
                 ImVec2 cursor = ImGui::GetCursorPos();
 
                 ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
-
-                double now = ImGui::GetTime();
-                bool animationFinished = currentIndex >= (int)xAxis.size();
-                frameDelta = now - lastTime;
-                int mult = (int)((frameDelta / (1 / (double)plotFramesPerSecond)) * (double)plotSpeedMultiplier);
-                if (now - lastTime >= ((1 / (double)plotFramesPerSecond) * (double)plotSpeedMultiplier) && !animationFinished && !isPaused)
-                {
-                    currentIndex = min(currentIndex + mult, (int)xAxis.size());
-                }
-                lastTime = now;
 
                 auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
                 auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
@@ -850,6 +921,12 @@ int main() {
                     currentIndex = 0;
 
                     axesSetting = true;
+
+                    terrainShader.Activate();
+                    glUniform1f(glGetUniformLocation(terrainShader.ID, "size"), std::max(
+                        static_cast<float>(std::abs(*std::max_element(xAxis.begin(), xAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); }))),
+                        static_cast<float>(std::abs(*std::max_element(zAxis.begin(), zAxis.end(), [](double a, double b) { return std::abs(a) < std::abs(b); })))
+                    ) + 5.0f);
                 }
 
                 ImGui::SameLine();
@@ -1027,6 +1104,8 @@ int main() {
     vbo_terrain.Delete();
     ebo_terrain.Delete();
     terrainShader.Delete();
+    vbo_trajectory.Delete();
+    vao_trajectory.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
