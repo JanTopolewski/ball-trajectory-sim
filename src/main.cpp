@@ -204,96 +204,76 @@ int main() {
 	VBO vbo_trajectory;
 
     // Creating a sphere
-    int longitude_points = 72; // 360 / 5 = 72
-    int latitude_points = 36; // 180 / 5 = 36
-    float sphere_radius = 1.0f;
+    int longitude_points = 72;
+    int latitude_points = 36;
+    float sphere_radius = 1.0;
 
+    // 2 poles + rings of vertices
     int vertices_amount = (2 + longitude_points * (latitude_points - 1)) * 3;
-    int indices_amount = (2 * longitude_points + (longitude_points - 1) * (latitude_points - 1) * 2) * 3;
+    // Top fan + middle quads + bottom fan
+    int indices_amount = (longitude_points * 3 * 2 + (latitude_points - 2) * longitude_points * 6);
 
     std::vector<GLfloat> vertices(vertices_amount);
     std::vector<GLuint> indices(indices_amount);
 
-    // each point = 3 values for x,y,z
-    int point_iterator = 0;
-
-    // north pole
+    // North pole
     vertices[0] = 0;
     vertices[1] = static_cast<GLfloat>(sphere_radius);
     vertices[2] = 0;
 
-    // south pole
+    // South pole
+    int south_pole_idx = vertices_amount / 3 - 1;
     vertices[vertices_amount - 3] = 0;
     vertices[vertices_amount - 2] = static_cast<GLfloat>(-sphere_radius);
     vertices[vertices_amount - 1] = 0;
 
-    int vert_iterator = 3;
-    int ind_iterator = 0; // indices iterator
+    int vert_idx = 3;
+    int ind_idx = 0;
+    int point_idx = 1;
 
-    for (int i = 0; i < latitude_points - 1; i++)
-    {
-        int latitude = i * 5; // co 5 stopni
+    // Generate latitude rings (excluding poles)
+    for (int i = 1; i < latitude_points; i++) {
+        int latitude = i * 5;
 
-        for (int j = 0; j < longitude_points; j++)
-        {
-            int longitude = j * 5; // co 5 stopni
+        for (int j = 0; j < longitude_points; j++) {
+            int longitude = j * 5;
 
-            vector<double> coords = ballMath::get_coords(sphere_radius, latitude, longitude);
-            /*
-             * OpenGL   Math
-             * x    =   y
-             * y    =   z
-             * z    =   x
-             */
-            vertices[vert_iterator] = static_cast<GLfloat>(coords[1]); // x = y
-            vertices[vert_iterator + 1] = static_cast<GLfloat>(coords[2]); // y = z
-            vertices[vert_iterator + 2] = static_cast<GLfloat>(coords[0]); // z = x
+            std::vector<double> coords = ballMath::get_coords(sphere_radius, latitude, longitude);
+            vertices[vert_idx++] = static_cast<GLfloat>(coords[1]);
+            vertices[vert_idx++] = static_cast<GLfloat>(coords[2]);
+            vertices[vert_idx++] = static_cast<GLfloat>(coords[0]);
 
-            vert_iterator += 3; // move to the next point
-
-            // indices
-            if (i == 0) // first iteration
-            {
-                indices[ind_iterator] = 0;
-                indices[ind_iterator + 1] = point_iterator;
-                indices[ind_iterator + 2] = point_iterator + 1;
+            // Top cap triangles
+            if (i == 1) {
+                indices[ind_idx++] = 0;
+                indices[ind_idx++] = point_idx + j;
+                indices[ind_idx++] = point_idx + (j + 1) % longitude_points;
             }
-            else if (i == latitude_points - 2) // last iteration
-            {
-                indices[ind_iterator] = vertices_amount / 3 - 1; // the last vertex
-                indices[ind_iterator + 1] = point_iterator;
-                indices[ind_iterator + 2] = point_iterator;
+
+            // Middle quads
+            if (i < latitude_points - 1) {
+                int curr = point_idx + j;
+                int next = point_idx + (j + 1) % longitude_points;
+                int below_curr = curr + longitude_points;
+                int below_next = next + longitude_points;
+
+                indices[ind_idx++] = curr;
+                indices[ind_idx++] = below_curr;
+                indices[ind_idx++] = below_next;
+
+                indices[ind_idx++] = curr;
+                indices[ind_idx++] = below_next;
+                indices[ind_idx++] = next;
             }
-            else
-            {
-                if ((j + 1) % 72 == 0) // if on full circle
-                {
-                    indices[ind_iterator] = point_iterator;
-                    indices[ind_iterator + 1] = point_iterator + 72;
-                    indices[ind_iterator + 2] = point_iterator + 1;
 
-                    ind_iterator += 3;
-
-                    indices[ind_iterator] = point_iterator;
-                    indices[ind_iterator + 1] = point_iterator + 1;
-                    indices[ind_iterator + 2] = point_iterator - 72 + 1;
-                }
-                else
-                {
-                    indices[ind_iterator] = point_iterator;
-                    indices[ind_iterator + 1] = point_iterator + 72;
-                    indices[ind_iterator + 2] = point_iterator + 72 + 1;
-
-                    ind_iterator += 3;
-
-                    indices[ind_iterator] = point_iterator;
-                    indices[ind_iterator + 1] = point_iterator + 1;
-                    indices[ind_iterator + 2] = point_iterator + 72 + 1;
-                }
+            // Bottom cap triangles
+            if (i == latitude_points - 1) {
+                indices[ind_idx++] = south_pole_idx;
+                indices[ind_idx++] = point_idx + (j + 1) % longitude_points;
+                indices[ind_idx++] = point_idx + j;
             }
-            point_iterator++;
-            ind_iterator += 3;
         }
+        point_idx += longitude_points;
     }
 
     // rendering sphere
