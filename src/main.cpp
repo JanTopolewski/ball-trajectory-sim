@@ -851,8 +851,9 @@ int main() {
                             double targetY = 0.0;
 							double targetZ = (double)targetZDistance;
                             ImPlot3D::PlotScatter("Target", &targetZ, &targetX, &targetY, 1);
+                            ImPlot3D::PopStyleColor();
                         }
-                        ImPlot3D::PopStyleColor();
+
                     }
                     ImPlot3D::EndPlot();
                 }
