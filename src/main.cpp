@@ -156,6 +156,7 @@ int main() {
     bool axesSetting = false;
 
     double frameDelta = 0.0; // used for debugging plot fps
+	double accumulatedTime = 0.0;
 
     // reading planet data from file
     FilesManager* fileManager = new FilesManager();
@@ -348,7 +349,6 @@ int main() {
 
     // Create a model matrix to position the sphere
     glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(0.0f, 1.0f, -5.0f)); // Move sphere 5 units away
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
     terrainShader.Activate();
@@ -391,6 +391,35 @@ int main() {
 
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
+
+        double now = ImGui::GetTime();
+        bool animationFinished = currentIndex >= (int)xAxis.size();
+        frameDelta = now - lastTime;
+        lastTime = now;
+
+        if (!isPaused)
+        {
+            double step = 1.0 / (double)plotFramesPerSecond / (double)plotSpeedMultiplier;
+            accumulatedTime += frameDelta;
+
+			int steps = (int)(accumulatedTime / step);
+            if (steps > 0 && !animationFinished && !isPaused)
+            {
+                currentIndex = min(currentIndex + steps, (int)xAxis.size() - 1);
+                accumulatedTime -= steps * step;
+            }
+
+            if (animationFinished) 
+            {
+                accumulatedTime = 0.0;
+            }
+        }
+        else {
+			accumulatedTime = 0.0;
+        }
+
+        if (xAxis.size() > 0)
+            glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::translate(model, glm::vec3((float)xAxis[currentIndex], (float)yAxis[currentIndex], (float)zAxis[currentIndex]))));
 
         vao_sphere.Bind(); // bind the VAO so OpenGl knows to use it
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
@@ -683,16 +712,6 @@ int main() {
 
                 ImGui::SetCursorPos(ImVec2(cursor.x + 50, cursor.y + 50));
 
-                double now = ImGui::GetTime();
-                bool animationFinished = currentIndex >= (int)xAxis.size();
-                frameDelta = now - lastTime;
-                int mult = (int)((frameDelta / (1 / (double)plotFramesPerSecond)) * (double)plotSpeedMultiplier);
-                if (now - lastTime >= ((1 / (double)plotFramesPerSecond) * (double)plotSpeedMultiplier) && !animationFinished && !isPaused)
-                {
-                    currentIndex = min(currentIndex + mult, (int)xAxis.size());
-                }
-                lastTime = now;
-
                 auto [xMinTemp, xMaxTemp] = minmax_element(xAxis.begin(), xAxis.end());
                 auto [yMinTemp, yMaxTemp] = minmax_element(yAxis.begin(), yAxis.end());
                 double xMin = *xMinTemp;
@@ -905,7 +924,7 @@ int main() {
             ImGui::SetNextWindowPos(ImVec2(WINDOW_WIDTH * 2 / 3 + 20, WINDOW_HEIGHT * 3 / 4 + 20), ImGuiCond_FirstUseEver);
             if (ImGui::Begin("Simulation control"))
             {
-                int animationLength = static_cast<int>(xAxis.size());
+                int animationLength = static_cast<int>(xAxis.size() - 1);
 
                 // speed multiplier
                 ImGui::InputFloat("Speed of the animation", &plotSpeedMultiplier, 0.25f, 1.0f, "%.2f");
