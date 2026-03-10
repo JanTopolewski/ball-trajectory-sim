@@ -8,8 +8,9 @@ out vec3 color;
 
 uniform mat4 camMatrix;
 uniform float size;
+uniform mat4 model;
 
 void main() {
-    gl_Position = camMatrix * vec4(aPos.x * size, aPos.y * size, aPos.z * size, 1.0f);
+    gl_Position = camMatrix * model * vec4(aPos.x * size, aPos.y * size, aPos.z * size, 1.0f);
     color = aColor;
 }
