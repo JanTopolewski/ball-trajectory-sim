@@ -132,8 +132,8 @@ target_include_directories(TrajectorySimulation PRIVATE
 target_link_libraries(TrajectorySimulation PRIVATE
     glm    
     stb
-    imgui
     implot3d
+    imgui
     glad
     glfw
     OpenGL::GL
