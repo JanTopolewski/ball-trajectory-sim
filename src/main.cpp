@@ -377,9 +377,9 @@ int main() {
         if (!io.WantCaptureMouse)
         {
             camera.Inputs(window);
+            camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+            camera.Matrix(45.0f, 0.1f, 100.0f, terrainShader, "camMatrix");
         }
-        camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-        camera.Matrix(45.0f, 0.1f, 100.0f, terrainShader, "camMatrix");
 
         // tell opengl, that we want to use our shader program
         shaderProgram.Activate();
@@ -1013,6 +1013,10 @@ int main() {
 	vbo1.Delete();
 	ebo1.Delete();
 	shaderProgram.Delete();
+    vao_terrain.Delete();
+    vbo_terrain.Delete();
+    ebo_terrain.Delete();
+    terrainShader.Delete();
 
     // delete window and glfw
     glfwDestroyWindow(window);
