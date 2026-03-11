@@ -11,9 +11,10 @@ A cross-platform C++ application for simulating and visualizing ball trajectorie
 - **OpenGL** 3.3+ - Graphics API
 - **C++20** compatible compiler (GCC 10+, Clang 10+, MSVC 2019+)
 - **ImGui** - Immediate mode GUI library
-- **ImPlot** - Plotting library for ImGui
+- **ImPlot3D** - Plotting library for ImGui
 - **GLAD** - OpenGL function loader (requires manual download)
 - **GLFW** 3.x - Window and input handling
+- **GLM** - 3D math for OpenGL
 
 ## Setup
 
@@ -64,13 +65,17 @@ cd ball-trajectory-sim
    - Extract the glfw .zip file to `external`
    - Make sure the folder name is glfw. Otherwise, change it to glfw
 
-3. **ImPlot** 
-   - Download the code in .zip archive from the [github repo](https://github.com/epezent/implot)
-   - Extract the zip to `external/include/implot`
+3. **ImPlot3D** 
+   - Download the code in .zip archive from the [release on github](https://github.com/brenocq/implot3d/releases/tag/v0.3)
+   - Extract the zip to `external/include/implot3d`
 
 4. **ImGui**
    - Download the code in .zip archive from the [github repo](https://github.com/ocornut/imgui)
    - Extract the zip to `external/include/imgui`
+
+5. **GLM**
+   - Download the code from [the website](https://glm.g-truc.net/0.9.9/index.html) (the download link is right beneath the glm logo)
+   - Extract the zip file, and copy the glm subfolder to `external/include/`
 
 ### Build
 
@@ -126,7 +131,8 @@ ball-trajectory-sim/
 │   │   │   ├── KHR/
 │   │   │   └── glad.c
 │   │   ├── imgui/
-│   │   └── implot/       
+│   │   ├── glm/
+│   │   └── implot3d/       
 │   └── glfw/   
 ├── data/                    # Runtime data files
 │   └── space_objects_data.csv
