@@ -49,25 +49,24 @@ target_include_directories(imgui PUBLIC
 
 target_link_libraries(imgui PRIVATE glfw)
 
-# ImPlot - Plotting Library for ImGui
-# needs to be downloaded from: https://github.com/epezent/implot
-# Clone or download and place in libs/implot/
+# ImPlot3D - Plotting Library for ImGui
+# needs to be downloaded from: https://github.com/brenocq/implot3d
 
-if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot/implot.cpp")
-    message(WARNING "ImPlot not found in /external/include/implot/. Please download from:")
-    message(WARNING "  https://github.com/epezent/implot")
-    message(WARNING "Place implot.h, implot.cpp, implot_items.cpp, implot_internal.h in /external/include/implot/")
+if(NOT EXISTS "${CMAKE_SOURCE_DIR}/external/include/implot3d/implot3d.cpp")
+    message(WARNING "ImPlot not found in /external/include/implot3d/. Please download from:")
+    message(WARNING "  https://github.com/brenocq/implot3d")
+    message(WARNING "Place implot3d.h, implot3d.cpp, implot3d_items.cpp, implot3d_internal.h in /external/include/implot3d/")
 else()
-    add_library(implot STATIC
-        external/include/implot/implot.cpp
-        external/include/implot/implot_items.cpp
+    add_library(implot3d STATIC
+        external/include/implot3d/implot3d.cpp
+        external/include/implot3d/implot3d_items.cpp
     )
 
-    target_include_directories(implot PUBLIC
-            external/include/implot
+    target_include_directories(implot3d PUBLIC
+            external/include/implot3d
     )
 
-    target_link_libraries(implot PUBLIC
+    target_link_libraries(implot3d PUBLIC
         imgui
     )
 endif()
@@ -98,6 +97,12 @@ add_executable(TrajectorySimulation
     # Application source files
     src/TrajectoryCalculator.cpp
     src/FilesManager.cpp
+        src/BallMath.cpp
+        src/Camera.cpp
+        src/EBO.cpp
+        src/shaderClass.cpp
+        src/VAO.cpp
+        src/VBO.cpp
 
     # Header files (optional but helps IDEs)
     include/TrajectoryCalculator.h
@@ -105,10 +110,17 @@ add_executable(TrajectorySimulation
     include/Displaying.h
     include/Simulation.h
     include/SpaceObject.h
+        include/BallMath.h
+        include/Camera.h
+        include/EBO.h
+        include/shaderClass.h
+        include/VAO.h
+        include/VBO.h
 )
 
 target_compile_definitions(TrajectorySimulation PRIVATE
     PROJECT_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    GLM_ENABLE_EXPERIMENTAL
 )
 
 # Include directories for your headers
@@ -120,8 +132,8 @@ target_include_directories(TrajectorySimulation PRIVATE
 target_link_libraries(TrajectorySimulation PRIVATE
     glm    
     stb
+    implot3d
     imgui
-    implot
     glad
     glfw
     OpenGL::GL

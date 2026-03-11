@@ -327,20 +327,23 @@ void TrajectoryCalculator::Verlet(
 		originalVX = vx;
 		originalVY = vy;
 		originalVZ = vz;
+		double originalAX = ax;
+		double originalAY = ay;
+		double originalAZ = az;
 
 		posX += vx * timeStep + ax * timeStep * timeStep / 2;
 		posY += vy * timeStep + ay * timeStep * timeStep / 2;
 		posZ += vz * timeStep + az * timeStep * timeStep / 2;
 
-		vx += ax * timeStep / 2;
-		vy += ay * timeStep / 2;
-		vz += az * timeStep / 2;
+		vx += ax * timeStep;
+		vy += ay * timeStep;
+		vz += az * timeStep;
 
 		calculatingFunc();
 
-		vx += ax * timeStep / 2;
-		vy += ay * timeStep / 2;
-		vz += az * timeStep / 2;
+		vx = originalVX + (ax + originalAX) * timeStep / 2;
+		vy = originalVY + (ay + originalAY) * timeStep / 2;
+		vz = originalVZ + (az + originalAZ) * timeStep / 2;
 }
 
 
