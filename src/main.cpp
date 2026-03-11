@@ -366,7 +366,7 @@ int main() {
         0.0f, 0.0f, 1.0f
     };
 
-    Shader lineShader((string(PROJECT_ROOT_DIR) + "/Shaders/default.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/default.frag").c_str());
+    Shader lineShader((string(PROJECT_ROOT_DIR) + "/Shaders/lines.vert").c_str(), (string(PROJECT_ROOT_DIR) + "/Shaders/lines.frag").c_str());
     VAO vao_yAxis, vao_xAxis, vao_zAxis;
 
     VBO vbo_yAxis(yAxisVertices, sizeof(yAxisVertices));
@@ -432,32 +432,36 @@ int main() {
         terrainShader.Activate();
         camera.Matrix(45.0f, 0.1f, 1000.0f, terrainShader, "camMatrix");
 
-        // tell opengl, that we want to use our shader program
-        shaderProgram.Activate();
+
+        lineShader.Activate();
+        camera.Matrix(45.0f, 0.1f, 1000.0f, lineShader, "camMatrix");
 
         // Draw axes with size 10.0f
-        glUniform1f(glGetUniformLocation(shaderProgram.ID, "size"), 10.0f);
+        glUniform1f(glGetUniformLocation(lineShader.ID, "size"), 10.0f);
 
         // Y axis (green)
-        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 1.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniform4f(glGetUniformLocation(lineShader.ID, "color"), 0.0f, 1.0f, 0.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_yAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_yAxis.Unbind();
 
         // X axis (red)
-        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 1.0f, 0.0f, 0.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniform4f(glGetUniformLocation(lineShader.ID, "color"), 1.0f, 0.0f, 0.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_xAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_xAxis.Unbind();
 
         // Z axis (blue)
-        glUniform4f(glGetUniformLocation(shaderProgram.ID, "color"), 0.0f, 0.0f, 1.0f, 1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+        glUniform4f(glGetUniformLocation(lineShader.ID, "color"), 0.0f, 0.0f, 1.0f, 1.0f);
+        glUniformMatrix4fv(glGetUniformLocation(lineShader.ID, "model"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
         vao_zAxis.Bind();
         glDrawArrays(GL_LINES, 0, 2);
         vao_zAxis.Unbind();
+
+        // tell opengl, that we want to use our shader program
+        shaderProgram.Activate();
 
         double now = ImGui::GetTime();
         bool animationFinished = currentIndex >= (int)xAxis.size();
